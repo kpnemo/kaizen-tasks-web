@@ -53,54 +53,54 @@ Orchestrator rulings of 2026-09-08, already folded into the tasks below (listed 
 
 The plan records them here per spec 2.1. Use exactly these in `package.json`.
 
-| Package | Version | Note |
-|---|---|---|
-| vite | 7.3.6 | Vite 7 line; `@vitejs/plugin-react` 6.x requires Vite 8, so plugin-react is pinned to 5.x |
-| @vitejs/plugin-react | 5.2.0 | peer `vite ^7` |
-| react, react-dom | 19.2.8 | |
-| @types/react | 19.2.18 | |
-| @types/react-dom | 19.2.7 | |
-| typescript | 5.9.3 | typescript-eslint caps at `<6.1`, so not TS 7 |
-| react-router | 7.18.3 | declarative mode, import from `react-router` |
-| @tanstack/react-query | 5.102.8 | |
-| tailwindcss, @tailwindcss/vite | 4.3.3 | CSS-first config |
-| tw-animate-css | 1.4.0 | shadcn animation utilities |
-| shadcn (CLI, via npx) | 4.21.0 | style `new-york-v4` |
-| lucide-react | 1.43.0 | |
-| sonner | 2.0.8 | toasts |
-| class-variance-authority | 0.7.1 | |
-| clsx | 2.1.1 | |
-| tailwind-merge | 3.6.0 | |
-| openapi-typescript | 7.13.0 | has `--check` |
-| openapi-fetch | 0.17.0 | middleware gets `id` and `schemaPath` |
-| @dnd-kit/core | 6.3.1 | |
-| @dnd-kit/sortable | 10.0.0 | peer `@dnd-kit/core ^6.3.0` |
-| @dnd-kit/utilities | 3.2.2 | |
-| @fontsource-variable/fraunces | 5.3.0 | display face, self-hosted |
-| @fontsource/atkinson-hyperlegible | 5.3.0 | body face, self-hosted |
-| vitest | 5.0.0 | peer `vite ^7` |
-| jsdom | 30.0.1 | engines `^24.15.0`, satisfied by `nvm use` on `24` |
-| @testing-library/react | 16.3.3 | |
-| @testing-library/dom | 10.4.1 | peer of the above |
-| @testing-library/jest-dom | 7.0.1 | `@testing-library/jest-dom/vitest` |
-| @testing-library/user-event | 14.6.7 | |
-| msw | 2.15.0 | |
-| @stoplight/prism-cli | 5.16.0 | engines `>=24.18` |
-| eslint | 9.39.5 | |
-| @eslint/js | 9.39.5 | |
-| typescript-eslint | 8.70.0 | |
-| eslint-plugin-react-hooks | 7.1.1 | `configs.flat.recommended`; it includes the React Compiler rules (`set-state-in-effect`, `refs`, `purity`, `immutability`, `set-state-in-render`), so no component in this plan calls a state setter inside an effect body |
-| eslint-plugin-react-refresh | 0.5.6 | import the named `reactRefresh` export: its `configs.vite()` is a function; the default export's `configs.vite` is a plain object (verified in the package's `index.d.ts`) |
-| eslint-config-prettier | 10.1.8 | |
-| globals | 17.12.0 | |
-| prettier | 3.9.6 | |
-| @types/node | 24.13.3 | |
-| railway | 3.11.0 | exports `railway/iac` for `.railway/railway.ts` |
-| GitHub Actions | actions/checkout@v7, actions/setup-node@v7, actions/upload-artifact@v7 | |
+| Package                           | Version                                                                | Note                                                                                                                                                                                                                       |
+| --------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| vite                              | 7.3.6                                                                  | Vite 7 line; `@vitejs/plugin-react` 6.x requires Vite 8, so plugin-react is pinned to 5.x                                                                                                                                  |
+| @vitejs/plugin-react              | 5.2.0                                                                  | peer `vite ^7`                                                                                                                                                                                                             |
+| react, react-dom                  | 19.2.8                                                                 |                                                                                                                                                                                                                            |
+| @types/react                      | 19.2.18                                                                |                                                                                                                                                                                                                            |
+| @types/react-dom                  | 19.2.7                                                                 |                                                                                                                                                                                                                            |
+| typescript                        | 5.9.3                                                                  | typescript-eslint caps at `<6.1`, so not TS 7                                                                                                                                                                              |
+| react-router                      | 7.18.3                                                                 | declarative mode, import from `react-router`                                                                                                                                                                               |
+| @tanstack/react-query             | 5.102.8                                                                |                                                                                                                                                                                                                            |
+| tailwindcss, @tailwindcss/vite    | 4.3.3                                                                  | CSS-first config                                                                                                                                                                                                           |
+| tw-animate-css                    | 1.4.0                                                                  | shadcn animation utilities                                                                                                                                                                                                 |
+| shadcn (CLI, via npx)             | 4.21.0                                                                 | style `new-york-v4`                                                                                                                                                                                                        |
+| lucide-react                      | 1.43.0                                                                 |                                                                                                                                                                                                                            |
+| sonner                            | 2.0.8                                                                  | toasts                                                                                                                                                                                                                     |
+| class-variance-authority          | 0.7.1                                                                  |                                                                                                                                                                                                                            |
+| clsx                              | 2.1.1                                                                  |                                                                                                                                                                                                                            |
+| tailwind-merge                    | 3.6.0                                                                  |                                                                                                                                                                                                                            |
+| openapi-typescript                | 7.13.0                                                                 | has `--check`                                                                                                                                                                                                              |
+| openapi-fetch                     | 0.17.0                                                                 | middleware gets `id` and `schemaPath`                                                                                                                                                                                      |
+| @dnd-kit/core                     | 6.3.1                                                                  |                                                                                                                                                                                                                            |
+| @dnd-kit/sortable                 | 10.0.0                                                                 | peer `@dnd-kit/core ^6.3.0`                                                                                                                                                                                                |
+| @dnd-kit/utilities                | 3.2.2                                                                  |                                                                                                                                                                                                                            |
+| @fontsource-variable/fraunces     | 5.3.0                                                                  | display face, self-hosted                                                                                                                                                                                                  |
+| @fontsource/atkinson-hyperlegible | 5.3.0                                                                  | body face, self-hosted                                                                                                                                                                                                     |
+| vitest                            | 5.0.0                                                                  | peer `vite ^7`                                                                                                                                                                                                             |
+| jsdom                             | 30.0.1                                                                 | engines `^24.15.0`, satisfied by `nvm use` on `24`                                                                                                                                                                         |
+| @testing-library/react            | 16.3.3                                                                 |                                                                                                                                                                                                                            |
+| @testing-library/dom              | 10.4.1                                                                 | peer of the above                                                                                                                                                                                                          |
+| @testing-library/jest-dom         | 7.0.1                                                                  | `@testing-library/jest-dom/vitest`                                                                                                                                                                                         |
+| @testing-library/user-event       | 14.6.7                                                                 |                                                                                                                                                                                                                            |
+| msw                               | 2.15.0                                                                 |                                                                                                                                                                                                                            |
+| @stoplight/prism-cli              | 5.16.0                                                                 | engines `>=24.18`                                                                                                                                                                                                          |
+| eslint                            | 9.39.5                                                                 |                                                                                                                                                                                                                            |
+| @eslint/js                        | 9.39.5                                                                 |                                                                                                                                                                                                                            |
+| typescript-eslint                 | 8.70.0                                                                 |                                                                                                                                                                                                                            |
+| eslint-plugin-react-hooks         | 7.1.1                                                                  | `configs.flat.recommended`; it includes the React Compiler rules (`set-state-in-effect`, `refs`, `purity`, `immutability`, `set-state-in-render`), so no component in this plan calls a state setter inside an effect body |
+| eslint-plugin-react-refresh       | 0.5.6                                                                  | import the named `reactRefresh` export: its `configs.vite()` is a function; the default export's `configs.vite` is a plain object (verified in the package's `index.d.ts`)                                                 |
+| eslint-config-prettier            | 10.1.8                                                                 |                                                                                                                                                                                                                            |
+| globals                           | 17.12.0                                                                |                                                                                                                                                                                                                            |
+| prettier                          | 3.9.6                                                                  |                                                                                                                                                                                                                            |
+| @types/node                       | 24.13.3                                                                |                                                                                                                                                                                                                            |
+| railway                           | 3.11.0                                                                 | exports `railway/iac` for `.railway/railway.ts`                                                                                                                                                                            |
+| GitHub Actions                    | actions/checkout@v7, actions/setup-node@v7, actions/upload-artifact@v7 |                                                                                                                                                                                                                            |
 
 ## Design tokens (spec A4, decided here)
 
-- Accent: **Kaizen indigo**, `oklch(0.45 0.19 272)` (about `#3B3FBF`). The Japanese indigo dye *ai* is the one deliberate identity choice; it carries actions, links, focus rings, and the AI badge.
+- Accent: **Kaizen indigo**, `oklch(0.45 0.19 272)` (about `#3B3FBF`). The Japanese indigo dye _ai_ is the one deliberate identity choice; it carries actions, links, focus rings, and the AI badge.
 - Muted second color for dismissed items: **stone**, `oklch(0.50 0.02 80)`.
 - Ground: warm white `oklch(0.985 0.005 95)`, ink `oklch(0.20 0.02 270)`.
 - Display typeface: **Fraunces** (variable, set heavy at `wght 700` with optical size on) for headings and the wordmark.
@@ -158,10 +158,12 @@ Conventions for every task: run `nvm use` first; every `git commit` message ends
 ### Task 1: Scaffold, toolchain, and first test
 
 **Files:**
+
 - Create: `.nvmrc`, `package.json`, `tsconfig.json`, `vite.config.ts`, `vitest.config.ts`, `index.html`, `eslint.config.js`, `.prettierrc`, `.prettierignore`, `.env.example`, `src/main.tsx`, `src/App.tsx`, `src/vite-env.d.ts`, `tests/setup.ts`
 - Test: `src/App.test.tsx`
 
 **Interfaces:**
+
 - Consumes: nothing.
 - Produces: the `@/` alias to `src/`; the npm scripts named in spec section 9 (`dev`, `build`, `preview`, `test`, `lint`, `typecheck`, `mock`, `api:pull`, `api:types`, `docs:check`); `tests/setup.ts` as the Vitest setup file (extended in Task 4).
 
@@ -354,7 +356,8 @@ export default tseslint.config([
           patterns: [
             {
               group: ["**/features/*/**", "@/features/*/**"],
-              message: "Features may not import from other features. Share through api/, lib/, or components/ui.",
+              message:
+                "Features may not import from other features. Share through api/, lib/, or components/ui.",
             },
           ],
         },
@@ -375,7 +378,8 @@ export default tseslint.config([
           patterns: [
             {
               group: ["@/features/*", "@/features/*/**", "../*/**"],
-              message: "Features may not import from other features. Share through api/, lib/, or components/ui.",
+              message:
+                "Features may not import from other features. Share through api/, lib/, or components/ui.",
             },
           ],
         },
@@ -513,14 +517,17 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
+
 ### Task 2: Tailwind 4, shadcn/ui, and the Kaizen theme tokens
 
 **Files:**
+
 - Create: `components.json`, `src/lib/cn.ts`, `src/styles/globals.css`, `src/components/ui/*` (through the shadcn CLI)
 - Modify: `src/main.tsx` (import the stylesheet)
 - Test: `src/lib/cn.test.ts`
 
 **Interfaces:**
+
 - Consumes: the `@/` alias from Task 1.
 - Produces: `cn(...inputs: ClassValue[]): string` in `src/lib/cn.ts`; shadcn components `Button`, `Input`, `Textarea`, `Label`, `Badge`, `Card`, `Popover`, `AlertDialog`, `Checkbox`, `DropdownMenu`, `Toaster` (sonner), `Separator` under `src/components/ui/`; Tailwind tokens `bg-background`, `text-foreground`, `bg-primary`, `text-muted-foreground`, `font-display`, `font-sans`, `ring-ring`, plus the custom `animate-thinking` utility.
 
@@ -768,10 +775,12 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ### Task 3: Minimal contract stub, generated types, models, errors, auth store
 
 **Files:**
+
 - Create: `src/api/openapi.json` (hand-written stub: auth paths + envelopes only), `src/api/types.ts` (generated), `src/api/models.ts`, `src/api/errors.ts`, `src/api/auth-store.ts`
 - Test: `src/api/errors.test.ts`, `src/api/auth-store.test.ts`
 
 **Interfaces:**
+
 - Consumes: `npm run api:types` from Task 1.
 - Produces:
   - `paths` from `src/api/types.ts`.
@@ -926,7 +935,9 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
     "responses": {
       "Error": {
         "description": "Error envelope",
-        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorEnvelope" } } }
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/ErrorEnvelope" } }
+        }
       }
     }
   },
@@ -936,12 +947,18 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
         "summary": "Register a new user",
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RegisterRequest" } } }
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/RegisterRequest" } }
+          }
         },
         "responses": {
           "201": {
             "description": "Registered; sets the refresh cookie",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthSessionEnvelope" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AuthSessionEnvelope" }
+              }
+            }
           },
           "400": { "$ref": "#/components/responses/Error" },
           "409": { "$ref": "#/components/responses/Error" }
@@ -953,12 +970,18 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
         "summary": "Log in",
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoginRequest" } } }
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/LoginRequest" } }
+          }
         },
         "responses": {
           "200": {
             "description": "Logged in; sets the refresh cookie",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthSessionEnvelope" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AuthSessionEnvelope" }
+              }
+            }
           },
           "400": { "$ref": "#/components/responses/Error" },
           "401": { "$ref": "#/components/responses/Error" }
@@ -971,7 +994,11 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
         "responses": {
           "200": {
             "description": "New access token",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AccessTokenEnvelope" } } }
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AccessTokenEnvelope" }
+              }
+            }
           },
           "401": { "$ref": "#/components/responses/Error" }
         }
@@ -990,7 +1017,9 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
         "responses": {
           "200": {
             "description": "The authenticated user",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserEnvelope" } } }
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UserEnvelope" } }
+            }
           },
           "401": { "$ref": "#/components/responses/Error" }
         }
@@ -1013,9 +1042,8 @@ import type { paths } from "./types";
 /** The JSON body of a response object generated by openapi-typescript. */
 export type JsonBody<R> = R extends { content: { "application/json": infer B } } ? B : never;
 /** The JSON body of a request object generated by openapi-typescript. */
-export type JsonRequest<R> = NonNullable<R> extends { content: { "application/json": infer B } }
-  ? B
-  : never;
+export type JsonRequest<R> =
+  NonNullable<R> extends { content: { "application/json": infer B } } ? B : never;
 
 export type ErrorEnvelope = JsonBody<paths["/auth/login"]["post"]["responses"][401]>;
 export type ErrorBody = ErrorEnvelope["error"];
@@ -1102,7 +1130,11 @@ describe("ApiError helpers", () => {
         requestId: "req-5",
       },
     });
-    expect(err.rateLimit()).toEqual({ scope: "global", limit: 300, resetAt: "2026-09-22T10:00:00.000Z" });
+    expect(err.rateLimit()).toEqual({
+      scope: "global",
+      limit: 300,
+      resetAt: "2026-09-22T10:00:00.000Z",
+    });
   });
 
   it("wraps unknown throwables", () => {
@@ -1349,14 +1381,17 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
+
 ### Task 4: Typed client with the 401-refresh-and-replay middleware, MSW infrastructure
 
 **Files:**
+
 - Create: `src/api/client.ts`, `tests/msw/server.ts`, `tests/msw/fixtures.ts`, `tests/msw/handlers.ts`
 - Modify: `tests/setup.ts`
 - Test: `src/api/client.test.ts`
 
 **Interfaces:**
+
 - Consumes: `authStore`, `ApiError`, `paths` from Task 3.
 - Produces:
   - `client.ts`: `API_BASE` (same-origin `/api/v1` resolved against `window.location.origin`), `client` (openapi-fetch `createClient<paths>` with the auth middleware), `refreshAccessToken(): Promise<string | null>` (deduplicated), `unwrap<T>(result: { data?: T; error?: unknown; response: Response }): T` (throws `ApiError`).
@@ -1429,9 +1464,18 @@ export const authHandlers = [
   }),
   http.post(`${API}/auth/register`, async ({ request }) => {
     const body = (await request.json()) as { email: string; password: string; displayName: string };
-    if (body.email === demoUser.email) return err("CONFLICT", "An account with this email already exists");
+    if (body.email === demoUser.email)
+      return err("CONFLICT", "An account with this email already exists");
     return ok(
-      { user: { ...demoUser, id: "22222222-2222-4222-8222-222222222222", email: body.email, displayName: body.displayName }, accessToken: "access-new" },
+      {
+        user: {
+          ...demoUser,
+          id: "22222222-2222-4222-8222-222222222222",
+          email: body.email,
+          displayName: body.displayName,
+        },
+        accessToken: "access-new",
+      },
       {},
       201,
     );
@@ -1759,12 +1803,14 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ### Task 5: App layout, router shell, route guards, session hook
 
 **Files:**
+
 - Create: `src/components/kaizen-mark.tsx`, `src/app/router.tsx`, `src/app/layout.tsx`, `src/app/routes/RequireAuth.tsx`, `src/app/routes/PublicOnly.tsx`, `src/app/routes/RestoringScreen.tsx`, `src/app/routes/NotFoundPage.tsx`, `src/features/auth/useSession.ts`, `src/features/auth/LoginPage.tsx`, `src/features/auth/RegisterPage.tsx`, `src/features/tasks/TaskListPage.tsx`, `src/features/tasks/TaskDetailPage.tsx`, `src/features/tags/TagsPage.tsx`, `src/features/feature-request/RequestFeaturePage.tsx`, `tests/render.tsx`
 - Modify: `src/main.tsx`
 - Delete: `src/App.tsx`, `src/App.test.tsx`
 - Test: `src/app/router.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `authStore`, `useSession` reads it through `useSyncExternalStore`; shadcn `Button`; `Toaster`.
 - Produces:
   - `AppRoutes()` in `src/app/router.tsx`: the `<Routes>` for `/login`, `/register`, `/tasks`, `/tasks/:id`, `/tags`, `/request-feature`, `/` (redirect to `/tasks`), `*`.
@@ -2181,13 +2227,16 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
+
 ### Task 6: version.json writer, Caddyfile, Railway declaration
 
 **Files:**
+
 - Create: `scripts/write-version.mjs`, `Caddyfile`, `.railway/railway.ts`
 - Test: `tests/write-version.test.ts`
 
 **Interfaces:**
+
 - Consumes: the `build` script from Task 1 (`vite build && node scripts/write-version.mjs`).
 - Produces: `dist/version.json` = `{ "commit": "<sha>", "builtAt": "<iso>" }` (master plan interface "Web version"); the `Caddyfile` proxy (`/api/*` to `http://api.railway.internal:3000`) (interface "Proxy"); the `web` service declaration with `PORT=8080` (interface "Web port") that L3 applies with `railway config apply`, written as a named partial (`export const partial = "web"`) so the file owns only `web` and applying it can never destroy `api`, `Postgres`, or `Redis` (ruling R5).
 - `VERSION_OUT_DIR` (default `dist`) lets the test write elsewhere.
@@ -2360,9 +2409,11 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ### Task 7: CI workflow, README, CLAUDE.md, and CHANGELOG skeletons (end of L2-M1)
 
 **Files:**
+
 - Create: `.github/workflows/ci.yml`, `README.md`, `CLAUDE.md`, `CHANGELOG.md`
 
 **Interfaces:**
+
 - Consumes: all scripts from Task 1.
 - Produces: workflow `ci` with job id `ci` (master plan interface "Check names"). Tasks 8 and 20 append the contract-drift warning and the docs-check step. `CHANGELOG.md` with an `[Unreleased]` section that later tasks add bullets to.
 
@@ -2448,26 +2499,26 @@ VITE_PROXY_TARGET=http://localhost:3000 npm run dev
 
 ## Scripts
 
-| Script | Does |
-|---|---|
-| `dev` | Vite dev server with the `/api` proxy (`VITE_PROXY_TARGET`, default `http://localhost:4010`) |
-| `build` | `vite build`, then writes `dist/version.json` |
-| `preview` | Serves `dist/` locally |
-| `test` | Vitest, jsdom, Testing Library, MSW |
-| `lint` | ESLint and Prettier check |
-| `typecheck` | `tsc --noEmit` |
-| `mock` | Prism mock of the contract on port 4010 |
-| `api:pull` | Copies the API contract into `src/api/openapi.json` and regenerates types |
-| `api:types` | Regenerates `src/api/types.ts` from the contract |
-| `docs:check` | Docs freshness gate (also the Claude Code Stop hook) |
+| Script       | Does                                                                                         |
+| ------------ | -------------------------------------------------------------------------------------------- |
+| `dev`        | Vite dev server with the `/api` proxy (`VITE_PROXY_TARGET`, default `http://localhost:4010`) |
+| `build`      | `vite build`, then writes `dist/version.json`                                                |
+| `preview`    | Serves `dist/` locally                                                                       |
+| `test`       | Vitest, jsdom, Testing Library, MSW                                                          |
+| `lint`       | ESLint and Prettier check                                                                    |
+| `typecheck`  | `tsc --noEmit`                                                                               |
+| `mock`       | Prism mock of the contract on port 4010                                                      |
+| `api:pull`   | Copies the API contract into `src/api/openapi.json` and regenerates types                    |
+| `api:types`  | Regenerates `src/api/types.ts` from the contract                                             |
+| `docs:check` | Docs freshness gate (also the Claude Code Stop hook)                                         |
 
 ## URLs
 
-| Environment | URL |
-|---|---|
-| Local | http://localhost:5173 |
-| Staging | https://web-staging-52c0.up.railway.app (deploys `develop`) |
-| Production | https://web-production-7ef71.up.railway.app (deploys `main`) |
+| Environment | URL                                                          |
+| ----------- | ------------------------------------------------------------ |
+| Local       | http://localhost:5173                                        |
+| Staging     | https://web-staging-52c0.up.railway.app (deploys `develop`)  |
+| Production  | https://web-production-7ef71.up.railway.app (deploys `main`) |
 
 `/version.json` on every deployed environment reports the commit that is live.
 
@@ -2491,7 +2542,7 @@ browser only ever talks to the web origin, so there is no CORS and the refresh c
 
 `CLAUDE.md`:
 
-````markdown
+```markdown
 # CLAUDE.md
 
 Kaizen Tasks Web: React 19 + Vite 7 + TypeScript strict. Read `README.md` first.
@@ -2516,7 +2567,7 @@ Listed in `docs/architectural-files.txt` (added with the docs-check task).
 ## Scripts
 
 See the table in `README.md`.
-````
+```
 
 - [ ] **Step 4: CHANGELOG**
 
@@ -2563,14 +2614,17 @@ If `origin` does not exist yet, L3 pushes this branch when it creates the repo; 
 **L2-M1 ends here.** Tasks 8 onward need the backend's contract (L1-M1) or take the Task 8 fallback.
 
 ---
+
 ### Task 8: Pull the real contract, regenerate types, models, and the full MSW handler set
 
 **Files:**
+
 - Create: `scripts/pull-openapi.sh`, `tests/msw/db.ts`
 - Modify: `src/api/openapi.json` (replaced by the pulled document), `src/api/types.ts` (regenerated), `src/api/models.ts`, `tests/msw/fixtures.ts`, `tests/msw/handlers.ts`, `.github/workflows/ci.yml`, `README.md`, `CHANGELOG.md`
 - Test: `tests/pull-openapi.test.ts`, `src/api/client.test.ts` (one added case), `src/api/models.test.ts`
 
 **Interfaces:**
+
 - Consumes: master plan interface "API contract": `openapi.json` at the API repo root, raw URL `https://raw.githubusercontent.com/kpnemo/kaizen-tasks-api/<ref>/openapi.json`, or `--local <path>` for the nested checkout at `../backend/openapi.json`.
 - Produces:
   - `scripts/pull-openapi.sh [ref] | --local <path> | [ref] --check`.
@@ -2603,7 +2657,12 @@ function tmpFile(content: string) {
 describe("scripts/pull-openapi.sh --check", () => {
   it("reports a match without writing", () => {
     const same = tmpFile(readFileSync(DEST, "utf8"));
-    const out = execFileSync("bash", ["scripts/pull-openapi.sh", "--local", same, "--check"]).toString();
+    const out = execFileSync("bash", [
+      "scripts/pull-openapi.sh",
+      "--local",
+      same,
+      "--check",
+    ]).toString();
     expect(out).toContain("matches");
   });
 
@@ -2616,7 +2675,11 @@ describe("scripts/pull-openapi.sh --check", () => {
   });
 
   it("fails loudly outside check mode when the local file is missing", () => {
-    const result = spawnSync("bash", ["scripts/pull-openapi.sh", "--local", "/nonexistent/openapi.json"]);
+    const result = spawnSync("bash", [
+      "scripts/pull-openapi.sh",
+      "--local",
+      "/nonexistent/openapi.json",
+    ]);
     expect(result.status).toBe(1);
     expect(result.stderr.toString()).toContain("no file at");
   });
@@ -2729,18 +2792,41 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
       "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" }
     },
     "parameters": {
-      "TaskId": { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
-      "TagId": { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+      "TaskId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" }
+      },
+      "TagId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" }
+      }
     },
     "schemas": {
       "Meta": {
         "type": "object",
-        "properties": { "requestId": { "type": "string" }, "nextCursor": { "type": ["string", "null"] } },
+        "properties": {
+          "requestId": { "type": "string" },
+          "nextCursor": { "type": ["string", "null"] }
+        },
         "required": ["requestId"]
       },
       "ErrorCode": {
         "type": "string",
-        "enum": ["VALIDATION_ERROR", "UNAUTHORIZED", "FORBIDDEN", "NOT_FOUND", "CONFLICT", "RATE_LIMITED", "UPSTREAM_ERROR", "UNAVAILABLE", "INTERNAL"]
+        "enum": [
+          "VALIDATION_ERROR",
+          "UNAUTHORIZED",
+          "FORBIDDEN",
+          "NOT_FOUND",
+          "CONFLICT",
+          "RATE_LIMITED",
+          "UPSTREAM_ERROR",
+          "UNAVAILABLE",
+          "INTERNAL"
+        ]
       },
       "ValidationDetail": {
         "type": "object",
@@ -2816,19 +2902,45 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
           "description": { "type": ["string", "null"] },
           "status": { "$ref": "#/components/schemas/TaskStatus" },
           "aiStatus": { "$ref": "#/components/schemas/AiStatus" },
-          "aiSkipReason": { "oneOf": [{ "$ref": "#/components/schemas/AiSkipReason" }, { "type": "null" }] },
+          "aiSkipReason": {
+            "oneOf": [{ "$ref": "#/components/schemas/AiSkipReason" }, { "type": "null" }]
+          },
           "position": { "type": "integer" },
           "origin": { "$ref": "#/components/schemas/TaskOrigin" },
-          "suggestionState": { "oneOf": [{ "$ref": "#/components/schemas/SuggestionState" }, { "type": "null" }] },
+          "suggestionState": {
+            "oneOf": [{ "$ref": "#/components/schemas/SuggestionState" }, { "type": "null" }]
+          },
           "rationale": { "type": ["string", "null"] },
           "tags": { "type": "array", "items": { "$ref": "#/components/schemas/Tag" } },
           "progress": { "$ref": "#/components/schemas/Progress" },
-          "suggestionCount": { "type": "integer", "minimum": 0, "description": "Direct children with origin ai in state suggested" },
+          "suggestionCount": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Direct children with origin ai in state suggested"
+          },
           "aiError": { "type": ["string", "null"] },
           "createdAt": { "type": "string", "format": "date-time" },
           "updatedAt": { "type": "string", "format": "date-time" }
         },
-        "required": ["id", "parentId", "title", "description", "status", "aiStatus", "aiSkipReason", "position", "origin", "suggestionState", "rationale", "tags", "progress", "suggestionCount", "aiError", "createdAt", "updatedAt"]
+        "required": [
+          "id",
+          "parentId",
+          "title",
+          "description",
+          "status",
+          "aiStatus",
+          "aiSkipReason",
+          "position",
+          "origin",
+          "suggestionState",
+          "rationale",
+          "tags",
+          "progress",
+          "suggestionCount",
+          "aiError",
+          "createdAt",
+          "updatedAt"
+        ]
       },
       "TaskDetail": {
         "allOf": [
@@ -2836,7 +2948,10 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
           {
             "type": "object",
             "properties": {
-              "children": { "type": "array", "items": { "$ref": "#/components/schemas/TaskSummary" } },
+              "children": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/TaskSummary" }
+              },
               "aiTagSuggestions": { "type": "array", "items": { "type": "string" } }
             },
             "required": ["children", "aiTagSuggestions"]
@@ -2845,7 +2960,10 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
       },
       "LoginRequest": {
         "type": "object",
-        "properties": { "email": { "type": "string", "format": "email" }, "password": { "type": "string", "minLength": 8 } },
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string", "minLength": 8 }
+        },
         "required": ["email", "password"]
       },
       "RegisterRequest": {
@@ -2859,7 +2977,10 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
       },
       "AuthSession": {
         "type": "object",
-        "properties": { "user": { "$ref": "#/components/schemas/User" }, "accessToken": { "type": "string" } },
+        "properties": {
+          "user": { "$ref": "#/components/schemas/User" },
+          "accessToken": { "type": "string" }
+        },
         "required": ["user", "accessToken"]
       },
       "CreateTaskRequest": {
@@ -2884,7 +3005,9 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
       },
       "ReplaceTagsRequest": {
         "type": "object",
-        "properties": { "tagIds": { "type": "array", "items": { "type": "string", "format": "uuid" } } },
+        "properties": {
+          "tagIds": { "type": "array", "items": { "type": "string", "format": "uuid" } }
+        },
         "required": ["tagIds"]
       },
       "CreateTagRequest": {
@@ -2915,7 +3038,10 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
       },
       "FeatureRequestResult": {
         "type": "object",
-        "properties": { "issueNumber": { "type": "integer" }, "issueUrl": { "type": "string", "format": "uri" } },
+        "properties": {
+          "issueNumber": { "type": "integer" },
+          "issueUrl": { "type": "string", "format": "uri" }
+        },
         "required": ["issueNumber", "issueUrl"]
       },
       "Health": {
@@ -2931,7 +3057,12 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
           },
           "features": {
             "type": "object",
-            "properties": { "featureRequests": { "type": "boolean", "description": "True exactly when POST /feature-requests is mounted" } },
+            "properties": {
+              "featureRequests": {
+                "type": "boolean",
+                "description": "True exactly when POST /feature-requests is mounted"
+              }
+            },
             "required": ["featureRequests"]
           }
         },
@@ -2939,13 +3070,20 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
       },
       "AuthSessionEnvelope": {
         "type": "object",
-        "properties": { "data": { "$ref": "#/components/schemas/AuthSession" }, "meta": { "$ref": "#/components/schemas/Meta" } },
+        "properties": {
+          "data": { "$ref": "#/components/schemas/AuthSession" },
+          "meta": { "$ref": "#/components/schemas/Meta" }
+        },
         "required": ["data", "meta"]
       },
       "AccessTokenEnvelope": {
         "type": "object",
         "properties": {
-          "data": { "type": "object", "properties": { "accessToken": { "type": "string" } }, "required": ["accessToken"] },
+          "data": {
+            "type": "object",
+            "properties": { "accessToken": { "type": "string" } },
+            "required": ["accessToken"]
+          },
           "meta": { "$ref": "#/components/schemas/Meta" }
         },
         "required": ["data", "meta"]
@@ -2953,7 +3091,11 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
       "UserEnvelope": {
         "type": "object",
         "properties": {
-          "data": { "type": "object", "properties": { "user": { "$ref": "#/components/schemas/User" } }, "required": ["user"] },
+          "data": {
+            "type": "object",
+            "properties": { "user": { "$ref": "#/components/schemas/User" } },
+            "required": ["user"]
+          },
           "meta": { "$ref": "#/components/schemas/Meta" }
         },
         "required": ["data", "meta"]
@@ -2968,7 +3110,10 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
       },
       "TaskDetailEnvelope": {
         "type": "object",
-        "properties": { "data": { "$ref": "#/components/schemas/TaskDetail" }, "meta": { "$ref": "#/components/schemas/Meta" } },
+        "properties": {
+          "data": { "$ref": "#/components/schemas/TaskDetail" },
+          "meta": { "$ref": "#/components/schemas/Meta" }
+        },
         "required": ["data", "meta"]
       },
       "TagListEnvelope": {
@@ -2981,40 +3126,59 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
       },
       "TagEnvelope": {
         "type": "object",
-        "properties": { "data": { "$ref": "#/components/schemas/Tag" }, "meta": { "$ref": "#/components/schemas/Meta" } },
+        "properties": {
+          "data": { "$ref": "#/components/schemas/Tag" },
+          "meta": { "$ref": "#/components/schemas/Meta" }
+        },
         "required": ["data", "meta"]
       },
       "FeatureRequestEnvelope": {
         "type": "object",
-        "properties": { "data": { "$ref": "#/components/schemas/FeatureRequestResult" }, "meta": { "$ref": "#/components/schemas/Meta" } },
+        "properties": {
+          "data": { "$ref": "#/components/schemas/FeatureRequestResult" },
+          "meta": { "$ref": "#/components/schemas/Meta" }
+        },
         "required": ["data", "meta"]
       },
       "SeedResetEnvelope": {
         "type": "object",
         "properties": {
-          "data": { "type": "object", "properties": { "demoUserId": { "type": "string", "format": "uuid" } }, "required": ["demoUserId"] },
+          "data": {
+            "type": "object",
+            "properties": { "demoUserId": { "type": "string", "format": "uuid" } },
+            "required": ["demoUserId"]
+          },
           "meta": { "$ref": "#/components/schemas/Meta" }
         },
         "required": ["data", "meta"]
       },
       "HealthEnvelope": {
         "type": "object",
-        "properties": { "data": { "$ref": "#/components/schemas/Health" }, "meta": { "$ref": "#/components/schemas/Meta" } },
+        "properties": {
+          "data": { "$ref": "#/components/schemas/Health" },
+          "meta": { "$ref": "#/components/schemas/Meta" }
+        },
         "required": ["data", "meta"]
       }
     },
     "responses": {
       "Error": {
         "description": "Error envelope",
-        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorEnvelope" } } }
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/ErrorEnvelope" } }
+        }
       },
       "TaskDetail": {
         "description": "The task with its children, tags, progress, AI tag suggestions, and AI error",
-        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TaskDetailEnvelope" } } }
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/TaskDetailEnvelope" } }
+        }
       },
       "Tag": {
         "description": "The tag",
-        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TagEnvelope" } } }
+        "content": {
+          "application/json": { "schema": { "$ref": "#/components/schemas/TagEnvelope" } }
+        }
       }
     }
   },
@@ -3023,9 +3187,21 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
       "post": {
         "summary": "Register a new user",
         "security": [],
-        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RegisterRequest" } } } },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/RegisterRequest" } }
+          }
+        },
         "responses": {
-          "201": { "description": "Registered; sets the refresh cookie", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthSessionEnvelope" } } } },
+          "201": {
+            "description": "Registered; sets the refresh cookie",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AuthSessionEnvelope" }
+              }
+            }
+          },
           "400": { "$ref": "#/components/responses/Error" },
           "409": { "$ref": "#/components/responses/Error" }
         }
@@ -3035,9 +3211,21 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
       "post": {
         "summary": "Log in",
         "security": [],
-        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoginRequest" } } } },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/LoginRequest" } }
+          }
+        },
         "responses": {
-          "200": { "description": "Logged in; sets the refresh cookie", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthSessionEnvelope" } } } },
+          "200": {
+            "description": "Logged in; sets the refresh cookie",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AuthSessionEnvelope" }
+              }
+            }
+          },
           "400": { "$ref": "#/components/responses/Error" },
           "401": { "$ref": "#/components/responses/Error" }
         }
@@ -3048,7 +3236,14 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
         "summary": "Rotate the refresh cookie and issue a new access token",
         "security": [],
         "responses": {
-          "200": { "description": "New access token", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AccessTokenEnvelope" } } } },
+          "200": {
+            "description": "New access token",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AccessTokenEnvelope" }
+              }
+            }
+          },
           "401": { "$ref": "#/components/responses/Error" }
         }
       }
@@ -3064,7 +3259,12 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
       "get": {
         "summary": "Current user",
         "responses": {
-          "200": { "description": "The authenticated user", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserEnvelope" } } } },
+          "200": {
+            "description": "The authenticated user",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/UserEnvelope" } }
+            }
+          },
           "401": { "$ref": "#/components/responses/Error" }
         }
       }
@@ -3073,21 +3273,39 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
       "get": {
         "summary": "List tasks (top-level unless parentId is given), keyset paginated",
         "parameters": [
-          { "name": "status", "in": "query", "schema": { "$ref": "#/components/schemas/TaskStatus" } },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": { "$ref": "#/components/schemas/TaskStatus" }
+          },
           { "name": "tagId", "in": "query", "schema": { "type": "string", "format": "uuid" } },
           { "name": "parentId", "in": "query", "schema": { "type": "string", "format": "uuid" } },
-          { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 50 } },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 50 }
+          },
           { "name": "cursor", "in": "query", "schema": { "type": "string" } }
         ],
         "responses": {
-          "200": { "description": "A page of tasks", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TaskListEnvelope" } } } },
+          "200": {
+            "description": "A page of tasks",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/TaskListEnvelope" } }
+            }
+          },
           "400": { "$ref": "#/components/responses/Error" },
           "401": { "$ref": "#/components/responses/Error" }
         }
       },
       "post": {
         "summary": "Create a task; root creates enqueue a breakdown",
-        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateTaskRequest" } } } },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateTaskRequest" } }
+          }
+        },
         "responses": {
           "201": { "$ref": "#/components/responses/TaskDetail" },
           "400": { "$ref": "#/components/responses/Error" },
@@ -3107,7 +3325,12 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
       },
       "patch": {
         "summary": "Update a task; position is a target index among siblings",
-        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UpdateTaskRequest" } } } },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateTaskRequest" } }
+          }
+        },
         "responses": {
           "200": { "$ref": "#/components/responses/TaskDetail" },
           "400": { "$ref": "#/components/responses/Error" },
@@ -3164,7 +3387,12 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
       "parameters": [{ "$ref": "#/components/parameters/TaskId" }],
       "put": {
         "summary": "Replace the task's tag set",
-        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ReplaceTagsRequest" } } } },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ReplaceTagsRequest" } }
+          }
+        },
         "responses": {
           "200": { "$ref": "#/components/responses/TaskDetail" },
           "400": { "$ref": "#/components/responses/Error" },
@@ -3177,13 +3405,23 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
       "get": {
         "summary": "List the user's tags",
         "responses": {
-          "200": { "description": "All tags", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TagListEnvelope" } } } },
+          "200": {
+            "description": "All tags",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/TagListEnvelope" } }
+            }
+          },
           "401": { "$ref": "#/components/responses/Error" }
         }
       },
       "post": {
         "summary": "Create a tag",
-        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateTagRequest" } } } },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateTagRequest" } }
+          }
+        },
         "responses": {
           "201": { "$ref": "#/components/responses/Tag" },
           "400": { "$ref": "#/components/responses/Error" },
@@ -3196,7 +3434,12 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
       "parameters": [{ "$ref": "#/components/parameters/TagId" }],
       "patch": {
         "summary": "Rename or recolor a tag",
-        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UpdateTagRequest" } } } },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateTagRequest" } }
+          }
+        },
         "responses": {
           "200": { "$ref": "#/components/responses/Tag" },
           "400": { "$ref": "#/components/responses/Error" },
@@ -3217,9 +3460,23 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
     "/feature-requests": {
       "post": {
         "summary": "File a feature request as a GitHub issue (mounted only when configured)",
-        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FeatureRequestRequest" } } } },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/FeatureRequestRequest" }
+            }
+          }
+        },
         "responses": {
-          "201": { "description": "Issue created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FeatureRequestEnvelope" } } } },
+          "201": {
+            "description": "Issue created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/FeatureRequestEnvelope" }
+              }
+            }
+          },
           "400": { "$ref": "#/components/responses/Error" },
           "401": { "$ref": "#/components/responses/Error" },
           "502": { "$ref": "#/components/responses/Error" }
@@ -3230,9 +3487,21 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
       "post": {
         "summary": "Recreate the demo user's fixtures (mounted only when ADMIN_TOKEN is set)",
         "security": [],
-        "parameters": [{ "name": "x-admin-token", "in": "header", "required": true, "schema": { "type": "string" } }],
+        "parameters": [
+          {
+            "name": "x-admin-token",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
         "responses": {
-          "200": { "description": "Reset done", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SeedResetEnvelope" } } } },
+          "200": {
+            "description": "Reset done",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/SeedResetEnvelope" } }
+            }
+          },
           "404": { "$ref": "#/components/responses/Error" }
         }
       }
@@ -3242,7 +3511,12 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
         "summary": "Liveness with commit SHA and dependency checks",
         "security": [],
         "responses": {
-          "200": { "description": "Healthy", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/HealthEnvelope" } } } },
+          "200": {
+            "description": "Healthy",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/HealthEnvelope" } }
+            }
+          },
           "503": { "$ref": "#/components/responses/Error" }
         }
       }
@@ -3252,7 +3526,10 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
         "summary": "This document",
         "security": [],
         "responses": {
-          "200": { "description": "The OpenAPI document", "content": { "application/json": { "schema": { "type": "object" } } } }
+          "200": {
+            "description": "The OpenAPI document",
+            "content": { "application/json": { "schema": { "type": "object" } } }
+          }
         }
       }
     }
@@ -3327,7 +3604,12 @@ describe("models derived from the contract", () => {
     // Rulings R1: the summary carries the suggestion count and the AI error.
     expectTypeOf<TaskSummary["suggestionCount"]>().toEqualTypeOf<number>();
     expectTypeOf<TaskSummary["aiError"]>().toEqualTypeOf<string | null>();
-    expectTypeOf<Tag>().toEqualTypeOf<{ id: string; name: string; color: string; createdAt: string }>();
+    expectTypeOf<Tag>().toEqualTypeOf<{
+      id: string;
+      name: string;
+      color: string;
+      createdAt: string;
+    }>();
   });
 });
 ```
@@ -3400,7 +3682,9 @@ export function progressOf(children: Row[]): { done: number; total: number } {
 }
 
 function byPosition(a: Row, b: Row) {
-  return a.position - b.position || a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id);
+  return (
+    a.position - b.position || a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id)
+  );
 }
 
 function seed(): { rows: Row[]; tags: Tag[] } {
@@ -3444,7 +3728,13 @@ function seed(): { rows: Row[]; tags: Tag[] } {
       suggestionState: null,
       rationale: null,
     }),
-    makeTask({ id: T_SKIPPED, title: "Buy milk", aiStatus: "skipped", aiSkipReason: "too_short", tags: [home] }),
+    makeTask({
+      id: T_SKIPPED,
+      title: "Buy milk",
+      aiStatus: "skipped",
+      aiSkipReason: "too_short",
+      tags: [home],
+    }),
     makeTask({
       id: T_FAILED,
       title: "Plan the team offsite agenda",
@@ -3565,7 +3855,8 @@ export const authHandlers = [
   }),
   http.post(`${API}/auth/register`, async ({ request }) => {
     const body = (await request.json()) as { email: string; password: string; displayName: string };
-    if (body.email === demoUser.email) return err("CONFLICT", "An account with this email already exists");
+    if (body.email === demoUser.email)
+      return err("CONFLICT", "An account with this email already exists");
     return ok(
       {
         user: {
@@ -3608,7 +3899,9 @@ export const taskHandlers = [
     rows = [...rows].sort(newestFirst);
     const start = cursor ? rows.findIndex((r) => r.id === cursor) : 0;
     if (start < 0) {
-      return err("VALIDATION_ERROR", "Invalid request", [{ path: "query.cursor", message: "Bad cursor" }]);
+      return err("VALIDATION_ERROR", "Invalid request", [
+        { path: "query.cursor", message: "Bad cursor" },
+      ]);
     }
     const page = rows.slice(start, start + limit);
     return ok(
@@ -3619,14 +3912,18 @@ export const taskHandlers = [
   http.post(`${API}/tasks`, async ({ request }) => {
     const body = (await request.json()) as CreateTaskBody;
     if (!body.title || !body.title.trim()) {
-      return err("VALIDATION_ERROR", "Invalid request", [{ path: "body.title", message: "Title is required" }]);
+      return err("VALIDATION_ERROR", "Invalid request", [
+        { path: "body.title", message: "Title is required" },
+      ]);
     }
     const parent = body.parentId ? db.find(body.parentId) : undefined;
     if (body.parentId && !parent) return err("NOT_FOUND", "Task not found");
     const tagIds = body.tagIds ?? [];
     const tags = db.tags.filter((t) => tagIds.includes(t.id));
     if (tags.length !== tagIds.length) {
-      return err("VALIDATION_ERROR", "Invalid request", [{ path: "body.tagIds", message: "Unknown tag" }]);
+      return err("VALIDATION_ERROR", "Invalid request", [
+        { path: "body.tagIds", message: "Unknown tag" },
+      ]);
     }
     const now = new Date().toISOString();
     const row = makeTask({
@@ -3682,12 +3979,14 @@ export const taskHandlers = [
   }),
   http.post<IdParams>(`${API}/tasks/:id/suggestions/accept-all`, ({ params }) => {
     if (!db.find(params.id)) return err("NOT_FOUND", "Task not found");
-    for (const c of db.children(params.id)) if (c.suggestionState === "suggested") c.suggestionState = "accepted";
+    for (const c of db.children(params.id))
+      if (c.suggestionState === "suggested") c.suggestionState = "accepted";
     return ok(db.detail(params.id));
   }),
   http.post<IdParams>(`${API}/tasks/:id/suggestions/dismiss-all`, ({ params }) => {
     if (!db.find(params.id)) return err("NOT_FOUND", "Task not found");
-    for (const c of db.children(params.id)) if (c.suggestionState === "suggested") c.suggestionState = "dismissed";
+    for (const c of db.children(params.id))
+      if (c.suggestionState === "suggested") c.suggestionState = "dismissed";
     return ok(db.detail(params.id));
   }),
   http.put<IdParams>(`${API}/tasks/:id/tags`, async ({ params, request }) => {
@@ -3696,7 +3995,9 @@ export const taskHandlers = [
     const body = (await request.json()) as ReplaceTagsBody;
     const tags = db.tags.filter((t) => body.tagIds.includes(t.id));
     if (tags.length !== body.tagIds.length) {
-      return err("VALIDATION_ERROR", "Invalid request", [{ path: "body.tagIds", message: "Unknown tag" }]);
+      return err("VALIDATION_ERROR", "Invalid request", [
+        { path: "body.tagIds", message: "Unknown tag" },
+      ]);
     }
     row.tags = tags;
     return ok(db.detail(row.id));
@@ -3710,7 +4011,12 @@ export const tagHandlers = [
     if (db.tags.some((t) => t.name.toLowerCase() === body.name.toLowerCase())) {
       return err("CONFLICT", "A tag with this name already exists");
     }
-    const tag = makeTag({ id: nextId("tag"), name: body.name, color: body.color, createdAt: new Date().toISOString() });
+    const tag = makeTag({
+      id: nextId("tag"),
+      name: body.name,
+      color: body.color,
+      createdAt: new Date().toISOString(),
+    });
     db.tags.push(tag);
     return ok(tag, {}, 201);
   }),
@@ -3741,10 +4047,15 @@ export const featureRequestHandlers = [
   http.post(`${API}/feature-requests`, async ({ request }) => {
     const body = (await request.json()) as FeatureRequestBody;
     if (!body.title?.trim()) {
-      return err("VALIDATION_ERROR", "Invalid request", [{ path: "body.title", message: "Title is required" }]);
+      return err("VALIDATION_ERROR", "Invalid request", [
+        { path: "body.title", message: "Title is required" },
+      ]);
     }
     return ok(
-      { issueNumber: 42, issueUrl: "https://github.com/kpnemo/kaizen-tasks-assembly-line/issues/42" },
+      {
+        issueNumber: 42,
+        issueUrl: "https://github.com/kpnemo/kaizen-tasks-assembly-line/issues/42",
+      },
       {},
       201,
     );
@@ -3789,23 +4100,23 @@ beforeEach(() => {
 Append to the `client auth middleware` describe block in `src/api/client.test.ts` (add `import { db, T_SUGGESTED } from "../../tests/msw/db";` at the top):
 
 ```ts
-  it("replays a POST with its body after the refresh", async () => {
-    authStore.setSession({ token: "stale", user: demoUser });
-    const bodies: string[] = [];
-    server.use(
-      http.post(`${API}/tasks`, async ({ request }) => {
-        bodies.push(await request.text());
-        if (request.headers.get("authorization") !== "Bearer fresh") {
-          return err("UNAUTHORIZED", "Token expired");
-        }
-        return ok(db.detail(T_SUGGESTED), {}, 201);
-      }),
-      http.post(`${API}/auth/refresh`, () => ok({ accessToken: "fresh" })),
-    );
-    const result = await client.POST("/tasks", { body: { title: "Write the plan" } });
-    expect(result.response.status).toBe(201);
-    expect(bodies).toEqual(['{"title":"Write the plan"}', '{"title":"Write the plan"}']);
-  });
+it("replays a POST with its body after the refresh", async () => {
+  authStore.setSession({ token: "stale", user: demoUser });
+  const bodies: string[] = [];
+  server.use(
+    http.post(`${API}/tasks`, async ({ request }) => {
+      bodies.push(await request.text());
+      if (request.headers.get("authorization") !== "Bearer fresh") {
+        return err("UNAUTHORIZED", "Token expired");
+      }
+      return ok(db.detail(T_SUGGESTED), {}, 201);
+    }),
+    http.post(`${API}/auth/refresh`, () => ok({ accessToken: "fresh" })),
+  );
+  const result = await client.POST("/tasks", { body: { title: "Write the plan" } });
+  expect(result.response.status).toBe(201);
+  expect(bodies).toEqual(['{"title":"Write the plan"}', '{"title":"Write the plan"}']);
+});
 ```
 
 Run: `npm run typecheck && npm test`
@@ -3816,8 +4127,8 @@ Expected: green; `src/api/client.test.ts` now reports `9 passed`.
 Append to `.github/workflows/ci.yml` after the version.json assertion step:
 
 ```yaml
-      - name: Contract drift warning
-        run: bash scripts/pull-openapi.sh develop --check
+- name: Contract drift warning
+  run: bash scripts/pull-openapi.sh develop --check
 ```
 
 In `README.md`, under "## Scripts", add after the table:
@@ -3847,14 +4158,17 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
+
 ### Task 9: Prism mock with curated examples
 
 **Files:**
+
 - Create: `mock/examples.json`, `scripts/build-mock-spec.mjs`
 - Modify: `.gitignore` (add `.mock/`), `README.md`, `CHANGELOG.md`
 - Test: `tests/build-mock-spec.test.ts`
 
 **Interfaces:**
+
 - Consumes: `src/api/openapi.json` from Task 8; the `mock` script from Task 1 (`node scripts/build-mock-spec.mjs && prism mock .mock/openapi.json -p 4010`).
 - Produces: `.mock/openapi.json` (git-ignored) = the contract with curated `example` bodies; `MOCK_OUT` env var overrides the output path for tests.
 - Verification item W2 (spec 10) is closed here by taking the fallback up front: Prism's `--dynamic` mode generates random data and ignores examples by design, so the `mock` script runs Prism in static mode and the examples make the mock look right on screen. The contract itself is never edited (spec A5): examples live in `mock/examples.json` and are merged into a copy.
@@ -3872,7 +4186,9 @@ import { describe, expect, it } from "vitest";
 
 function build(env: Record<string, string> = {}) {
   const out = join(mkdtempSync(join(tmpdir(), "kaizen-mock-")), "openapi.json");
-  execFileSync("node", ["scripts/build-mock-spec.mjs"], { env: { ...process.env, MOCK_OUT: out, ...env } });
+  execFileSync("node", ["scripts/build-mock-spec.mjs"], {
+    env: { ...process.env, MOCK_OUT: out, ...env },
+  });
   return JSON.parse(readFileSync(out, "utf8"));
 }
 
@@ -3886,19 +4202,26 @@ describe("scripts/build-mock-spec.mjs", () => {
       "Buy milk",
       "Plan the team offsite agenda",
     ]);
-    const detail = doc.paths["/tasks/{id}"].get.responses["200"].content["application/json"].example;
+    const detail =
+      doc.paths["/tasks/{id}"].get.responses["200"].content["application/json"].example;
     expect(detail.data.children).toHaveLength(4);
     expect(detail.data.children[0].rationale).toBeTruthy();
     // The shared $ref'd response in components is untouched.
     expect(doc.components.responses.TaskDetail.content["application/json"].example).toBeUndefined();
     // The committed contract is untouched.
     const contract = JSON.parse(readFileSync("src/api/openapi.json", "utf8"));
-    expect(contract.paths["/tasks"].get.responses["200"].content["application/json"].example).toBeUndefined();
+    expect(
+      contract.paths["/tasks"].get.responses["200"].content["application/json"].example,
+    ).toBeUndefined();
   });
 
   it("fails when an example names an operation the contract lacks", () => {
     const result = spawnSync("node", ["scripts/build-mock-spec.mjs"], {
-      env: { ...process.env, MOCK_OUT: "/dev/null", MOCK_EXAMPLES: "tests/fixtures/bad-examples.json" },
+      env: {
+        ...process.env,
+        MOCK_OUT: "/dev/null",
+        MOCK_EXAMPLES: "tests/fixtures/bad-examples.json",
+      },
     });
     expect(result.status).toBe(1);
     expect(result.stderr.toString()).toContain("GET /nope");
@@ -3971,7 +4294,9 @@ if (problems.length > 0) {
 
 mkdirSync(dirname(OUT), { recursive: true });
 writeFileSync(OUT, `${JSON.stringify(doc, null, 2)}\n`);
-console.log(`build-mock-spec: wrote ${OUT} with ${Object.keys(examples).length} curated operations`);
+console.log(
+  `build-mock-spec: wrote ${OUT} with ${Object.keys(examples).length} curated operations`,
+);
 ```
 
 - [ ] **Step 3: Curated examples**
@@ -3983,7 +4308,12 @@ console.log(`build-mock-spec: wrote ${OUT} with ${Object.keys(examples).length} 
   "POST /auth/login": {
     "200": {
       "data": {
-        "user": { "id": "11111111-1111-4111-8111-111111111111", "email": "demo@kaizen.local", "displayName": "Demo", "createdAt": "2026-09-01T09:00:00.000Z" },
+        "user": {
+          "id": "11111111-1111-4111-8111-111111111111",
+          "email": "demo@kaizen.local",
+          "displayName": "Demo",
+          "createdAt": "2026-09-01T09:00:00.000Z"
+        },
         "accessToken": "mock-access-token"
       },
       "meta": { "requestId": "mock" }
@@ -3992,7 +4322,12 @@ console.log(`build-mock-spec: wrote ${OUT} with ${Object.keys(examples).length} 
   "POST /auth/register": {
     "201": {
       "data": {
-        "user": { "id": "22222222-2222-4222-8222-222222222222", "email": "new@kaizen.local", "displayName": "New user", "createdAt": "2026-09-08T09:00:00.000Z" },
+        "user": {
+          "id": "22222222-2222-4222-8222-222222222222",
+          "email": "new@kaizen.local",
+          "displayName": "New user",
+          "createdAt": "2026-09-08T09:00:00.000Z"
+        },
         "accessToken": "mock-access-token"
       },
       "meta": { "requestId": "mock" }
@@ -4003,29 +4338,61 @@ console.log(`build-mock-spec: wrote ${OUT} with ${Object.keys(examples).length} 
   },
   "GET /auth/me": {
     "200": {
-      "data": { "user": { "id": "11111111-1111-4111-8111-111111111111", "email": "demo@kaizen.local", "displayName": "Demo", "createdAt": "2026-09-01T09:00:00.000Z" } },
+      "data": {
+        "user": {
+          "id": "11111111-1111-4111-8111-111111111111",
+          "email": "demo@kaizen.local",
+          "displayName": "Demo",
+          "createdAt": "2026-09-01T09:00:00.000Z"
+        }
+      },
       "meta": { "requestId": "mock" }
     }
   },
   "GET /tags": {
     "200": {
       "data": [
-        { "id": "aaaaaaaa-0000-4000-8000-000000000001", "name": "work", "color": "#3B3FBF", "createdAt": "2026-09-01T09:00:00.000Z" },
-        { "id": "aaaaaaaa-0000-4000-8000-000000000002", "name": "home", "color": "#2F7D4F", "createdAt": "2026-09-01T09:00:00.000Z" },
-        { "id": "aaaaaaaa-0000-4000-8000-000000000003", "name": "planning", "color": "#C77D1A", "createdAt": "2026-09-01T09:00:00.000Z" }
+        {
+          "id": "aaaaaaaa-0000-4000-8000-000000000001",
+          "name": "work",
+          "color": "#3B3FBF",
+          "createdAt": "2026-09-01T09:00:00.000Z"
+        },
+        {
+          "id": "aaaaaaaa-0000-4000-8000-000000000002",
+          "name": "home",
+          "color": "#2F7D4F",
+          "createdAt": "2026-09-01T09:00:00.000Z"
+        },
+        {
+          "id": "aaaaaaaa-0000-4000-8000-000000000003",
+          "name": "planning",
+          "color": "#C77D1A",
+          "createdAt": "2026-09-01T09:00:00.000Z"
+        }
       ],
       "meta": { "requestId": "mock" }
     }
   },
   "POST /tags": {
     "201": {
-      "data": { "id": "aaaaaaaa-0000-4000-8000-000000000004", "name": "reading", "color": "#7A3E9D", "createdAt": "2026-09-08T09:00:00.000Z" },
+      "data": {
+        "id": "aaaaaaaa-0000-4000-8000-000000000004",
+        "name": "reading",
+        "color": "#7A3E9D",
+        "createdAt": "2026-09-08T09:00:00.000Z"
+      },
       "meta": { "requestId": "mock" }
     }
   },
   "PATCH /tags/{id}": {
     "200": {
-      "data": { "id": "aaaaaaaa-0000-4000-8000-000000000001", "name": "work", "color": "#3B3FBF", "createdAt": "2026-09-01T09:00:00.000Z" },
+      "data": {
+        "id": "aaaaaaaa-0000-4000-8000-000000000001",
+        "name": "work",
+        "color": "#3B3FBF",
+        "createdAt": "2026-09-01T09:00:00.000Z"
+      },
       "meta": { "requestId": "mock" }
     }
   },
@@ -4033,36 +4400,94 @@ console.log(`build-mock-spec: wrote ${OUT} with ${Object.keys(examples).length} 
     "200": {
       "data": [
         {
-          "id": "bbbbbbbb-0000-4000-8000-000000000001", "parentId": null,
-          "title": "Prepare the quarterly business review deck", "description": "For the leadership team on the 30th.",
-          "status": "in_progress", "aiStatus": "done", "aiSkipReason": null, "position": 0, "origin": "user",
-          "suggestionState": null, "rationale": null,
-          "tags": [{ "id": "aaaaaaaa-0000-4000-8000-000000000001", "name": "work", "color": "#3B3FBF", "createdAt": "2026-09-01T09:00:00.000Z" }],
+          "id": "bbbbbbbb-0000-4000-8000-000000000001",
+          "parentId": null,
+          "title": "Prepare the quarterly business review deck",
+          "description": "For the leadership team on the 30th.",
+          "status": "in_progress",
+          "aiStatus": "done",
+          "aiSkipReason": null,
+          "position": 0,
+          "origin": "user",
+          "suggestionState": null,
+          "rationale": null,
+          "tags": [
+            {
+              "id": "aaaaaaaa-0000-4000-8000-000000000001",
+              "name": "work",
+              "color": "#3B3FBF",
+              "createdAt": "2026-09-01T09:00:00.000Z"
+            }
+          ],
           "progress": { "done": 1, "total": 2 },
-          "suggestionCount": 2, "aiError": null, "createdAt": "2026-09-08T08:00:00.000Z", "updatedAt": "2026-09-08T08:05:00.000Z"
+          "suggestionCount": 2,
+          "aiError": null,
+          "createdAt": "2026-09-08T08:00:00.000Z",
+          "updatedAt": "2026-09-08T08:05:00.000Z"
         },
         {
-          "id": "bbbbbbbb-0000-4000-8000-000000000002", "parentId": null,
-          "title": "Renew the passport before the trip", "description": null,
-          "status": "todo", "aiStatus": "done", "aiSkipReason": null, "position": 0, "origin": "user",
-          "suggestionState": null, "rationale": null, "tags": [], "progress": { "done": 0, "total": 0 },
-          "suggestionCount": 0, "aiError": null, "createdAt": "2026-09-07T08:00:00.000Z", "updatedAt": "2026-09-07T08:00:00.000Z"
-        },
-        {
-          "id": "bbbbbbbb-0000-4000-8000-000000000003", "parentId": null,
-          "title": "Buy milk", "description": null,
-          "status": "todo", "aiStatus": "skipped", "aiSkipReason": "too_short", "position": 0, "origin": "user",
-          "suggestionState": null, "rationale": null,
-          "tags": [{ "id": "aaaaaaaa-0000-4000-8000-000000000002", "name": "home", "color": "#2F7D4F", "createdAt": "2026-09-01T09:00:00.000Z" }],
+          "id": "bbbbbbbb-0000-4000-8000-000000000002",
+          "parentId": null,
+          "title": "Renew the passport before the trip",
+          "description": null,
+          "status": "todo",
+          "aiStatus": "done",
+          "aiSkipReason": null,
+          "position": 0,
+          "origin": "user",
+          "suggestionState": null,
+          "rationale": null,
+          "tags": [],
           "progress": { "done": 0, "total": 0 },
-          "suggestionCount": 0, "aiError": null, "createdAt": "2026-09-06T08:00:00.000Z", "updatedAt": "2026-09-06T08:00:00.000Z"
+          "suggestionCount": 0,
+          "aiError": null,
+          "createdAt": "2026-09-07T08:00:00.000Z",
+          "updatedAt": "2026-09-07T08:00:00.000Z"
         },
         {
-          "id": "bbbbbbbb-0000-4000-8000-000000000004", "parentId": null,
-          "title": "Plan the team offsite agenda", "description": "Two days in October, twelve people.",
-          "status": "todo", "aiStatus": "failed", "aiSkipReason": null, "position": 0, "origin": "user",
-          "suggestionState": null, "rationale": null, "tags": [], "progress": { "done": 0, "total": 0 },
-          "suggestionCount": 0, "aiError": "The assistant is unavailable, try again", "createdAt": "2026-09-05T08:00:00.000Z", "updatedAt": "2026-09-05T08:02:00.000Z"
+          "id": "bbbbbbbb-0000-4000-8000-000000000003",
+          "parentId": null,
+          "title": "Buy milk",
+          "description": null,
+          "status": "todo",
+          "aiStatus": "skipped",
+          "aiSkipReason": "too_short",
+          "position": 0,
+          "origin": "user",
+          "suggestionState": null,
+          "rationale": null,
+          "tags": [
+            {
+              "id": "aaaaaaaa-0000-4000-8000-000000000002",
+              "name": "home",
+              "color": "#2F7D4F",
+              "createdAt": "2026-09-01T09:00:00.000Z"
+            }
+          ],
+          "progress": { "done": 0, "total": 0 },
+          "suggestionCount": 0,
+          "aiError": null,
+          "createdAt": "2026-09-06T08:00:00.000Z",
+          "updatedAt": "2026-09-06T08:00:00.000Z"
+        },
+        {
+          "id": "bbbbbbbb-0000-4000-8000-000000000004",
+          "parentId": null,
+          "title": "Plan the team offsite agenda",
+          "description": "Two days in October, twelve people.",
+          "status": "todo",
+          "aiStatus": "failed",
+          "aiSkipReason": null,
+          "position": 0,
+          "origin": "user",
+          "suggestionState": null,
+          "rationale": null,
+          "tags": [],
+          "progress": { "done": 0, "total": 0 },
+          "suggestionCount": 0,
+          "aiError": "The assistant is unavailable, try again",
+          "createdAt": "2026-09-05T08:00:00.000Z",
+          "updatedAt": "2026-09-05T08:02:00.000Z"
         }
       ],
       "meta": { "requestId": "mock", "nextCursor": null }
@@ -4071,12 +4496,25 @@ console.log(`build-mock-spec: wrote ${OUT} with ${Object.keys(examples).length} 
   "POST /tasks": {
     "201": {
       "data": {
-        "id": "bbbbbbbb-0000-4000-8000-000000000009", "parentId": null,
-        "title": "Write the workshop runbook", "description": null,
-        "status": "todo", "aiStatus": "pending", "aiSkipReason": null, "position": 0, "origin": "user",
-        "suggestionState": null, "rationale": null, "tags": [], "progress": { "done": 0, "total": 0 },
-        "suggestionCount": 0, "aiError": null, "createdAt": "2026-09-08T09:00:00.000Z", "updatedAt": "2026-09-08T09:00:00.000Z",
-        "children": [], "aiTagSuggestions": []
+        "id": "bbbbbbbb-0000-4000-8000-000000000009",
+        "parentId": null,
+        "title": "Write the workshop runbook",
+        "description": null,
+        "status": "todo",
+        "aiStatus": "pending",
+        "aiSkipReason": null,
+        "position": 0,
+        "origin": "user",
+        "suggestionState": null,
+        "rationale": null,
+        "tags": [],
+        "progress": { "done": 0, "total": 0 },
+        "suggestionCount": 0,
+        "aiError": null,
+        "createdAt": "2026-09-08T09:00:00.000Z",
+        "updatedAt": "2026-09-08T09:00:00.000Z",
+        "children": [],
+        "aiTagSuggestions": []
       },
       "meta": { "requestId": "mock" }
     }
@@ -4084,45 +4522,106 @@ console.log(`build-mock-spec: wrote ${OUT} with ${Object.keys(examples).length} 
   "GET /tasks/{id}": {
     "200": {
       "data": {
-        "id": "bbbbbbbb-0000-4000-8000-000000000001", "parentId": null,
-        "title": "Prepare the quarterly business review deck", "description": "For the leadership team on the 30th.",
-        "status": "in_progress", "aiStatus": "done", "aiSkipReason": null, "position": 0, "origin": "user",
-        "suggestionState": null, "rationale": null,
-        "tags": [{ "id": "aaaaaaaa-0000-4000-8000-000000000001", "name": "work", "color": "#3B3FBF", "createdAt": "2026-09-01T09:00:00.000Z" }],
+        "id": "bbbbbbbb-0000-4000-8000-000000000001",
+        "parentId": null,
+        "title": "Prepare the quarterly business review deck",
+        "description": "For the leadership team on the 30th.",
+        "status": "in_progress",
+        "aiStatus": "done",
+        "aiSkipReason": null,
+        "position": 0,
+        "origin": "user",
+        "suggestionState": null,
+        "rationale": null,
+        "tags": [
+          {
+            "id": "aaaaaaaa-0000-4000-8000-000000000001",
+            "name": "work",
+            "color": "#3B3FBF",
+            "createdAt": "2026-09-01T09:00:00.000Z"
+          }
+        ],
         "progress": { "done": 1, "total": 2 },
-        "suggestionCount": 2, "aiError": null, "createdAt": "2026-09-08T08:00:00.000Z", "updatedAt": "2026-09-08T08:05:00.000Z",
+        "suggestionCount": 2,
+        "aiError": null,
+        "createdAt": "2026-09-08T08:00:00.000Z",
+        "updatedAt": "2026-09-08T08:05:00.000Z",
         "children": [
           {
-            "id": "cccccccc-0000-4000-8000-000000000001", "parentId": "bbbbbbbb-0000-4000-8000-000000000001",
-            "title": "List the three decisions the deck must drive", "description": null,
-            "status": "todo", "aiStatus": "skipped", "aiSkipReason": null, "position": 0, "origin": "ai",
-            "suggestionState": "suggested", "rationale": "Everything else follows from what the room must decide.",
-            "tags": [], "progress": { "done": 0, "total": 0 },
-            "suggestionCount": 0, "aiError": null, "createdAt": "2026-09-08T08:05:00.000Z", "updatedAt": "2026-09-08T08:05:00.000Z"
+            "id": "cccccccc-0000-4000-8000-000000000001",
+            "parentId": "bbbbbbbb-0000-4000-8000-000000000001",
+            "title": "List the three decisions the deck must drive",
+            "description": null,
+            "status": "todo",
+            "aiStatus": "skipped",
+            "aiSkipReason": null,
+            "position": 0,
+            "origin": "ai",
+            "suggestionState": "suggested",
+            "rationale": "Everything else follows from what the room must decide.",
+            "tags": [],
+            "progress": { "done": 0, "total": 0 },
+            "suggestionCount": 0,
+            "aiError": null,
+            "createdAt": "2026-09-08T08:05:00.000Z",
+            "updatedAt": "2026-09-08T08:05:00.000Z"
           },
           {
-            "id": "cccccccc-0000-4000-8000-000000000002", "parentId": "bbbbbbbb-0000-4000-8000-000000000001",
-            "title": "Pull last quarter's numbers from the dashboard", "description": null,
-            "status": "todo", "aiStatus": "skipped", "aiSkipReason": null, "position": 1, "origin": "ai",
-            "suggestionState": "suggested", "rationale": "The numbers gate every other slide.",
-            "tags": [], "progress": { "done": 0, "total": 0 },
-            "suggestionCount": 0, "aiError": null, "createdAt": "2026-09-08T08:05:00.000Z", "updatedAt": "2026-09-08T08:05:00.000Z"
+            "id": "cccccccc-0000-4000-8000-000000000002",
+            "parentId": "bbbbbbbb-0000-4000-8000-000000000001",
+            "title": "Pull last quarter's numbers from the dashboard",
+            "description": null,
+            "status": "todo",
+            "aiStatus": "skipped",
+            "aiSkipReason": null,
+            "position": 1,
+            "origin": "ai",
+            "suggestionState": "suggested",
+            "rationale": "The numbers gate every other slide.",
+            "tags": [],
+            "progress": { "done": 0, "total": 0 },
+            "suggestionCount": 0,
+            "aiError": null,
+            "createdAt": "2026-09-08T08:05:00.000Z",
+            "updatedAt": "2026-09-08T08:05:00.000Z"
           },
           {
-            "id": "cccccccc-0000-4000-8000-000000000003", "parentId": "bbbbbbbb-0000-4000-8000-000000000001",
-            "title": "Draft the outline", "description": null,
-            "status": "done", "aiStatus": "skipped", "aiSkipReason": null, "position": 2, "origin": "ai",
-            "suggestionState": "accepted", "rationale": "An outline makes the review cheap.",
-            "tags": [], "progress": { "done": 0, "total": 0 },
-            "suggestionCount": 0, "aiError": null, "createdAt": "2026-09-08T08:05:00.000Z", "updatedAt": "2026-09-08T08:20:00.000Z"
+            "id": "cccccccc-0000-4000-8000-000000000003",
+            "parentId": "bbbbbbbb-0000-4000-8000-000000000001",
+            "title": "Draft the outline",
+            "description": null,
+            "status": "done",
+            "aiStatus": "skipped",
+            "aiSkipReason": null,
+            "position": 2,
+            "origin": "ai",
+            "suggestionState": "accepted",
+            "rationale": "An outline makes the review cheap.",
+            "tags": [],
+            "progress": { "done": 0, "total": 0 },
+            "suggestionCount": 0,
+            "aiError": null,
+            "createdAt": "2026-09-08T08:05:00.000Z",
+            "updatedAt": "2026-09-08T08:20:00.000Z"
           },
           {
-            "id": "cccccccc-0000-4000-8000-000000000004", "parentId": "bbbbbbbb-0000-4000-8000-000000000001",
-            "title": "Book the rehearsal slot", "description": null,
-            "status": "todo", "aiStatus": "skipped", "aiSkipReason": null, "position": 3, "origin": "user",
-            "suggestionState": null, "rationale": null,
-            "tags": [], "progress": { "done": 0, "total": 0 },
-            "suggestionCount": 0, "aiError": null, "createdAt": "2026-09-08T08:30:00.000Z", "updatedAt": "2026-09-08T08:30:00.000Z"
+            "id": "cccccccc-0000-4000-8000-000000000004",
+            "parentId": "bbbbbbbb-0000-4000-8000-000000000001",
+            "title": "Book the rehearsal slot",
+            "description": null,
+            "status": "todo",
+            "aiStatus": "skipped",
+            "aiSkipReason": null,
+            "position": 3,
+            "origin": "user",
+            "suggestionState": null,
+            "rationale": null,
+            "tags": [],
+            "progress": { "done": 0, "total": 0 },
+            "suggestionCount": 0,
+            "aiError": null,
+            "createdAt": "2026-09-08T08:30:00.000Z",
+            "updatedAt": "2026-09-08T08:30:00.000Z"
           }
         ],
         "aiTagSuggestions": ["planning"]
@@ -4132,13 +4631,22 @@ console.log(`build-mock-spec: wrote ${OUT} with ${Object.keys(examples).length} 
   },
   "POST /feature-requests": {
     "201": {
-      "data": { "issueNumber": 42, "issueUrl": "https://github.com/kpnemo/kaizen-tasks-assembly-line/issues/42" },
+      "data": {
+        "issueNumber": 42,
+        "issueUrl": "https://github.com/kpnemo/kaizen-tasks-assembly-line/issues/42"
+      },
       "meta": { "requestId": "mock" }
     }
   },
   "GET /health": {
     "200": {
-      "data": { "status": "ok", "commit": "mock", "env": "mock", "checks": { "db": "ok", "redis": "ok" }, "features": { "featureRequests": true } },
+      "data": {
+        "status": "ok",
+        "commit": "mock",
+        "env": "mock",
+        "checks": { "db": "ok", "redis": "ok" },
+        "features": { "featureRequests": true }
+      },
       "meta": { "requestId": "mock" }
     }
   }
@@ -4200,14 +4708,17 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
+
 ### Task 10: Error toasts per code, login and register pages, session restore, logout
 
 **Files:**
+
 - Create: `src/lib/format.ts`, `src/components/api-error-toast.tsx`, `src/components/field.tsx`, `src/features/auth/hooks.ts`, `src/features/auth/AuthProvider.tsx`
 - Modify: `src/api/auth-store.ts` (initial status `"restoring"`), `src/api/auth-store.test.ts`, `src/features/auth/LoginPage.tsx`, `src/features/auth/RegisterPage.tsx`, `src/app/layout.tsx` (use `useLogout`), `src/main.tsx` (wrap `AuthProvider`), `tests/render.tsx` (wrap `AuthProvider`, add `session: "restoring"`), `README.md`, `CHANGELOG.md`
 - Test: `src/lib/format.test.ts`, `src/components/api-error-toast.test.tsx`, `src/features/auth/auth.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `ApiError`, `toApiError`, `client`, `unwrap`, `refreshAccessToken`, `authStore`, `useSession`, `KaizenMark`, shadcn `Button`, `Input`, `Label`, `Toaster`.
 - Produces:
   - `format.ts`: `skipReasonLabel(reason: AiSkipReason | null | undefined): string` ("Too short to break down" | "Hourly limit reached" | "Assistant paused" | "Skipped"), `formatTime(iso): string`, `formatDate(iso): string`, `pluralize(count, singular, plural?)`.
@@ -4267,7 +4778,11 @@ function show(error: unknown) {
 
 describe("toastApiError", () => {
   it("VALIDATION_ERROR lists the fields", async () => {
-    show(apiError("VALIDATION_ERROR", "Invalid request", [{ path: "body.title", message: "Title is required" }]));
+    show(
+      apiError("VALIDATION_ERROR", "Invalid request", [
+        { path: "body.title", message: "Title is required" },
+      ]),
+    );
     expect(await screen.findByText("Check the highlighted fields")).toBeInTheDocument();
     expect(screen.getByText("title: Title is required")).toBeInTheDocument();
   });
@@ -4366,7 +4881,9 @@ export function toastApiError(error: unknown): void {
       // The client middleware refreshes or logs out; nothing to show.
       return;
     case "VALIDATION_ERROR": {
-      const fields = Object.entries(api.fieldErrors()).map(([name, message]) => `${name}: ${message}`);
+      const fields = Object.entries(api.fieldErrors()).map(
+        ([name, message]) => `${name}: ${message}`,
+      );
       toast.error("Check the highlighted fields", {
         description: fields.length > 0 ? fields.join("; ") : api.message,
       });
@@ -4486,7 +5003,10 @@ describe("login", () => {
 
   it("links to registration", () => {
     renderApp({ route: "/login", session: "anonymous" });
-    expect(screen.getByRole("link", { name: "Create an account" })).toHaveAttribute("href", "/register");
+    expect(screen.getByRole("link", { name: "Create an account" })).toHaveAttribute(
+      "href",
+      "/register",
+    );
   });
 });
 
@@ -4508,7 +5028,9 @@ describe("register", () => {
     await user.type(screen.getByLabelText("Password"), "smoke-password-1");
     await user.type(screen.getByLabelText("Display name"), "Smoke");
     await user.click(screen.getByRole("button", { name: "Create account" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("An account with this email already exists");
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "An account with this email already exists",
+    );
     expect(screen.getByLabelText("Email")).toHaveAttribute("aria-invalid", "true");
     expect(screen.getByRole("heading", { name: "Create your account" })).toBeInTheDocument();
   });
@@ -4526,7 +5048,9 @@ describe("register", () => {
     await user.type(screen.getByLabelText("Password"), "short");
     await user.type(screen.getByLabelText("Display name"), "Smoke");
     await user.click(screen.getByRole("button", { name: "Create account" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("Password must be at least 8 characters");
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Password must be at least 8 characters",
+    );
     expect(screen.getByLabelText("Password")).toHaveAttribute("aria-invalid", "true");
   });
 });
@@ -4541,7 +5065,9 @@ describe("session restore", () => {
       }),
     );
     renderApp({ route: "/tasks", session: "restoring" });
-    expect(screen.getByRole("status", { name: "Session" })).toHaveTextContent("Restoring your session");
+    expect(screen.getByRole("status", { name: "Session" })).toHaveTextContent(
+      "Restoring your session",
+    );
     expect(screen.queryByRole("heading", { name: "Log in" })).not.toBeInTheDocument();
     expect(await screen.findByRole("heading", { name: "Tasks" })).toBeInTheDocument();
     expect(screen.getByText("Demo")).toBeInTheDocument();
@@ -4865,43 +5391,39 @@ export function RegisterPage() {
 Modify `src/app/layout.tsx`: replace the `authStore` import with `import { useLogout } from "@/features/auth/hooks";`, add `const logout = useLogout();` after `const { user } = useSession();`, and replace the button with:
 
 ```tsx
-            <Button
-              variant="outline"
-              onClick={() => logout.mutate()}
-              disabled={logout.isPending}
-            >
-              <LogOut aria-hidden="true" />
-              Log out
-            </Button>
+<Button variant="outline" onClick={() => logout.mutate()} disabled={logout.isPending}>
+  <LogOut aria-hidden="true" />
+  Log out
+</Button>
 ```
 
 Modify `src/main.tsx`: import `AuthProvider` from `./features/auth/AuthProvider` and wrap the routes:
 
 ```tsx
-      <BrowserRouter>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
-      </BrowserRouter>
+<BrowserRouter>
+  <AuthProvider>
+    <AppRoutes />
+  </AuthProvider>
+</BrowserRouter>
 ```
 
 Modify `tests/render.tsx`: `SessionSetup` becomes `"authenticated" | "anonymous" | "restoring"`; the session seeding becomes
 
 ```tsx
-  if (session === "authenticated") authStore.setSession({ token: "test-token", user: demoUser });
-  else if (session === "anonymous") authStore.clear();
-  else authStore.reset();
+if (session === "authenticated") authStore.setSession({ token: "test-token", user: demoUser });
+else if (session === "anonymous") authStore.clear();
+else authStore.reset();
 ```
 
 and the tree wraps `AuthProvider` (import it from `@/features/auth/AuthProvider`):
 
 ```tsx
-      <MemoryRouter initialEntries={[route]}>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
-        <LocationProbe />
-      </MemoryRouter>
+<MemoryRouter initialEntries={[route]}>
+  <AuthProvider>
+    <AppRoutes />
+  </AuthProvider>
+  <LocationProbe />
+</MemoryRouter>
 ```
 
 - [ ] **Step 5: Run everything**
@@ -4937,14 +5459,17 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
+
 ### Task 11: Task list with create bar, filters, AI chips, load more, and polling
 
 **Files:**
+
 - Create: `src/lib/polling.ts`, `src/api/tags-query.ts`, `src/features/tasks/hooks.ts`, `src/features/tasks/components/AiChip.tsx`, `src/features/tasks/components/ProgressBar.tsx`, `src/features/tasks/components/TaskRow.tsx`, `src/features/tasks/components/CreateTaskBar.tsx`, `src/features/tasks/components/FilterBar.tsx`, `src/components/tag-chip.tsx`
 - Modify: `src/features/tasks/TaskListPage.tsx`, `README.md`, `CHANGELOG.md`
 - Test: `src/lib/polling.test.ts`, `src/features/tasks/TaskListPage.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `client`, `unwrap`, models, `toastApiError`, `ApiError`, `pluralize`, `skipReasonLabel`, `renderApp`, MSW `db`.
 - Produces:
   - `polling.ts`: `LIST_POLL_MS = 3000`, `DETAIL_POLL_MS = 2000`, `isAiActive(task)`, `activeAiInterval(data: WithAi | WithAi[] | null | undefined, intervalMs): number | false`.
@@ -4973,8 +5498,12 @@ describe("polling", () => {
   it("returns the interval while any task is active and false otherwise", () => {
     expect(activeAiInterval({ aiStatus: "running" }, 2000)).toBe(2000);
     expect(activeAiInterval({ aiStatus: "failed" }, 2000)).toBe(false);
-    expect(activeAiInterval([{ aiStatus: "done" }, { aiStatus: "pending" }], LIST_POLL_MS)).toBe(3000);
-    expect(activeAiInterval([{ aiStatus: "done" }, { aiStatus: "skipped" }], LIST_POLL_MS)).toBe(false);
+    expect(activeAiInterval([{ aiStatus: "done" }, { aiStatus: "pending" }], LIST_POLL_MS)).toBe(
+      3000,
+    );
+    expect(activeAiInterval([{ aiStatus: "done" }, { aiStatus: "skipped" }], LIST_POLL_MS)).toBe(
+      false,
+    );
     expect(activeAiInterval(undefined, LIST_POLL_MS)).toBe(false);
   });
 });
@@ -5018,7 +5547,15 @@ Expected: `2 passed`.
 import { act, screen, waitFor, within } from "@testing-library/react";
 import { http } from "msw";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { db, makeStep, makeTask, T_FAILED, T_SUGGESTED, TAG_HOME, TAG_WORK } from "../../../tests/msw/db";
+import {
+  db,
+  makeStep,
+  makeTask,
+  T_FAILED,
+  T_SUGGESTED,
+  TAG_HOME,
+  TAG_WORK,
+} from "../../../tests/msw/db";
 import { API, err, ok } from "../../../tests/msw/handlers";
 import { server } from "../../../tests/msw/server";
 import { renderApp } from "../../../tests/render";
@@ -5035,19 +5572,34 @@ describe("task list", () => {
       makeTask({ id: "t-pending", title: "Pending task", aiStatus: "pending" }),
       makeTask({ id: "t-running", title: "Running task", aiStatus: "running" }),
       makeTask({ id: "t-none", title: "Done without suggestions", aiStatus: "done" }),
-      makeTask({ id: "t-rate", title: "Rate limited task", aiStatus: "skipped", aiSkipReason: "rate_limited" }),
-      makeTask({ id: "t-off", title: "Paused task", aiStatus: "skipped", aiSkipReason: "ai_disabled" }),
+      makeTask({
+        id: "t-rate",
+        title: "Rate limited task",
+        aiStatus: "skipped",
+        aiSkipReason: "rate_limited",
+      }),
+      makeTask({
+        id: "t-off",
+        title: "Paused task",
+        aiStatus: "skipped",
+        aiSkipReason: "ai_disabled",
+      }),
     );
     renderApp({ route: "/tasks" });
     expect(await screen.findByText("Pending task")).toBeInTheDocument();
 
     expect(within(row("Pending task")).getByText("Thinking")).toBeInTheDocument();
     expect(within(row("Running task")).getByText("Thinking")).toBeInTheDocument();
-    const suggestions = await within(row("Prepare the quarterly business review deck")).findByRole("link", {
-      name: "3 suggestions",
-    });
+    const suggestions = await within(row("Prepare the quarterly business review deck")).findByRole(
+      "link",
+      {
+        name: "3 suggestions",
+      },
+    );
     expect(suggestions).toHaveAttribute("href", `/tasks/${T_SUGGESTED}`);
-    expect(within(row("Done without suggestions")).queryByText(/thinking|suggestion|failed|skipped/i)).toBeNull();
+    expect(
+      within(row("Done without suggestions")).queryByText(/thinking|suggestion|failed|skipped/i),
+    ).toBeNull();
     expect(within(row("Buy milk")).getByText("Too short to break down")).toBeInTheDocument();
     expect(within(row("Rate limited task")).getByText("Hourly limit reached")).toBeInTheDocument();
     expect(within(row("Paused task")).getByText("Assistant paused")).toBeInTheDocument();
@@ -5056,11 +5608,18 @@ describe("task list", () => {
         "Breakdown failed: The assistant is unavailable, try again",
       ),
     ).toBeInTheDocument();
-    expect(within(row("Plan the team offsite agenda")).getByRole("button", { name: "Retry" })).toBeInTheDocument();
+    expect(
+      within(row("Plan the team offsite agenda")).getByRole("button", { name: "Retry" }),
+    ).toBeInTheDocument();
     // Every row is a listitem whose title is a link to the detail (smoke selector contract).
-    expect(within(row("Buy milk")).getByRole("link", { name: "Buy milk" })).toHaveAttribute("href", "/tasks/t-2");
+    expect(within(row("Buy milk")).getByRole("link", { name: "Buy milk" })).toHaveAttribute(
+      "href",
+      "/tasks/t-2",
+    );
     // Progress label from `progress`.
-    expect(within(row("Prepare the quarterly business review deck")).getByText("0/1")).toBeInTheDocument();
+    expect(
+      within(row("Prepare the quarterly business review deck")).getByText("0/1"),
+    ).toBeInTheDocument();
   });
 
   it("creates a task from the create bar and shows it first in thinking state", async () => {
@@ -5069,7 +5628,13 @@ describe("task list", () => {
       http.post(`${API}/tasks`, async ({ request }) => {
         const body = (await request.json()) as { title: string; description?: string };
         bodies.push(body);
-        const created = makeTask({ id: "t-new", title: body.title, description: body.description ?? null, aiStatus: "pending", createdAt: "2026-09-09T00:00:00.000Z" });
+        const created = makeTask({
+          id: "t-new",
+          title: body.title,
+          description: body.description ?? null,
+          aiStatus: "pending",
+          createdAt: "2026-09-09T00:00:00.000Z",
+        });
         db.rows.push(created);
         return ok(db.detail("t-new"), {}, 201);
       }),
@@ -5077,12 +5642,20 @@ describe("task list", () => {
     const { user } = renderApp({ route: "/tasks" });
     await screen.findByText("Buy milk");
     await user.click(screen.getByRole("button", { name: "Add description" }));
-    await user.type(screen.getByRole("textbox", { name: "Description" }), "Two sentences of context.");
-    await user.type(screen.getByRole("textbox", { name: "Task title" }), "Write the workshop runbook{Enter}");
+    await user.type(
+      screen.getByRole("textbox", { name: "Description" }),
+      "Two sentences of context.",
+    );
+    await user.type(
+      screen.getByRole("textbox", { name: "Task title" }),
+      "Write the workshop runbook{Enter}",
+    );
     const created = await screen.findByRole("listitem", { name: "Write the workshop runbook" });
     expect(within(created).getByText("Thinking")).toBeInTheDocument();
     expect(screen.getAllByRole("listitem")[0]).toBe(created);
-    expect(bodies).toEqual([{ title: "Write the workshop runbook", description: "Two sentences of context." }]);
+    expect(bodies).toEqual([
+      { title: "Write the workshop runbook", description: "Two sentences of context." },
+    ]);
     expect(screen.getByRole("textbox", { name: "Task title" })).toHaveValue("");
   });
 
@@ -5128,9 +5701,13 @@ describe("task list", () => {
       http.get(`${API}/tasks`, ({ request }) => {
         const cursor = new URL(request.url).searchParams.get("cursor");
         if (cursor === "page-2") {
-          return ok([db.summary(makeTask({ id: "t-b", title: "Second page task" }))], { nextCursor: null });
+          return ok([db.summary(makeTask({ id: "t-b", title: "Second page task" }))], {
+            nextCursor: null,
+          });
         }
-        return ok([db.summary(makeTask({ id: "t-a", title: "First page task" }))], { nextCursor: "page-2" });
+        return ok([db.summary(makeTask({ id: "t-a", title: "First page task" }))], {
+          nextCursor: "page-2",
+        });
       }),
     );
     const { user } = renderApp({ route: "/tasks" });
@@ -5174,7 +5751,9 @@ describe("task list", () => {
     const { user } = renderApp({ route: "/tasks" });
     await user.click(await screen.findByRole("button", { name: "Retry" }));
     await waitFor(() => expect(retries).toBe(1));
-    expect(await within(row("Plan the team offsite agenda")).findByText("Thinking")).toBeInTheDocument();
+    expect(
+      await within(row("Plan the team offsite agenda")).findByText("Thinking"),
+    ).toBeInTheDocument();
   });
 
   it("shows the error state with a retry when the list fails", async () => {
@@ -5201,7 +5780,10 @@ describe("task list", () => {
     );
     renderApp({ route: "/tasks" });
     const twoRow = await screen.findByRole("listitem", { name: "Two suggestions task" });
-    expect(within(twoRow).getByRole("link", { name: "2 suggestions" })).toHaveAttribute("href", "/tasks/t-two");
+    expect(within(twoRow).getByRole("link", { name: "2 suggestions" })).toHaveAttribute(
+      "href",
+      "/tasks/t-two",
+    );
     await screen.findByText("Buy milk");
     expect(detailCalls).toBe(0);
   });
@@ -5282,7 +5864,10 @@ export function useTasks(filters: TaskFilters) {
     initialPageParam: null as string | null,
     getNextPageParam: (last: TaskListEnvelope) => last.meta.nextCursor ?? null,
     refetchInterval: (query) =>
-      activeAiInterval(query.state.data?.pages.flatMap((page) => page.data), LIST_POLL_MS),
+      activeAiInterval(
+        query.state.data?.pages.flatMap((page) => page.data),
+        LIST_POLL_MS,
+      ),
   });
 }
 
@@ -5290,8 +5875,7 @@ export function useTask(id: string) {
   const queryClient = useQueryClient();
   const query = useQuery({
     queryKey: taskKeys.detail(id),
-    queryFn: async () =>
-      unwrap(await client.GET("/tasks/{id}", { params: { path: { id } } })).data,
+    queryFn: async () => unwrap(await client.GET("/tasks/{id}", { params: { path: { id } } })).data,
     refetchInterval: (q) => activeAiInterval(q.state.data, DETAIL_POLL_MS),
   });
 
@@ -5397,9 +5981,8 @@ export function useAcceptAll() {
   const settle = useSettleDetail();
   return useMutation({
     mutationFn: async (id: string) =>
-      unwrap(
-        await client.POST("/tasks/{id}/suggestions/accept-all", { params: { path: { id } } }),
-      ).data,
+      unwrap(await client.POST("/tasks/{id}/suggestions/accept-all", { params: { path: { id } } }))
+        .data,
     onSuccess: settle,
     onError: toastApiError,
   });
@@ -5409,9 +5992,8 @@ export function useDismissAll() {
   const settle = useSettleDetail();
   return useMutation({
     mutationFn: async (id: string) =>
-      unwrap(
-        await client.POST("/tasks/{id}/suggestions/dismiss-all", { params: { path: { id } } }),
-      ).data,
+      unwrap(await client.POST("/tasks/{id}/suggestions/dismiss-all", { params: { path: { id } } }))
+        .data,
     onSuccess: settle,
     onError: toastApiError,
   });
@@ -5444,7 +6026,11 @@ export function TagChip({ tag, onRemove }: { tag: Tag; onRemove?: () => void }) 
         onRemove && "pr-1",
       )}
     >
-      <span className="size-3 rounded-full" style={{ backgroundColor: tag.color }} aria-hidden="true" />
+      <span
+        className="size-3 rounded-full"
+        style={{ backgroundColor: tag.color }}
+        aria-hidden="true"
+      />
       {tag.name}
       {onRemove ? (
         <button
@@ -5512,7 +6098,10 @@ export function AiChip({
     case "pending":
     case "running":
       return (
-        <Badge className="animate-thinking gap-1 bg-accent text-accent-foreground" aria-live="polite">
+        <Badge
+          className="animate-thinking gap-1 bg-accent text-accent-foreground"
+          aria-live="polite"
+        >
           <Sparkles className="size-4" aria-hidden="true" />
           Thinking
         </Badge>
@@ -5714,7 +6303,11 @@ export function FilterBar({
                 onChange({ ...filters, tagId: filters.tagId === tag.id ? undefined : tag.id })
               }
             >
-              <span className="size-3 rounded-full" style={{ backgroundColor: tag.color }} aria-hidden="true" />
+              <span
+                className="size-3 rounded-full"
+                style={{ backgroundColor: tag.color }}
+                aria-hidden="true"
+              />
               {tag.name}
             </Button>
           ))}
@@ -5754,7 +6347,10 @@ export function TaskListPage() {
       ) : null}
 
       {tasks.isError ? (
-        <div role="alert" className="flex items-center gap-4 rounded-xl border border-destructive/40 bg-card p-4">
+        <div
+          role="alert"
+          className="flex items-center gap-4 rounded-xl border border-destructive/40 bg-card p-4"
+        >
           <span>Could not load tasks: {toApiError(tasks.error).message}</span>
           <Button variant="outline" onClick={() => void tasks.refetch()}>
             Try again
@@ -5814,14 +6410,17 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
+
 ### Task 12: Task detail: header, steps with suggestions, rationale popover, accept/edit/dismiss/undo
 
 **Files:**
+
 - Create: `src/components/inline-text.tsx`, `src/components/native-select.tsx`, `src/features/tasks/components/TaskHeader.tsx`, `src/features/tasks/components/RationalePopover.tsx`, `src/features/tasks/components/StepRow.tsx`, `src/features/tasks/components/DismissedSteps.tsx`, `src/features/tasks/components/StepList.tsx`
 - Modify: `src/features/tasks/TaskDetailPage.tsx`, `README.md`, `CHANGELOG.md`
 - Test: `src/components/inline-text.test.tsx`, `src/features/tasks/TaskDetailPage.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `useTask`, `useUpdateTask`, `useReplaceTags` (Task 11), `TagChip`, `ProgressBar`, shadcn `Checkbox`, `Popover` (`PopoverAnchor`, `PopoverContent`), `Badge`, `Button`.
 - Produces:
   - `InlineText({ value, onSave, label, as?, multiline?, placeholder?, className?, editing?, onEditingChange?, allowEmpty? })`: renders the value inside a button (so a heading keeps the value as its accessible name); click opens an input/textarea named `label`; Enter or blur saves, Escape cancels; `onSave` is called before the editor closes.
@@ -5882,7 +6481,15 @@ describe("InlineText", () => {
 
   it("opens in edit mode when controlled", async () => {
     const onSave = vi.fn();
-    render(<InlineText label="Step title" value="Draft" onSave={onSave} editing onEditingChange={() => {}} />);
+    render(
+      <InlineText
+        label="Step title"
+        value="Draft"
+        onSave={onSave}
+        editing
+        onEditingChange={() => {}}
+      />,
+    );
     expect(screen.getByRole("textbox", { name: "Step title" })).toHaveValue("Draft");
   });
 });
@@ -6042,7 +6649,11 @@ import type { SelectHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 
 /** A styled native <select>: keyboard and screen-reader behavior for free, no popper in jsdom. */
-export function NativeSelect({ className, children, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
+export function NativeSelect({
+  className,
+  children,
+  ...props
+}: SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <span className="relative inline-flex">
       <select
@@ -6106,18 +6717,30 @@ describe("task detail", () => {
       await screen.findByRole("heading", { name: "Prepare the quarterly business review deck" }),
     ).toBeInTheDocument();
     const list = screen.getByRole("list", { name: "Steps" });
-    expect(within(list).getAllByRole("listitem").map((li) => li.getAttribute("aria-labelledby"))).toHaveLength(4);
+    expect(
+      within(list)
+        .getAllByRole("listitem")
+        .map((li) => li.getAttribute("aria-labelledby")),
+    ).toHaveLength(4);
     const first = step("List the three decisions the deck must drive");
     expect(within(first).getByRole("button", { name: "Suggested by AI" })).toBeInTheDocument();
     expect(within(first).getByRole("button", { name: "Accept" })).toBeInTheDocument();
-    expect(screen.queryByText("Everything else follows from what the room must decide.")).toBeNull();
+    expect(
+      screen.queryByText("Everything else follows from what the room must decide."),
+    ).toBeNull();
     await user.click(within(first).getByRole("button", { name: "Suggested by AI" }));
-    expect(await screen.findByText("Everything else follows from what the room must decide.")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Everything else follows from what the room must decide."),
+    ).toBeInTheDocument();
     await user.click(within(first).getByRole("button", { name: "Suggested by AI" }));
     await waitFor(() =>
-      expect(screen.queryByText("Everything else follows from what the room must decide.")).toBeNull(),
+      expect(
+        screen.queryByText("Everything else follows from what the room must decide."),
+      ).toBeNull(),
     );
-    await user.hover(within(step("Draft the outline")).getByRole("button", { name: "Suggested by AI" }));
+    await user.hover(
+      within(step("Draft the outline")).getByRole("button", { name: "Suggested by AI" }),
+    );
     expect(await screen.findByText("An outline makes the review cheap.")).toBeInTheDocument();
     // The user-created step has no badge and no suggestion actions.
     const userStep = step("Book the rehearsal slot");
@@ -6129,24 +6752,51 @@ describe("task detail", () => {
   it("accept sets the suggestion state and updates progress", async () => {
     const patches = recordPatches();
     const { user } = renderApp({ route });
-    await user.click(within(await screen.findByRole("listitem", { name: "List the three decisions the deck must drive" })).getByRole("button", { name: "Accept" }));
-    await waitFor(() => expect(patches).toEqual([{ id: "s-1", body: { suggestionState: "accepted" } }]));
+    await user.click(
+      within(
+        await screen.findByRole("listitem", {
+          name: "List the three decisions the deck must drive",
+        }),
+      ).getByRole("button", { name: "Accept" }),
+    );
+    await waitFor(() =>
+      expect(patches).toEqual([{ id: "s-1", body: { suggestionState: "accepted" } }]),
+    );
     expect(await screen.findByText("0/2")).toBeInTheDocument();
-    expect(within(step("List the three decisions the deck must drive")).queryByRole("button", { name: "Accept" })).toBeNull();
-    expect(within(step("List the three decisions the deck must drive")).getByLabelText("Suggested by AI, accepted")).toBeInTheDocument();
+    expect(
+      within(step("List the three decisions the deck must drive")).queryByRole("button", {
+        name: "Accept",
+      }),
+    ).toBeNull();
+    expect(
+      within(step("List the three decisions the deck must drive")).getByLabelText(
+        "Suggested by AI, accepted",
+      ),
+    ).toBeInTheDocument();
   });
 
   it("dismiss collapses the step into the dismissed disclosure and undo brings it back as accepted", async () => {
     const patches = recordPatches();
     const { user } = renderApp({ route });
-    await user.click(within(await screen.findByRole("listitem", { name: "Draft the outline" })).getByRole("button", { name: "Dismiss" }));
-    await waitFor(() => expect(patches.at(-1)).toEqual({ id: "s-3", body: { suggestionState: "dismissed" } }));
-    await waitFor(() => expect(screen.queryByRole("listitem", { name: "Draft the outline" })).toBeNull());
+    await user.click(
+      within(await screen.findByRole("listitem", { name: "Draft the outline" })).getByRole(
+        "button",
+        { name: "Dismiss" },
+      ),
+    );
+    await waitFor(() =>
+      expect(patches.at(-1)).toEqual({ id: "s-3", body: { suggestionState: "dismissed" } }),
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole("listitem", { name: "Draft the outline" })).toBeNull(),
+    );
     const disclosure = screen.getByRole("button", { name: "1 dismissed", expanded: false });
     await user.click(disclosure);
     const dismissed = screen.getByRole("list", { name: "Dismissed steps" });
     await user.click(within(dismissed).getByRole("button", { name: "Undo" }));
-    await waitFor(() => expect(patches.at(-1)).toEqual({ id: "s-3", body: { suggestionState: "accepted" } }));
+    await waitFor(() =>
+      expect(patches.at(-1)).toEqual({ id: "s-3", body: { suggestionState: "accepted" } }),
+    );
     expect(await screen.findByRole("listitem", { name: "Draft the outline" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /dismissed/ })).toBeNull();
   });
@@ -6165,34 +6815,52 @@ describe("task detail", () => {
         { id: "s-3", body: { title: "Draft a one-page outline", suggestionState: "accepted" } },
       ]),
     );
-    expect(await screen.findByRole("listitem", { name: "Draft a one-page outline" })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("listitem", { name: "Draft a one-page outline" }),
+    ).toBeInTheDocument();
   });
 
   it("edits the title, description, and status in the header", async () => {
     const patches = recordPatches();
     const { user } = renderApp({ route });
-    await user.click(await screen.findByRole("button", { name: "Prepare the quarterly business review deck" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Prepare the quarterly business review deck" }),
+    );
     await user.clear(screen.getByRole("textbox", { name: "Title" }));
     await user.type(screen.getByRole("textbox", { name: "Title" }), "Prepare the QBR deck{Enter}");
-    await waitFor(() => expect(patches.at(-1)).toEqual({ id: T_SUGGESTED, body: { title: "Prepare the QBR deck" } }));
-    expect(await screen.findByRole("heading", { name: "Prepare the QBR deck" })).toBeInTheDocument();
+    await waitFor(() =>
+      expect(patches.at(-1)).toEqual({ id: T_SUGGESTED, body: { title: "Prepare the QBR deck" } }),
+    );
+    expect(
+      await screen.findByRole("heading", { name: "Prepare the QBR deck" }),
+    ).toBeInTheDocument();
 
     await user.selectOptions(screen.getByRole("combobox", { name: "Status" }), "done");
-    await waitFor(() => expect(patches.at(-1)).toEqual({ id: T_SUGGESTED, body: { status: "done" } }));
+    await waitFor(() =>
+      expect(patches.at(-1)).toEqual({ id: T_SUGGESTED, body: { status: "done" } }),
+    );
 
     await user.click(screen.getByRole("button", { name: "For the leadership team on the 30th." }));
     await user.clear(screen.getByRole("textbox", { name: "Description" }));
-    await user.type(screen.getByRole("textbox", { name: "Description" }), "Thirty minutes, five slides.");
+    await user.type(
+      screen.getByRole("textbox", { name: "Description" }),
+      "Thirty minutes, five slides.",
+    );
     await user.click(screen.getByRole("heading", { name: "Steps" }));
     await waitFor(() =>
-      expect(patches.at(-1)).toEqual({ id: T_SUGGESTED, body: { description: "Thirty minutes, five slides." } }),
+      expect(patches.at(-1)).toEqual({
+        id: T_SUGGESTED,
+        body: { description: "Thirty minutes, five slides." },
+      }),
     );
   });
 
   it("checks a user step done", async () => {
     const patches = recordPatches();
     const { user } = renderApp({ route });
-    await user.click(await screen.findByRole("checkbox", { name: "Mark Book the rehearsal slot done" }));
+    await user.click(
+      await screen.findByRole("checkbox", { name: "Mark Book the rehearsal slot done" }),
+    );
     await waitFor(() => expect(patches).toEqual([{ id: "s-4", body: { status: "done" } }]));
     expect(await screen.findByText("1/1")).toBeInTheDocument();
   });
@@ -6333,11 +7001,18 @@ export function StepRow({ step }: { step: TaskSummary }) {
       </div>
       {suggested ? <RationalePopover rationale={step.rationale} /> : null}
       {accepted ? (
-        <Sparkles className="size-4 text-primary" aria-label="Suggested by AI, accepted" role="img" />
+        <Sparkles
+          className="size-4 text-primary"
+          aria-label="Suggested by AI, accepted"
+          role="img"
+        />
       ) : null}
       {suggested ? (
         <div className="flex gap-2">
-          <Button size="sm" onClick={() => update.mutate({ id: step.id, suggestionState: "accepted" })}>
+          <Button
+            size="sm"
+            onClick={() => update.mutate({ id: step.id, suggestionState: "accepted" })}
+          >
             Accept
           </Button>
           <Button
@@ -6393,7 +7068,10 @@ export function DismissedSteps({ steps }: { steps: TaskSummary[] }) {
       {open ? (
         <ul id="dismissed-steps" aria-label="Dismissed steps" className="mt-2 space-y-2">
           {steps.map((step) => (
-            <li key={step.id} className="flex items-center gap-3 rounded-xl border border-dashed px-4 py-2 text-muted-foreground">
+            <li
+              key={step.id}
+              className="flex items-center gap-3 rounded-xl border border-dashed px-4 py-2 text-muted-foreground"
+            >
               <span className="flex-1 line-through">{step.title}</span>
               <Button
                 size="sm"
@@ -6544,7 +7222,11 @@ export function TaskDetailPage() {
 
   return (
     <article className="space-y-10">
-      <Link to="/tasks" className="inline-flex items-center gap-1 font-semibold text-primary" data-nav>
+      <Link
+        to="/tasks"
+        className="inline-flex items-center gap-1 font-semibold text-primary"
+        data-nav
+      >
         <ArrowLeft className="size-4" aria-hidden="true" />
         All tasks
       </Link>
@@ -6579,14 +7261,17 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
+
 ### Task 13: AI banner with regenerate and conflict handling, bulk actions, detail polling
 
 **Files:**
+
 - Create: `src/features/tasks/components/AiBanner.tsx`, `src/features/tasks/components/BulkBar.tsx`
 - Modify: `src/features/tasks/TaskDetailPage.tsx`, `README.md`, `CHANGELOG.md`
 - Test: `src/features/tasks/TaskDetailAi.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `useBreakdown` (CONFLICT toast "Already working on it"), `useAcceptAll`, `useDismissAll`, `useTask` polling and list invalidation (Task 11), `skipReasonLabel`, `isAiActive`, `pluralize`.
 - Produces: `AiBanner({ task })` (thinking / failed with Retry / skipped with reason / nothing when done, plus the Regenerate button disabled while pending or running), `BulkBar({ task })` ("Accept all", "Dismiss all", shown only when suggestions exist).
 
@@ -6614,12 +7299,14 @@ describe("detail AI state", () => {
     server.use(
       http.post(`${API}/tasks/${T_SUGGESTED}/suggestions/accept-all`, () => {
         accepts += 1;
-        for (const c of db.children(T_SUGGESTED)) if (c.suggestionState === "suggested") c.suggestionState = "accepted";
+        for (const c of db.children(T_SUGGESTED))
+          if (c.suggestionState === "suggested") c.suggestionState = "accepted";
         return ok(db.detail(T_SUGGESTED));
       }),
       http.post(`${API}/tasks/${T_SUGGESTED}/suggestions/dismiss-all`, () => {
         dismisses += 1;
-        for (const c of db.children(T_SUGGESTED)) if (c.suggestionState === "suggested") c.suggestionState = "dismissed";
+        for (const c of db.children(T_SUGGESTED))
+          if (c.suggestionState === "suggested") c.suggestionState = "dismissed";
         return ok(db.detail(T_SUGGESTED));
       }),
     );
@@ -6635,7 +7322,11 @@ describe("detail AI state", () => {
 
     db.reset();
     const second = renderApp({ route });
-    await second.user.click(within(await screen.findByRole("group", { name: "Suggestions" })).getByRole("button", { name: "Dismiss all" }));
+    await second.user.click(
+      within(await screen.findByRole("group", { name: "Suggestions" })).getByRole("button", {
+        name: "Dismiss all",
+      }),
+    );
     await waitFor(() => expect(dismisses).toBe(1));
     expect(await screen.findByRole("button", { name: "3 dismissed" })).toBeInTheDocument();
     expect(screen.getByText("0/1")).toBeInTheDocument();
@@ -6661,7 +7352,11 @@ describe("detail AI state", () => {
   });
 
   it("shows the conflict message when a generation is already active", async () => {
-    server.use(http.post(`${API}/tasks/${T_SUGGESTED}/breakdown`, () => err("CONFLICT", "A generation is pending")));
+    server.use(
+      http.post(`${API}/tasks/${T_SUGGESTED}/breakdown`, () =>
+        err("CONFLICT", "A generation is pending"),
+      ),
+    );
     const { user } = renderApp({ route });
     await user.click(await screen.findByRole("button", { name: "Regenerate" }));
     expect(await screen.findByText("Already working on it")).toBeInTheDocument();
@@ -6686,7 +7381,9 @@ describe("detail AI state", () => {
 
   it("skipped banner shows the reason in words", async () => {
     renderApp({ route: `/tasks/${T_SKIPPED}` });
-    expect(await screen.findByRole("status", { name: "Assistant" })).toHaveTextContent("Too short to break down");
+    expect(await screen.findByRole("status", { name: "Assistant" })).toHaveTextContent(
+      "Too short to break down",
+    );
     expect(screen.getByRole("button", { name: "Regenerate" })).toBeEnabled();
   });
 
@@ -6791,7 +7488,9 @@ export function AiBanner({ task }: { task: TaskDetail }) {
         aria-label="Assistant"
         className="flex flex-wrap items-center gap-3 rounded-xl border bg-card px-4 py-3 text-muted-foreground"
       >
-        <span className="flex-1">The assistant skipped this task: {skipReasonLabel(task.aiSkipReason)}</span>
+        <span className="flex-1">
+          The assistant skipped this task: {skipReasonLabel(task.aiSkipReason)}
+        </span>
         {regenerate}
       </div>
     );
@@ -6825,7 +7524,11 @@ export function BulkBar({ task }: { task: TaskDetail }) {
       <Button onClick={() => acceptAll.mutate(task.id)} disabled={acceptAll.isPending}>
         Accept all
       </Button>
-      <Button variant="outline" onClick={() => dismissAll.mutate(task.id)} disabled={dismissAll.isPending}>
+      <Button
+        variant="outline"
+        onClick={() => dismissAll.mutate(task.id)}
+        disabled={dismissAll.isPending}
+      >
         Dismiss all
       </Button>
     </div>
@@ -6868,11 +7571,13 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ### Task 14: Reorder steps with dnd-kit (target index), keyboard moves, add step
 
 **Files:**
+
 - Create: `src/features/tasks/components/AddStepForm.tsx`
 - Modify: `src/features/tasks/hooks.ts` (add `useReorderStep`), `src/features/tasks/components/StepList.tsx`, `src/features/tasks/components/StepRow.tsx`, `README.md`, `CHANGELOG.md`
 - Test: `src/features/tasks/StepReorder.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `@dnd-kit/core` (`DndContext`, `PointerSensor`, `KeyboardSensor`, `useSensor`, `useSensors`, `closestCenter`), `@dnd-kit/sortable` (`SortableContext`, `useSortable`, `verticalListSortingStrategy`, `sortableKeyboardCoordinates`, `arrayMove`), `@dnd-kit/utilities` (`CSS`), `useCreateTask`.
 - Produces: `useReorderStep(parentId)` with variables `{ id, position }` (optimistic reorder of the cached detail, rollback on error); `StepRow` gains `onMoveUp?`, `onMoveDown?` and a drag handle; `AddStepForm({ parentId })`.
 - The target index is the dropped-over step's index in `task.children` (all siblings, dismissed included), which is exactly what `PATCH position` means in the API. The "Move up"/"Move down" buttons call the same function as the drop, so the request contract is tested without simulating pointer geometry in jsdom.
@@ -6917,7 +7622,11 @@ describe("step reorder and add step", () => {
       "Pull last quarter's numbers from the dashboard",
       "Draft the outline",
     ]);
-    await user.click(screen.getByRole("button", { name: "Move Pull last quarter's numbers from the dashboard down" }));
+    await user.click(
+      screen.getByRole("button", {
+        name: "Move Pull last quarter's numbers from the dashboard down",
+      }),
+    );
     // Optimistic: the order changes before the server answers.
     expect(stepTitles().slice(0, 3)).toEqual([
       "List the three decisions the deck must drive",
@@ -6925,8 +7634,12 @@ describe("step reorder and add step", () => {
       "Pull last quarter's numbers from the dashboard",
     ]);
     await waitFor(() => expect(patches).toEqual([{ id: "s-2", body: { position: 2 } }]));
-    await waitFor(() => expect(stepTitles()[2]).toBe("Pull last quarter's numbers from the dashboard"));
-    expect(screen.getByRole("button", { name: "Move List the three decisions the deck must drive up" })).toBeDisabled();
+    await waitFor(() =>
+      expect(stepTitles()[2]).toBe("Pull last quarter's numbers from the dashboard"),
+    );
+    expect(
+      screen.getByRole("button", { name: "Move List the three decisions the deck must drive up" }),
+    ).toBeDisabled();
   });
 
   it("rolls back and shows a toast when the reorder fails", async () => {
@@ -6968,8 +7681,13 @@ describe("step reorder and add step", () => {
     );
     const { user } = renderApp({ route });
     await screen.findByRole("list", { name: "Steps" });
-    await user.type(screen.getByRole("textbox", { name: "New step" }), "Send the calendar invite{Enter}");
-    expect(await screen.findByRole("listitem", { name: "Send the calendar invite" })).toBeInTheDocument();
+    await user.type(
+      screen.getByRole("textbox", { name: "New step" }),
+      "Send the calendar invite{Enter}",
+    );
+    expect(
+      await screen.findByRole("listitem", { name: "Send the calendar invite" }),
+    ).toBeInTheDocument();
     expect(bodies).toEqual([{ title: "Send the calendar invite", parentId: T_SUGGESTED }]);
     expect(screen.getByRole("textbox", { name: "New step" })).toHaveValue("");
   });
@@ -7122,8 +7840,15 @@ export function StepRow({
   const update = useUpdateTask();
   const [editing, setEditing] = useState(false);
   const acceptAfterEdit = useRef(false);
-  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } =
-    useSortable({ id: step.id });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: step.id });
   const suggested = step.origin === "ai" && step.suggestionState === "suggested";
   const accepted = step.origin === "ai" && step.suggestionState === "accepted";
   const titleId = `step-${step.id}-title`;
@@ -7182,11 +7907,18 @@ export function StepRow({
       </div>
       {suggested ? <RationalePopover rationale={step.rationale} /> : null}
       {accepted ? (
-        <Sparkles className="size-4 text-primary" aria-label="Suggested by AI, accepted" role="img" />
+        <Sparkles
+          className="size-4 text-primary"
+          aria-label="Suggested by AI, accepted"
+          role="img"
+        />
       ) : null}
       {suggested ? (
         <div className="flex gap-2">
-          <Button size="sm" onClick={() => update.mutate({ id: step.id, suggestionState: "accepted" })}>
+          <Button
+            size="sm"
+            onClick={() => update.mutate({ id: step.id, suggestionState: "accepted" })}
+          >
             Accept
           </Button>
           <Button
@@ -7296,14 +8028,17 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
+
 ### Task 15: Tags on the task: add-tag popover and AI tag suggestion adoption
 
 **Files:**
+
 - Create: `src/lib/tag-palette.ts`, `src/features/tasks/components/AddTagPopover.tsx`, `src/features/tasks/components/AiTagSuggestions.tsx`
 - Modify: `src/api/tags-query.ts` (add `useCreateTag`, `useUpdateTag`, `useDeleteTag`), `src/features/tasks/components/TaskHeader.tsx`, `README.md`, `CHANGELOG.md`
 - Test: `src/lib/tag-palette.test.ts`, `src/features/tasks/TaskTags.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `useTags`, `useReplaceTags`, shadcn `Popover`/`PopoverTrigger`/`PopoverContent`.
 - Produces:
   - `TAG_PALETTE` (eight named hex colors) and `nextPaletteColor(existing: { color: string }[]): string` in `src/lib/tag-palette.ts`.
@@ -7329,7 +8064,9 @@ describe("tag palette", () => {
   it("picks the first unused color, then cycles", () => {
     expect(nextPaletteColor([])).toBe(TAG_PALETTE[0].value);
     expect(nextPaletteColor([{ color: TAG_PALETTE[0].value }])).toBe(TAG_PALETTE[1].value);
-    expect(nextPaletteColor(TAG_PALETTE.map((c) => ({ color: c.value })))).toBe(TAG_PALETTE[0].value);
+    expect(nextPaletteColor(TAG_PALETTE.map((c) => ({ color: c.value })))).toBe(
+      TAG_PALETTE[0].value,
+    );
   });
 });
 ```
@@ -7397,10 +8134,12 @@ describe("tags on the task", () => {
     const puts = recordTagPuts();
     db.tags.push(makeTag({ id: "tag-plan", name: "Planning", color: "#7A3E9D" }));
     let posts = 0;
-    server.use(http.post(`${API}/tags`, () => {
-      posts += 1;
-      return err("INTERNAL", "should not be called");
-    }));
+    server.use(
+      http.post(`${API}/tags`, () => {
+        posts += 1;
+        return err("INTERNAL", "should not be called");
+      }),
+    );
     const { user } = renderApp({ route });
     await user.click(await screen.findByRole("button", { name: "Add tag planning" }));
     await waitFor(() => expect(puts).toEqual([{ tagIds: [TAG_WORK, "tag-plan"] }]));
@@ -7410,12 +8149,18 @@ describe("tags on the task", () => {
   it("shows the API error when replacing tags fails", async () => {
     server.use(
       http.put(`${API}/tasks/:id/tags`, () =>
-        err("VALIDATION_ERROR", "Invalid request", [{ path: "body.tagIds", message: "Unknown tag" }]),
+        err("VALIDATION_ERROR", "Invalid request", [
+          { path: "body.tagIds", message: "Unknown tag" },
+        ]),
       ),
     );
     const { user } = renderApp({ route });
     await user.click(await screen.findByRole("button", { name: "Add tag" }));
-    await user.click(within(await screen.findByRole("list", { name: "Available tags" })).getByRole("button", { name: "home" }));
+    await user.click(
+      within(await screen.findByRole("list", { name: "Available tags" })).getByRole("button", {
+        name: "home",
+      }),
+    );
     expect(await screen.findByText("Check the highlighted fields")).toBeInTheDocument();
     expect(screen.getByText("tagIds: Unknown tag")).toBeInTheDocument();
   });
@@ -7550,7 +8295,11 @@ export function AddTagPopover({ task }: { task: TaskDetail }) {
                     setOpen(false);
                   }}
                 >
-                  <span className="size-3 rounded-full" style={{ backgroundColor: tag.color }} aria-hidden="true" />
+                  <span
+                    className="size-3 rounded-full"
+                    style={{ backgroundColor: tag.color }}
+                    aria-hidden="true"
+                  />
                   {tag.name}
                 </button>
               </li>
@@ -7660,11 +8409,13 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ### Task 16: Tags page
 
 **Files:**
+
 - Create: `src/features/tags/hooks.ts`, `src/features/tags/components/TagRow.tsx`, `src/features/tags/components/ColorPicker.tsx`
 - Modify: `src/features/tags/TagsPage.tsx`, `README.md`, `CHANGELOG.md`
 - Test: `src/features/tags/TagsPage.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `useTags`, `useCreateTag`, `useUpdateTag`, `useDeleteTag` (re-exported through `features/tags/hooks.ts`), `TAG_PALETTE`, `InlineText`, `Field`, shadcn `AlertDialog`, `Popover`.
 - Produces: `ColorPicker({ value, onChange, label })` (a `radiogroup` of the eight palette colors, each radio named by its color name), `TagRow({ tag })`.
 - No task-count column (ruling R4; spec 4.5): the table shows the color swatch and the name only, because the API's `Tag` carries no count.
@@ -7690,7 +8441,9 @@ describe("tags page", () => {
     expect(await screen.findByRole("heading", { name: "Tags" })).toBeInTheDocument();
     const table = screen.getByRole("table", { name: "Your tags" });
     expect(within(table).getAllByRole("row")).toHaveLength(3);
-    expect(within(tagRow("work")).getByRole("button", { name: "Change color of work" })).toBeInTheDocument();
+    expect(
+      within(tagRow("work")).getByRole("button", { name: "Change color of work" }),
+    ).toBeInTheDocument();
   });
 
   it("creates a tag with a palette color", async () => {
@@ -7719,7 +8472,9 @@ describe("tags page", () => {
     await screen.findByRole("table", { name: "Your tags" });
     await user.type(screen.getByLabelText("Name"), "Work");
     await user.click(screen.getByRole("button", { name: "Create tag" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("A tag with this name already exists");
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "A tag with this name already exists",
+    );
     expect(screen.getByLabelText("Name")).toHaveAttribute("aria-invalid", "true");
   });
 
@@ -7742,9 +8497,13 @@ describe("tags page", () => {
     await waitFor(() => expect(patches).toEqual([{ id: TAG_WORK, body: { name: "office" } }]));
     expect(await screen.findByRole("row", { name: "office" })).toBeInTheDocument();
 
-    await user.click(within(tagRow("office")).getByRole("button", { name: "Change color of office" }));
+    await user.click(
+      within(tagRow("office")).getByRole("button", { name: "Change color of office" }),
+    );
     await user.click(await screen.findByRole("radio", { name: "Amber" }));
-    await waitFor(() => expect(patches.at(-1)).toEqual({ id: TAG_WORK, body: { color: "#C77D1A" } }));
+    await waitFor(() =>
+      expect(patches.at(-1)).toEqual({ id: TAG_WORK, body: { color: "#C77D1A" } }),
+    );
   });
 
   it("deletes after a confirmation that explains links are removed", async () => {
@@ -7905,7 +8664,9 @@ export function TagRow({ tag }: { tag: Tag }) {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Keep tag</AlertDialogCancel>
-              <AlertDialogAction onClick={() => remove.mutate(tag.id)}>Delete tag</AlertDialogAction>
+              <AlertDialogAction onClick={() => remove.mutate(tag.id)}>
+                Delete tag
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -8033,11 +8794,13 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ### Task 17: Request-a-feature page with availability from the health feature flag
 
 **Files:**
+
 - Create: `src/features/feature-request/hooks.ts`, `src/features/feature-request/FeatureRequestLink.tsx`
 - Modify: `src/features/feature-request/RequestFeaturePage.tsx`, `src/app/layout.tsx` (use the feature's link), `README.md`, `CHANGELOG.md`
 - Test: `src/features/feature-request/RequestFeaturePage.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `client`, `unwrap`, `Field`, `toastApiError`, `FeatureRequestBody`, `FeatureRequestResult`; the MSW `healthBody` helper from Task 8.
 - Produces: `useFeatureRequestAvailable(): { available: boolean | undefined }` (reads `GET /api/v1/health` once per session with `staleTime: Infinity` and reports `data.features.featureRequests`; a non-2xx health answer counts as `false`), `useSubmitFeatureRequest()`, `FeatureRequestLink()` (the nav link, rendered only when available). `app/layout.tsx` imports `FeatureRequestLink` from the feature and deletes its stub.
 - Ruling R2 (master plan interface "Health", web spec 4.6): `features.featureRequests` is true exactly when the API mounted `POST /feature-requests`. The served `/openapi.json` is never inspected for this; it lists the path whether or not the route is mounted.
@@ -8057,9 +8820,18 @@ import { renderApp } from "../../../tests/render";
 function fill(user: ReturnType<typeof renderApp>["user"]) {
   return (async () => {
     await user.type(screen.getByLabelText("Title"), "Snooze a task until Monday");
-    await user.type(screen.getByLabelText("Problem"), "Tasks I cannot act on yet clutter the list.");
-    await user.type(screen.getByLabelText("Proposed behavior"), "A snooze button hides the task until a date.");
-    await user.type(screen.getByLabelText("Acceptance criteria"), "Snoozed tasks reappear on the chosen date.");
+    await user.type(
+      screen.getByLabelText("Problem"),
+      "Tasks I cannot act on yet clutter the list.",
+    );
+    await user.type(
+      screen.getByLabelText("Proposed behavior"),
+      "A snooze button hides the task until a date.",
+    );
+    await user.type(
+      screen.getByLabelText("Acceptance criteria"),
+      "Snoozed tasks reappear on the chosen date.",
+    );
     await user.type(screen.getByLabelText("Out of scope"), "Recurring snoozes.");
   })();
 }
@@ -8068,7 +8840,9 @@ describe("request a feature", () => {
   it("hides the nav link and the form when health reports featureRequests false", async () => {
     server.use(http.get(`${API}/health`, () => ok(healthBody(false))));
     renderApp({ route: "/request-feature" });
-    expect(await screen.findByText("Feature requests are not available in this environment.")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Feature requests are not available in this environment."),
+    ).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Request a feature" })).toBeNull();
     expect(screen.queryByRole("form", { name: "Request a feature" })).toBeNull();
   });
@@ -8076,7 +8850,9 @@ describe("request a feature", () => {
   it("treats a failing health check as unavailable", async () => {
     server.use(http.get(`${API}/health`, () => err("UNAVAILABLE", "redis check failed")));
     renderApp({ route: "/request-feature" });
-    expect(await screen.findByText("Feature requests are not available in this environment.")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Feature requests are not available in this environment."),
+    ).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Request a feature" })).toBeNull();
   });
 
@@ -8085,7 +8861,14 @@ describe("request a feature", () => {
     server.use(
       http.post(`${API}/feature-requests`, async ({ request }) => {
         bodies.push(await request.json());
-        return ok({ issueNumber: 42, issueUrl: "https://github.com/kpnemo/kaizen-tasks-assembly-line/issues/42" }, {}, 201);
+        return ok(
+          {
+            issueNumber: 42,
+            issueUrl: "https://github.com/kpnemo/kaizen-tasks-assembly-line/issues/42",
+          },
+          {},
+          201,
+        );
       }),
     );
     const { user } = renderApp({ route: "/tasks" });
@@ -8112,7 +8895,9 @@ describe("request a feature", () => {
   it("maps VALIDATION_ERROR onto the field", async () => {
     server.use(
       http.post(`${API}/feature-requests`, () =>
-        err("VALIDATION_ERROR", "Invalid request", [{ path: "body.title", message: "Title is too long" }]),
+        err("VALIDATION_ERROR", "Invalid request", [
+          { path: "body.title", message: "Title is too long" },
+        ]),
       ),
     );
     const { user } = renderApp({ route: "/request-feature" });
@@ -8124,7 +8909,11 @@ describe("request a feature", () => {
   });
 
   it("shows an upstream failure as a toast with the request id", async () => {
-    server.use(http.post(`${API}/feature-requests`, () => err("UPSTREAM_ERROR", "GitHub rejected the issue")));
+    server.use(
+      http.post(`${API}/feature-requests`, () =>
+        err("UPSTREAM_ERROR", "GitHub rejected the issue"),
+      ),
+    );
     const { user } = renderApp({ route: "/request-feature" });
     await screen.findByRole("form", { name: "Request a feature" });
     await fill(user);
@@ -8241,13 +9030,34 @@ const EMPTY: FeatureRequestBody = {
   outOfScope: "",
 };
 
-const FIELDS: { key: keyof FeatureRequestBody; label: string; hint: string; multiline: boolean }[] = [
-  { key: "title", label: "Title", hint: "One line, the way you would name it in a release note", multiline: false },
-  { key: "problem", label: "Problem", hint: "What is hard today, and for whom", multiline: true },
-  { key: "proposedBehavior", label: "Proposed behavior", hint: "What the product should do instead", multiline: true },
-  { key: "acceptanceCriteria", label: "Acceptance criteria", hint: "How we will know it works", multiline: true },
-  { key: "outOfScope", label: "Out of scope", hint: "What this request deliberately leaves out (optional)", multiline: true },
-];
+const FIELDS: { key: keyof FeatureRequestBody; label: string; hint: string; multiline: boolean }[] =
+  [
+    {
+      key: "title",
+      label: "Title",
+      hint: "One line, the way you would name it in a release note",
+      multiline: false,
+    },
+    { key: "problem", label: "Problem", hint: "What is hard today, and for whom", multiline: true },
+    {
+      key: "proposedBehavior",
+      label: "Proposed behavior",
+      hint: "What the product should do instead",
+      multiline: true,
+    },
+    {
+      key: "acceptanceCriteria",
+      label: "Acceptance criteria",
+      hint: "How we will know it works",
+      multiline: true,
+    },
+    {
+      key: "outOfScope",
+      label: "Out of scope",
+      hint: "What this request deliberately leaves out (optional)",
+      multiline: true,
+    },
+  ];
 
 export function RequestFeaturePage() {
   const { available } = useFeatureRequestAvailable();
@@ -8268,7 +9078,9 @@ export function RequestFeaturePage() {
     return (
       <div className="space-y-4">
         <h1>Request a feature</h1>
-        <p className="text-muted-foreground">Feature requests are not available in this environment.</p>
+        <p className="text-muted-foreground">
+          Feature requests are not available in this environment.
+        </p>
       </div>
     );
   }
@@ -8278,7 +9090,12 @@ export function RequestFeaturePage() {
         <h1>Request #{filed.issueNumber} filed</h1>
         <p>
           Thank you. It is now in the queue the engineering harness triages.{" "}
-          <a href={filed.issueUrl} className="font-semibold text-primary underline" target="_blank" rel="noreferrer">
+          <a
+            href={filed.issueUrl}
+            className="font-semibold text-primary underline"
+            target="_blank"
+            rel="noreferrer"
+          >
             Open the issue
           </a>
         </p>
@@ -8332,13 +9149,25 @@ export function RequestFeaturePage() {
               setValues((v) => ({ ...v, [field.key]: e.target.value })),
           };
           return (
-            <Field key={field.key} id={id} label={field.label} hint={field.hint} error={fields[field.key]}>
-              {field.multiline ? <Textarea rows={3} {...shared} /> : <Input maxLength={200} {...shared} />}
+            <Field
+              key={field.key}
+              id={id}
+              label={field.label}
+              hint={field.hint}
+              error={fields[field.key]}
+            >
+              {field.multiline ? (
+                <Textarea rows={3} {...shared} />
+              ) : (
+                <Input maxLength={200} {...shared} />
+              )}
             </Field>
           );
         })}
         {error && error.code !== "VALIDATION_ERROR" ? (
-          <p className="text-muted-foreground">Nothing was filed. Fix the problem above and send again.</p>
+          <p className="text-muted-foreground">
+            Nothing was filed. Fix the problem above and send again.
+          </p>
         ) : null}
         <Button type="submit" disabled={submit.isPending}>
           Send request
@@ -8360,7 +9189,7 @@ Expected: green; `RequestFeaturePage.test.tsx` reports `6 passed`. The router te
 
 `README.md` "## Features": replace the parenthetical bullet with `- Request a feature: the issue form's five fields, filed as a GitHub issue through the API; the link appears only when the API's health reports `features.featureRequests: true``.
 
-`CHANGELOG.md` `[Unreleased]` / `### Added`: `- Request-a-feature page; the nav link and route are shown only when `GET /health` reports `features.featureRequests` true.`
+`CHANGELOG.md` `[Unreleased]` / `### Added`: `- Request-a-feature page; the nav link and route are shown only when `GET /health`reports`features.featureRequests` true.`
 
 Run: `npm run lint && npm run typecheck && npm test`
 Expected: green.
@@ -8373,13 +9202,16 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
+
 ### Task 18: Docs set: ARCHITECTURE.md, three ADRs, README sections, CHANGELOG
 
 **Files:**
+
 - Create: `docs/ARCHITECTURE.md`, `docs/adr/0001-same-origin-proxy-web-side.md`, `docs/adr/0002-contract-copied-not-linked.md`, `docs/adr/0003-access-token-in-memory.md`
 - Modify: `README.md`, `CHANGELOG.md`
 
 **Interfaces:**
+
 - Consumes: everything built so far; the assembly-line smoke test's selector contract.
 - Produces: the docs Task 19's docs-check and Task 20's CLAUDE.md point at; the "Selector contract" section in `README.md` that `CLAUDE.md` and the `add-frontend-feature` skill reference.
 
@@ -8471,11 +9303,11 @@ list is in `README.md`, "Selector contract". Changing any of those names is a cr
 
 ## Verification items
 
-| Item | Status |
-|---|---|
+| Item                                                               | Status                                                                                                        |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
 | W1 Railpack honors the root Caddyfile with a private-network proxy | verified on the first staging deploy (L3-M1); fallback is a Node server with `serve-handler` and `http-proxy` |
-| W2 Prism examples look sensible | closed by running Prism in static mode with curated examples |
-| W3 openapi-fetch replay after refresh | closed by `src/api/client.test.ts` ("refreshes once and replays") |
+| W2 Prism examples look sensible                                    | closed by running Prism in static mode with curated examples                                                  |
+| W3 openapi-fetch replay after refresh                              | closed by `src/api/client.test.ts` ("refreshes once and replays")                                             |
 ````
 
 - [ ] **Step 2: The three ADRs**
@@ -8577,25 +9409,25 @@ through `POST /auth/refresh`; on a 401 the client middleware refreshes once and 
 
 Append to `README.md` (before "## Docs"):
 
-````markdown
+```markdown
 ## Selector contract (smoke test)
 
 The Playwright smoke test in `kaizen-tasks-assembly-line` locates this app by accessible role and
 name only. These names are a cross-repo contract; do not change them without changing the smoke test:
 
-| Screen | Element | Accessible name |
-|---|---|---|
-| Login | heading | "Log in" (URL ends in `/login`) |
-| Login | link to register | "Create an account" |
-| Register | inputs | labels "Email", "Password", "Display name" |
-| Register | submit | button "Create account"; success lands on `/tasks` |
-| Task list | create bar | textbox "Task title"; textbox "Description" revealed by the button "Add description"; Enter in the title submits |
-| Task list | row | `listitem` named by the task title; the title is a link to `/tasks/:id` |
-| Task list | AI chip | "Thinking" while pending or running; "N suggestions" (from the summary's `suggestionCount`) when done with suggestions; "Breakdown failed: <aiError>" plus a "Retry" button; "Too short to break down", "Hourly limit reached", or "Assistant paused" when skipped |
-| Detail | heading | the task title (URL `/tasks/<uuid>`) |
-| Detail | accept | button named exactly "Accept" on each suggested step |
-| Detail | progress | text `done/total`, for example `0/1` |
-| Anywhere | log out | button "Log out" |
+| Screen    | Element          | Accessible name                                                                                                                                                                                                                                                    |
+| --------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Login     | heading          | "Log in" (URL ends in `/login`)                                                                                                                                                                                                                                    |
+| Login     | link to register | "Create an account"                                                                                                                                                                                                                                                |
+| Register  | inputs           | labels "Email", "Password", "Display name"                                                                                                                                                                                                                         |
+| Register  | submit           | button "Create account"; success lands on `/tasks`                                                                                                                                                                                                                 |
+| Task list | create bar       | textbox "Task title"; textbox "Description" revealed by the button "Add description"; Enter in the title submits                                                                                                                                                   |
+| Task list | row              | `listitem` named by the task title; the title is a link to `/tasks/:id`                                                                                                                                                                                            |
+| Task list | AI chip          | "Thinking" while pending or running; "N suggestions" (from the summary's `suggestionCount`) when done with suggestions; "Breakdown failed: <aiError>" plus a "Retry" button; "Too short to break down", "Hourly limit reached", or "Assistant paused" when skipped |
+| Detail    | heading          | the task title (URL `/tasks/<uuid>`)                                                                                                                                                                                                                               |
+| Detail    | accept           | button named exactly "Accept" on each suggested step                                                                                                                                                                                                               |
+| Detail    | progress         | text `done/total`, for example `0/1`                                                                                                                                                                                                                               |
+| Anywhere  | log out          | button "Log out"                                                                                                                                                                                                                                                   |
 
 ## Pipeline
 
@@ -8604,7 +9436,7 @@ docs-check, build, a `dist/version.json` assertion, and a contract-drift warning
 `develop` to staging and `main` to production with wait-for-CI on. `promote` runs on pull requests to
 `main`: it waits until staging serves the PR's head SHA at `/version.json`, then runs the smoke
 package from `kaizen-tasks-assembly-line` against staging. Both are required checks.
-````
+```
 
 Replace the "## Docs" section of `README.md` with:
 
@@ -8636,11 +9468,13 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ### Task 19: docs-check.sh (Rule B = types regeneration), format-file.sh, hooks, architectural files
 
 **Files:**
+
 - Create: `scripts/docs-check.sh`, `scripts/format-file.sh`, `.claude/settings.json`, `docs/architectural-files.txt`
 - Modify: `.github/workflows/ci.yml`, `CHANGELOG.md`
 - Test: `tests/docs-check.test.ts`, `tests/format-file.test.ts`
 
 **Interfaces:**
+
 - Consumes: `npm run api:types` (Rule B), `docs/adr/*.md` (Rule C), `CHANGELOG.md` `[Unreleased]` (Rule A).
 - Produces: `scripts/docs-check.sh --hook | --ci` (master plan interface "Docs-check": exit 2 in hook mode with the fix list on stdout and stderr; never exits 0 while printing FAILED unless the escape hatch fired, in which case it prints `DOCS CHECK FAILED, human intervention required`, writes `.claude/DOCS-CHECK-FAILED`, and CI still fails); `scripts/format-file.sh` (PostToolUse formatter); `.claude/settings.json` hooks.
 - `docs/architectural-files.txt` globs, verbatim from spec 7: `src/api/**`, `Caddyfile`, `.railway/**`, `src/app/router.tsx`, `src/main.tsx`.
@@ -8666,9 +9500,14 @@ const GIT_ENV = {
 function makeRepo() {
   const dir = mkdtempSync(join(tmpdir(), "kaizen-docs-check-"));
   const run = (cmd: string, args: string[], env: Record<string, string> = {}) =>
-    spawnSync(cmd, args, { cwd: dir, env: { ...process.env, ...GIT_ENV, ...env }, encoding: "utf8" });
+    spawnSync(cmd, args, {
+      cwd: dir,
+      env: { ...process.env, ...GIT_ENV, ...env },
+      encoding: "utf8",
+    });
   run("git", ["init", "-q", "-b", "develop"]);
-  for (const d of ["scripts", "src/api", "docs/adr", ".claude"]) mkdirSync(join(dir, d), { recursive: true });
+  for (const d of ["scripts", "src/api", "docs/adr", ".claude"])
+    mkdirSync(join(dir, d), { recursive: true });
   copyFileSync("scripts/docs-check.sh", join(dir, "scripts/docs-check.sh"));
   const write = (file: string, content: string) => writeFileSync(join(dir, file), content);
   write("src/app.ts", "export const a = 1;\n");
@@ -8703,7 +9542,10 @@ describe("scripts/docs-check.sh", () => {
     expect(blocked.stdout).toContain("Rule A");
     expect(blocked.stdout).toContain("add a bullet under [Unreleased]");
     expect(blocked.stderr).toContain("Rule A");
-    repo.write("CHANGELOG.md", "# Changelog\n\n## [Unreleased]\n\n- Changed a\n\n## [0.1.0] - 2026-09-01\n\n- first\n");
+    repo.write(
+      "CHANGELOG.md",
+      "# Changelog\n\n## [Unreleased]\n\n- Changed a\n\n## [0.1.0] - 2026-09-01\n\n- first\n",
+    );
     expect(repo.check("--hook").status).toBe(0);
     expect(repo.exists(".claude/.docs-check-blocks")).toBe(false);
   });
@@ -8717,7 +9559,10 @@ describe("scripts/docs-check.sh", () => {
   it("Rule C: an architectural change needs an ADR even when the changelog is fine", () => {
     const repo = makeRepo();
     repo.write("src/api/client.ts", "export const c = 2;\n");
-    repo.write("CHANGELOG.md", "# Changelog\n\n## [Unreleased]\n\n- Client change\n\n## [0.1.0] - 2026-09-01\n\n- first\n");
+    repo.write(
+      "CHANGELOG.md",
+      "# Changelog\n\n## [Unreleased]\n\n- Client change\n\n## [0.1.0] - 2026-09-01\n\n- first\n",
+    );
     const blocked = repo.check("--hook");
     expect(blocked.status).toBe(2);
     expect(blocked.stdout).toContain("Rule C");
@@ -8729,7 +9574,10 @@ describe("scripts/docs-check.sh", () => {
   it("Rule B: a contract change needs regenerated types", () => {
     const repo = makeRepo();
     repo.write("src/api/openapi.json", '{"openapi":"3.1.0","paths":{"/x":{}}}\n');
-    repo.write("CHANGELOG.md", "# Changelog\n\n## [Unreleased]\n\n- Contract\n\n## [0.1.0] - 2026-09-01\n\n- first\n");
+    repo.write(
+      "CHANGELOG.md",
+      "# Changelog\n\n## [Unreleased]\n\n- Contract\n\n## [0.1.0] - 2026-09-01\n\n- first\n",
+    );
     repo.write("docs/adr/0002-contract.md", "# ADR 0002\n");
     const blocked = repo.check("--hook");
     expect(blocked.status).toBe(2);
@@ -8754,7 +9602,10 @@ describe("scripts/docs-check.sh", () => {
     expect(ci.stdout).toContain("Rule A");
     expect(sha).not.toBe(base);
     // A fix clears the counter and the marker.
-    repo.write("CHANGELOG.md", "# Changelog\n\n## [Unreleased]\n\n- Fixed\n\n## [0.1.0] - 2026-09-01\n\n- first\n");
+    repo.write(
+      "CHANGELOG.md",
+      "# Changelog\n\n## [Unreleased]\n\n- Fixed\n\n## [0.1.0] - 2026-09-01\n\n- first\n",
+    );
     expect(repo.check("--hook").status).toBe(0);
     expect(repo.exists(".claude/DOCS-CHECK-FAILED")).toBe(false);
     expect(repo.exists(".claude/.docs-check-blocks")).toBe(false);
@@ -8764,7 +9615,9 @@ describe("scripts/docs-check.sh", () => {
     const repo = makeRepo();
     repo.write("src/app.ts", "export const a = 4;\n");
     repo.commit("undocumented");
-    expect(repo.check("--ci", { BASE_SHA: "0000000000000000000000000000000000000000" }).status).toBe(1);
+    expect(
+      repo.check("--ci", { BASE_SHA: "0000000000000000000000000000000000000000" }).status,
+    ).toBe(1);
     expect(repo.check("--ci", { BASE_SHA: "" }).status).toBe(1);
   });
 });
@@ -8803,7 +9656,10 @@ describe("scripts/format-file.sh", () => {
   });
 
   it("exits 0 on malformed input", () => {
-    const result = spawnSync("bash", ["scripts/format-file.sh"], { input: "not json", encoding: "utf8" });
+    const result = spawnSync("bash", ["scripts/format-file.sh"], {
+      input: "not json",
+      encoding: "utf8",
+    });
     expect(result.status).toBe(0);
   });
 });
@@ -9092,10 +9948,10 @@ Expected: a `Rule B: ... not regenerated` line and `exit=2`.
 Add to `.github/workflows/ci.yml` after the `npm test` step:
 
 ```yaml
-      - name: Docs check
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
-        run: bash scripts/docs-check.sh --ci
+- name: Docs check
+  env:
+    BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+  run: bash scripts/docs-check.sh --ci
 ```
 
 - [ ] **Step 5: CHANGELOG, commit**
@@ -9113,13 +9969,16 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
+
 ### Task 20: Skills, agents, and the full CLAUDE.md
 
 **Files:**
+
 - Create: `.claude/skills/add-frontend-feature/SKILL.md`, `.claude/skills/write-adr/SKILL.md`, `.claude/skills/release-notes/SKILL.md`, `.claude/agents/reviewer.md`, `.claude/agents/test-writer.md`
 - Modify: `CLAUDE.md`, `CHANGELOG.md`
 
 **Interfaces:**
+
 - Consumes: every convention above; `scripts/docs-check.sh`; the README selector contract.
 - Produces: master plan interface "Per-repo skills": `frontend/.claude/skills/add-frontend-feature/SKILL.md`, `write-adr`, `release-notes`; agents `reviewer` and `test-writer`; `CLAUDE.md` under one page.
 
@@ -9198,7 +10057,8 @@ export function useThings() {
 export function useCreateThing() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (body: CreateThingBody) => unwrap(await client.POST("/things", { body })).data,
+    mutationFn: async (body: CreateThingBody) =>
+      unwrap(await client.POST("/things", { body })).data,
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["things"] }),
     onError: toastApiError,
   });
@@ -9270,7 +10130,7 @@ variable, a test). Bullets. Include the fallback if the decision rests on an ope
 
 `.claude/skills/release-notes/SKILL.md`:
 
-````markdown
+```markdown
 ---
 name: release-notes
 description: Use when cutting a version of kaizen-tasks-web. Moves the CHANGELOG [Unreleased] section into a dated version section, bumps package.json, and leaves a fresh empty [Unreleased].
@@ -9293,7 +10153,7 @@ description: Use when cutting a version of kaizen-tasks-web. Moves the CHANGELOG
 6. Commit as `chore: release <version>` with the repo's commit trailer (`Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`), on `develop`. The
    promotion to `main` happens by pull request after staging verification, never by a direct push.
 7. Reply with the version, the date, and the list of bullets that shipped.
-````
+```
 
 - [ ] **Step 2: The two agents**
 
@@ -9356,7 +10216,7 @@ Be specific and short. Do not restate the diff. Do not suggest stylistic changes
 
 `.claude/agents/test-writer.md`:
 
-````markdown
+```markdown
 ---
 name: test-writer
 description: Drafts failing Vitest + Testing Library + MSW tests for kaizen-tasks-web from acceptance criteria, without touching src/. Use at the start of a feature task, before implementation.
@@ -9382,19 +10242,19 @@ Conventions:
 - Query by role and accessible name (`getByRole("button", { name: "Accept" })`); use `within()` for
   rows; `findBy*` for anything that arrives after a request; `waitFor` for request counters.
 - Use `vi.useFakeTimers({ shouldAdvanceTime: true, toFake: ["setTimeout", "clearTimeout",
-  "setInterval", "clearInterval"] })` only for polling tests, and restore in `afterEach`.
+"setInterval", "clearInterval"] })` only for polling tests, and restore in `afterEach`.
 - The error-state case asserts the toast text from `toastApiError` (for example the message plus
   `Request req-test`) or the field error with `aria-invalid="true"`.
 - Name tests as behavior: "accept sets the suggestion state and updates progress".
 
 Run the file with `npx vitest run <path>` and paste the failure output at the end of your reply.
-````
+```
 
 - [ ] **Step 3: The full CLAUDE.md**
 
 Replace `CLAUDE.md` with:
 
-````markdown
+```markdown
 # CLAUDE.md
 
 Kaizen Tasks Web: the React app for Kaizen Tasks, where an AI assistant breaks big tasks into small
@@ -9404,13 +10264,13 @@ how it is shaped.
 
 ## Layers and import rules
 
-| Folder | Holds | May import |
-|---|---|---|
-| `src/app/` | router, layout, guards | everything |
-| `src/features/<domain>/` | pages, components, hooks, tests for one domain | `api`, `components`, `lib`, itself |
-| `src/components/` | shadcn (`ui/`) and hand-written shared pieces | `api`, `lib`, `components/ui` |
-| `src/api/` | contract copy, generated types, models, client, auth store, shared tag queries | `components/api-error-toast`, `lib` |
-| `src/lib/` | pure helpers | nothing above it |
+| Folder                   | Holds                                                                          | May import                          |
+| ------------------------ | ------------------------------------------------------------------------------ | ----------------------------------- |
+| `src/app/`               | router, layout, guards                                                         | everything                          |
+| `src/features/<domain>/` | pages, components, hooks, tests for one domain                                 | `api`, `components`, `lib`, itself  |
+| `src/components/`        | shadcn (`ui/`) and hand-written shared pieces                                  | `api`, `lib`, `components/ui`       |
+| `src/api/`               | contract copy, generated types, models, client, auth store, shared tag queries | `components/api-error-toast`, `lib` |
+| `src/lib/`               | pure helpers                                                                   | nothing above it                    |
 
 A feature never imports another feature. ESLint enforces the feature rule; the `reviewer` agent
 checks the rest.
@@ -9453,24 +10313,24 @@ conventions check, PASS or violations), `test-writer` (failing tests from criter
 
 ## Scripts
 
-| Script | Does |
-|---|---|
-| `dev` | Vite with the `/api` proxy (`VITE_PROXY_TARGET`, default the Prism mock on 4010) |
-| `build` | `vite build` then `dist/version.json` |
-| `preview` | serve `dist/` |
-| `test` | Vitest |
-| `lint` | ESLint + Prettier check |
-| `typecheck` | `tsc --noEmit` |
-| `mock` | Prism mock with curated examples |
-| `api:pull` | copy the contract and regenerate types (`-- --local <path>`, `-- <ref> --check`) |
-| `api:types` | regenerate `src/api/types.ts` |
-| `docs:check` | the docs gate in hook mode |
+| Script       | Does                                                                             |
+| ------------ | -------------------------------------------------------------------------------- |
+| `dev`        | Vite with the `/api` proxy (`VITE_PROXY_TARGET`, default the Prism mock on 4010) |
+| `build`      | `vite build` then `dist/version.json`                                            |
+| `preview`    | serve `dist/`                                                                    |
+| `test`       | Vitest                                                                           |
+| `lint`       | ESLint + Prettier check                                                          |
+| `typecheck`  | `tsc --noEmit`                                                                   |
+| `mock`       | Prism mock with curated examples                                                 |
+| `api:pull`   | copy the contract and regenerate types (`-- --local <path>`, `-- <ref> --check`) |
+| `api:types`  | regenerate `src/api/types.ts`                                                    |
+| `docs:check` | the docs gate in hook mode                                                       |
 
 ## Local setup
 
 `nvm use && npm ci`, then `npm run mock` and `npm run dev` (no backend), or
 `VITE_PROXY_TARGET=http://localhost:3000 npm run dev` against the API. Node 24 only.
-````
+```
 
 - [ ] **Step 4: Verify the harness loads, commit**
 
@@ -9491,11 +10351,13 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ### Task 21: promote workflow (wait for version.json, run the smoke package)
 
 **Files:**
+
 - Create: `scripts/wait-for-version.sh`, `.github/workflows/promote.yml`
 - Modify: `README.md`, `CHANGELOG.md`
 - Test: `tests/wait-for-version.test.ts`
 
 **Interfaces:**
+
 - Consumes: master plan interfaces "Web version" (`/version.json`), "Smoke package" (`kaizen-tasks-assembly-line` at `main`, folder `smoke/`, `npm ci && SMOKE_BASE_URL=<url> npm test`, env `SMOKE_AI_TIMEOUT_MS`, `SMOKE_FAST`), "Check names" (`promote`).
 - Produces: workflow `promote` with job id `promote`, required on `main` by L3; `scripts/wait-for-version.sh <base-url> <sha> [timeout-seconds] [interval-seconds]`.
 - The staging web domain recorded by L3 is the default (`https://web-staging-52c0.up.railway.app`); a repository variable `STAGING_WEB_URL` overrides it (`gh variable set STAGING_WEB_URL --body <url>`).
@@ -9533,14 +10395,18 @@ describe("scripts/wait-for-version.sh", () => {
 
   it("exits 0 when the served commit matches", async () => {
     const url = await serve("abc123");
-    const result = spawnSync("bash", ["scripts/wait-for-version.sh", url, "abc123", "5", "1"], { encoding: "utf8" });
+    const result = spawnSync("bash", ["scripts/wait-for-version.sh", url, "abc123", "5", "1"], {
+      encoding: "utf8",
+    });
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("staging serves abc123");
   });
 
   it("exits 1 with an error annotation after the timeout", async () => {
     const url = await serve("old999");
-    const result = spawnSync("bash", ["scripts/wait-for-version.sh", url, "abc123", "2", "1"], { encoding: "utf8" });
+    const result = spawnSync("bash", ["scripts/wait-for-version.sh", url, "abc123", "2", "1"], {
+      encoding: "utf8",
+    });
     expect(result.status).toBe(1);
     expect(result.stdout).toContain("::error::");
     expect(result.stdout).toContain("old999");
@@ -9673,27 +10539,27 @@ Expected: `ci` green on `develop`. `promote` first runs when L3 opens the `devel
 
 ## Spec coverage map
 
-| Spec item | Task |
-|---|---|
-| 2.1 runtime and tooling, 2.2 folder layout, import rules | 1, 2, 5 (ESLint rule), 20 (CLAUDE.md) |
-| 2.3 configuration (`VITE_PROXY_TARGET`, `version.json`) | 1, 6 |
-| 2.4 production serving (Caddyfile, PORT 8080) | 6 |
-| 3 authentication in the client (store, middleware, restore, guards, logout) | 3, 4, 5, 10 |
-| 4.1 routes | 5 |
-| 4.2 layout and projector rules | 2, 5 |
-| 4.3 task list (create bar, filters, rows, every chip state, load more, polling) | 11 |
-| 4.4 task detail (header, banner, steps, accept/edit/dismiss/undo, bulk, reorder, add step, polling) | 12, 13, 14, 15 |
-| 4.5 tags page | 16 |
-| 4.6 request a feature, availability from health `features.featureRequests` (R2) | 17 |
-| 4.7 errors by code | 10 |
-| 5.1 contract copy, pull script, CI drift warning | 3 (stub), 8 |
-| 5.2 client and hooks (`useTasks`, `useTask`, `useTags`, `useSession`, mutations, `activeAiInterval`) | 4, 5, 10, 11, 14, 15 |
-| 5.3 mock server with curated examples | 9 |
+| Spec item                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Task                                                         |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| 2.1 runtime and tooling, 2.2 folder layout, import rules                                                                                                                                                                                                                                                                                                                                                                                                   | 1, 2, 5 (ESLint rule), 20 (CLAUDE.md)                        |
+| 2.3 configuration (`VITE_PROXY_TARGET`, `version.json`)                                                                                                                                                                                                                                                                                                                                                                                                    | 1, 6                                                         |
+| 2.4 production serving (Caddyfile, PORT 8080)                                                                                                                                                                                                                                                                                                                                                                                                              | 6                                                            |
+| 3 authentication in the client (store, middleware, restore, guards, logout)                                                                                                                                                                                                                                                                                                                                                                                | 3, 4, 5, 10                                                  |
+| 4.1 routes                                                                                                                                                                                                                                                                                                                                                                                                                                                 | 5                                                            |
+| 4.2 layout and projector rules                                                                                                                                                                                                                                                                                                                                                                                                                             | 2, 5                                                         |
+| 4.3 task list (create bar, filters, rows, every chip state, load more, polling)                                                                                                                                                                                                                                                                                                                                                                            | 11                                                           |
+| 4.4 task detail (header, banner, steps, accept/edit/dismiss/undo, bulk, reorder, add step, polling)                                                                                                                                                                                                                                                                                                                                                        | 12, 13, 14, 15                                               |
+| 4.5 tags page                                                                                                                                                                                                                                                                                                                                                                                                                                              | 16                                                           |
+| 4.6 request a feature, availability from health `features.featureRequests` (R2)                                                                                                                                                                                                                                                                                                                                                                            | 17                                                           |
+| 4.7 errors by code                                                                                                                                                                                                                                                                                                                                                                                                                                         | 10                                                           |
+| 5.1 contract copy, pull script, CI drift warning                                                                                                                                                                                                                                                                                                                                                                                                           | 3 (stub), 8                                                  |
+| 5.2 client and hooks (`useTasks`, `useTask`, `useTags`, `useSession`, mutations, `activeAiInterval`)                                                                                                                                                                                                                                                                                                                                                       | 4, 5, 10, 11, 14, 15                                         |
+| 5.3 mock server with curated examples                                                                                                                                                                                                                                                                                                                                                                                                                      | 9                                                            |
 | 6 tests: login success and wrong password; register duplicate email; session restore; 401 refresh and replay; second 401 to login; chips for every aiStatus and aiSkipReason; create task thinking; list polling with fake timers; detail suggested steps with rationale; accept, dismiss, undo, accept all, dismiss all; regenerate disabled and conflict; reorder target index; tag add and AI tag adoption; feature-request link hidden; toast per code | 10, 10, 10, 4, 11, 11, 11, 11, 12, 12+13, 13, 14, 15, 17, 10 |
-| 6 CI: typecheck, lint, tests, docs-check, build, version.json | 7, 8, 19 |
-| 7 docs set, architectural files, docs-check Rule B, format hook, skills, agents, CLAUDE.md | 18, 19, 20 |
-| 8 ci.yml, promote.yml, Railway declaration | 7, 21, 6 |
-| 9 local development scripts | 1, 7 (README) |
-| 10 verification items W1, W2, W3 | 6, 9, 4 |
-| Master plan interfaces: API contract, Health, Task summary fields, Web version, Proxy, Web port, Smoke package, Check names, Per-repo skills, Docs-check, Railway services (named partial) | 8, 8 and 17, 8 and 11, 6, 6, 6, 21, 7 and 21, 20, 19, 6 |
-| Smoke selector contract | 5, 10, 11, 12, 18 (README section), 20 (CLAUDE.md pointer) |
+| 6 CI: typecheck, lint, tests, docs-check, build, version.json                                                                                                                                                                                                                                                                                                                                                                                              | 7, 8, 19                                                     |
+| 7 docs set, architectural files, docs-check Rule B, format hook, skills, agents, CLAUDE.md                                                                                                                                                                                                                                                                                                                                                                 | 18, 19, 20                                                   |
+| 8 ci.yml, promote.yml, Railway declaration                                                                                                                                                                                                                                                                                                                                                                                                                 | 7, 21, 6                                                     |
+| 9 local development scripts                                                                                                                                                                                                                                                                                                                                                                                                                                | 1, 7 (README)                                                |
+| 10 verification items W1, W2, W3                                                                                                                                                                                                                                                                                                                                                                                                                           | 6, 9, 4                                                      |
+| Master plan interfaces: API contract, Health, Task summary fields, Web version, Proxy, Web port, Smoke package, Check names, Per-repo skills, Docs-check, Railway services (named partial)                                                                                                                                                                                                                                                                 | 8, 8 and 17, 8 and 11, 6, 6, 6, 21, 7 and 21, 20, 19, 6      |
+| Smoke selector contract                                                                                                                                                                                                                                                                                                                                                                                                                                    | 5, 10, 11, 12, 18 (README section), 20 (CLAUDE.md pointer)   |

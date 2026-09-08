@@ -1,11 +1,11 @@
 # Kaizen Tasks Web: Design Spec
 
-| Field | Value |
-|---|---|
-| Repo | `kaizen-tasks-web`, folder `webapp/frontend/` |
-| Status | Approved design 2026-09-08 |
-| Upstream | `webapp/docs/PRD.md` (sections 5, 6.3, 7); API contract in `kaizen-tasks-api` `openapi.json`; API spec `webapp/backend/docs/superpowers/specs/2026-09-08-kaizen-tasks-api-design.md`. Contract rulings 2026-09-08: `TaskSummary` carries `suggestionCount` and `aiError`; `GET /health` carries `features.featureRequests` |
-| Downstream | `superpowers:writing-plans` produces `docs/superpowers/plans/` from this spec |
+| Field      | Value                                                                                                                                                                                                                                                                                                                      |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Repo       | `kaizen-tasks-web`, folder `webapp/frontend/`                                                                                                                                                                                                                                                                              |
+| Status     | Approved design 2026-09-08                                                                                                                                                                                                                                                                                                 |
+| Upstream   | `webapp/docs/PRD.md` (sections 5, 6.3, 7); API contract in `kaizen-tasks-api` `openapi.json`; API spec `webapp/backend/docs/superpowers/specs/2026-09-08-kaizen-tasks-api-design.md`. Contract rulings 2026-09-08: `TaskSummary` carries `suggestionCount` and `aiError`; `GET /health` carries `features.featureRequests` |
+| Downstream | `superpowers:writing-plans` produces `docs/superpowers/plans/` from this spec                                                                                                                                                                                                                                              |
 
 ## 1. Purpose and scope
 
@@ -13,13 +13,13 @@ The React web app for Kaizen Tasks: login and registration, the task list, the t
 
 Approach decisions taken in design:
 
-| # | Decision | Choice and reason |
-|---|---|---|
-| A1 | UI kit | shadcn/ui on Tailwind. Accessible primitives, agent-familiar conventions, cheap theming through CSS variables |
-| A2 | Working before the API exists | Prism mock server generated from the committed contract, behind the Vite proxy. No mock code to maintain |
-| A3 | Client | openapi-typescript for types, openapi-fetch as the typed client, hand-written TanStack Query hooks per feature |
-| A4 | Look | Light custom theme with a Kaizen identity on shadcn tokens, tuned for a projector: large type, generous spacing, high contrast |
-| A5 | Contract sharing | The contract is copied into this repo and committed with its generated types, so a checkout builds offline and a backend change never breaks a frontend PR by itself |
+| #   | Decision                      | Choice and reason                                                                                                                                                    |
+| --- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A1  | UI kit                        | shadcn/ui on Tailwind. Accessible primitives, agent-familiar conventions, cheap theming through CSS variables                                                        |
+| A2  | Working before the API exists | Prism mock server generated from the committed contract, behind the Vite proxy. No mock code to maintain                                                             |
+| A3  | Client                        | openapi-typescript for types, openapi-fetch as the typed client, hand-written TanStack Query hooks per feature                                                       |
+| A4  | Look                          | Light custom theme with a Kaizen identity on shadcn tokens, tuned for a projector: large type, generous spacing, high contrast                                       |
+| A5  | Contract sharing              | The contract is copied into this repo and committed with its generated types, so a checkout builds offline and a backend change never breaks a frontend PR by itself |
 
 ## 2. System shape
 
@@ -62,8 +62,8 @@ Import rules: `features/*` import from `api`, `components/ui`, `lib`, and their 
 
 The app has no runtime configuration. Every request goes to the relative path `/api/v1`. Development configuration is Vite-only:
 
-| Variable | Default | Notes |
-|---|---|---|
+| Variable            | Default                 | Notes                                                                                                           |
+| ------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------- |
 | `VITE_PROXY_TARGET` | `http://localhost:4010` | Where the Vite dev server forwards `/api`. 4010 is the Prism mock; use `http://localhost:3000` for the real API |
 
 Build-time input: `RAILWAY_GIT_COMMIT_SHA` when present, otherwise `git rev-parse HEAD`, written by `scripts/write-version.mjs` into `dist/version.json` as `{ "commit": "...", "builtAt": "<iso>" }` after `vite build`.
@@ -103,15 +103,15 @@ The API service pins `PORT=3000`, so the proxy target is stable. `/version.json`
 
 ### 4.1 Routes
 
-| Path | Page | Auth |
-|---|---|---|
-| `/login` | LoginPage | public |
-| `/register` | RegisterPage | public |
-| `/tasks` | TaskListPage | required |
-| `/tasks/:id` | TaskDetailPage | required |
-| `/tags` | TagsPage | required |
-| `/request-feature` | RequestFeaturePage | required, shown only when available |
-| `/` | redirect to `/tasks` | |
+| Path               | Page                 | Auth                                |
+| ------------------ | -------------------- | ----------------------------------- |
+| `/login`           | LoginPage            | public                              |
+| `/register`        | RegisterPage         | public                              |
+| `/tasks`           | TaskListPage         | required                            |
+| `/tasks/:id`       | TaskDetailPage       | required                            |
+| `/tags`            | TagsPage             | required                            |
+| `/request-feature` | RequestFeaturePage   | required, shown only when available |
+| `/`                | redirect to `/tasks` |                                     |
 
 ### 4.2 Layout
 
@@ -203,11 +203,11 @@ Railway, in the only project the workshop touches, `kaizen-tasks`: service `web`
 
 ## 10. Verification items
 
-| # | Check | Status | Fallback |
-|---|---|---|---|
-| W1 | Railpack's static provider honors a root `Caddyfile` with a reverse proxy to a private hostname | Open, verified on the first staging deploy | A tiny Node server (`serve-handler` plus `http-proxy`) declared as the start command |
-| W2 | Prism serves the contract's examples with `--dynamic` in a way that looks sensible | Open, verified in the first frontend task | Drop `--dynamic` and rely on static examples |
-| W3 | openapi-fetch response middleware can replay a request after refresh | Open, verified by the 401 test | Wrap the client in a small `request()` function that handles refresh before calling openapi-fetch |
+| #   | Check                                                                                           | Status                                     | Fallback                                                                                          |
+| --- | ----------------------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| W1  | Railpack's static provider honors a root `Caddyfile` with a reverse proxy to a private hostname | Open, verified on the first staging deploy | A tiny Node server (`serve-handler` plus `http-proxy`) declared as the start command              |
+| W2  | Prism serves the contract's examples with `--dynamic` in a way that looks sensible              | Open, verified in the first frontend task  | Drop `--dynamic` and rely on static examples                                                      |
+| W3  | openapi-fetch response middleware can replay a request after refresh                            | Open, verified by the 401 test             | Wrap the client in a small `request()` function that handles refresh before calling openapi-fetch |
 
 ## 11. Out of scope
 
