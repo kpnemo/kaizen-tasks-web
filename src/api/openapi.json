@@ -1,0 +1,214 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Kaizen Tasks API",
+    "version": "0.0.0-stub",
+    "description": "Hand-written stub with the auth paths and envelopes only. Replaced by the backend's generated document through scripts/pull-openapi.sh at L1-M1."
+  },
+  "x-stub": true,
+  "servers": [{ "url": "/api/v1" }],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" }
+    },
+    "schemas": {
+      "Meta": {
+        "type": "object",
+        "properties": {
+          "requestId": { "type": "string" },
+          "nextCursor": { "type": ["string", "null"] }
+        },
+        "required": ["requestId"]
+      },
+      "ErrorCode": {
+        "type": "string",
+        "enum": [
+          "VALIDATION_ERROR",
+          "UNAUTHORIZED",
+          "FORBIDDEN",
+          "NOT_FOUND",
+          "CONFLICT",
+          "RATE_LIMITED",
+          "UPSTREAM_ERROR",
+          "UNAVAILABLE",
+          "INTERNAL"
+        ]
+      },
+      "ValidationDetail": {
+        "type": "object",
+        "properties": { "path": { "type": "string" }, "message": { "type": "string" } },
+        "required": ["path", "message"]
+      },
+      "RateLimitDetails": {
+        "type": "object",
+        "properties": {
+          "scope": { "type": "string", "enum": ["user", "global"] },
+          "limit": { "type": "integer" },
+          "resetAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["scope", "limit", "resetAt"]
+      },
+      "ErrorEnvelope": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": { "$ref": "#/components/schemas/ErrorCode" },
+              "message": { "type": "string" },
+              "details": {
+                "oneOf": [
+                  { "type": "array", "items": { "$ref": "#/components/schemas/ValidationDetail" } },
+                  { "$ref": "#/components/schemas/RateLimitDetails" }
+                ]
+              },
+              "requestId": { "type": "string" }
+            },
+            "required": ["code", "message", "requestId"]
+          }
+        },
+        "required": ["error"]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "email": { "type": "string", "format": "email" },
+          "displayName": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "email", "displayName", "createdAt"]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string", "minLength": 8 }
+        },
+        "required": ["email", "password"]
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string", "minLength": 8 },
+          "displayName": { "type": "string", "minLength": 1, "maxLength": 80 }
+        },
+        "required": ["email", "password", "displayName"]
+      },
+      "AuthSession": {
+        "type": "object",
+        "properties": {
+          "user": { "$ref": "#/components/schemas/User" },
+          "accessToken": { "type": "string" }
+        },
+        "required": ["user", "accessToken"]
+      },
+      "AuthSessionEnvelope": {
+        "type": "object",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/AuthSession" },
+          "meta": { "$ref": "#/components/schemas/Meta" }
+        },
+        "required": ["data", "meta"]
+      },
+      "AccessTokenEnvelope": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": { "accessToken": { "type": "string" } },
+            "required": ["accessToken"]
+          },
+          "meta": { "$ref": "#/components/schemas/Meta" }
+        },
+        "required": ["data", "meta"]
+      },
+      "UserEnvelope": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": { "user": { "$ref": "#/components/schemas/User" } },
+            "required": ["user"]
+          },
+          "meta": { "$ref": "#/components/schemas/Meta" }
+        },
+        "required": ["data", "meta"]
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Error envelope",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorEnvelope" } } }
+      }
+    }
+  },
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "summary": "Register a new user",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RegisterRequest" } } }
+        },
+        "responses": {
+          "201": {
+            "description": "Registered; sets the refresh cookie",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthSessionEnvelope" } } }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "409": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Log in",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoginRequest" } } }
+        },
+        "responses": {
+          "200": {
+            "description": "Logged in; sets the refresh cookie",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthSessionEnvelope" } } }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "401": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "summary": "Rotate the refresh cookie and issue a new access token",
+        "responses": {
+          "200": {
+            "description": "New access token",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AccessTokenEnvelope" } } }
+          },
+          "401": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "Revoke the refresh token and clear the cookie",
+        "responses": { "204": { "description": "Logged out" } }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "summary": "Current user",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "The authenticated user",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserEnvelope" } } }
+          },
+          "401": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    }
+  }
+}
