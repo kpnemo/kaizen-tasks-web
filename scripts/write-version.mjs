@@ -13,7 +13,10 @@ function resolveCommit() {
       .toString()
       .trim();
   } catch {
-    return "unknown";
+    console.error(
+      "write-version: no commit available: set RAILWAY_GIT_COMMIT_SHA or run inside a git checkout",
+    );
+    process.exit(1);
   }
 }
 
