@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router";
+import { RestoringScreen } from "@/features/auth/RestoringScreen";
 import { useSession } from "@/features/auth/useSession";
-import { RestoringScreen } from "./RestoringScreen";
 
 export function RequireAuth() {
   const { status } = useSession();

@@ -11,8 +11,8 @@ const user = {
 describe("authStore", () => {
   beforeEach(() => authStore.reset());
 
-  it("starts anonymous with no token", () => {
-    expect(authStore.getState()).toEqual({ status: "anonymous", token: null, user: null });
+  it("starts restoring with no token", () => {
+    expect(authStore.getState()).toEqual({ status: "restoring", token: null, user: null });
     expect(authStore.getToken()).toBeNull();
   });
 

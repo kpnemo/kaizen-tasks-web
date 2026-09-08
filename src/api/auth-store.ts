@@ -3,8 +3,8 @@ import type { User } from "./models";
 export type SessionStatus = "restoring" | "authenticated" | "anonymous";
 export type AuthState = { status: SessionStatus; token: string | null; user: User | null };
 
-// Task 10 changes the initial status to "restoring" when AuthProvider starts restoring sessions on load.
-const INITIAL: AuthState = { status: "anonymous", token: null, user: null };
+// The app starts "restoring": AuthProvider refreshes once on load and settles the status.
+const INITIAL: AuthState = { status: "restoring", token: null, user: null };
 
 let state: AuthState = INITIAL;
 const listeners = new Set<() => void>();

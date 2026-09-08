@@ -5,9 +5,10 @@ import { MemoryRouter, useLocation } from "react-router";
 import { authStore } from "@/api/auth-store";
 import { AppRoutes } from "@/app/router";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/features/auth/AuthProvider";
 import { demoUser } from "./msw/fixtures";
 
-export type SessionSetup = "authenticated" | "anonymous";
+export type SessionSetup = "authenticated" | "anonymous" | "restoring";
 
 function LocationProbe() {
   const location = useLocation();
@@ -29,13 +30,16 @@ export function renderApp({
   session = "authenticated",
 }: { route?: string; session?: SessionSetup } = {}) {
   if (session === "authenticated") authStore.setSession({ token: "test-token", user: demoUser });
-  else authStore.clear();
+  else if (session === "anonymous") authStore.clear();
+  else authStore.reset();
   const queryClient = makeQueryClient();
   const user = userEvent.setup();
   const view = render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter initialEntries={[route]}>
-        <AppRoutes />
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
         <LocationProbe />
       </MemoryRouter>
       <Toaster />

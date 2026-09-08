@@ -1,10 +1,15 @@
-import { Navigate, Outlet } from "react-router";
+import { Navigate, Outlet, useSearchParams } from "react-router";
+import { safeReturnTo } from "@/features/auth/hooks";
+import { RestoringScreen } from "@/features/auth/RestoringScreen";
 import { useSession } from "@/features/auth/useSession";
-import { RestoringScreen } from "./RestoringScreen";
 
+/** An already-authenticated visitor to /login or /register goes to the same returnTo RequireAuth set. */
 export function PublicOnly() {
   const { status } = useSession();
+  const [params] = useSearchParams();
   if (status === "restoring") return <RestoringScreen />;
-  if (status === "authenticated") return <Navigate to="/tasks" replace />;
+  if (status === "authenticated") {
+    return <Navigate to={safeReturnTo(params.get("returnTo"))} replace />;
+  }
   return <Outlet />;
 }

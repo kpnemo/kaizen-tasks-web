@@ -1,8 +1,8 @@
 import { LogOut } from "lucide-react";
 import { NavLink, Outlet } from "react-router";
-import { authStore } from "@/api/auth-store";
 import { KaizenMark } from "@/components/kaizen-mark";
 import { Button } from "@/components/ui/button";
+import { useLogout } from "@/features/auth/hooks";
 import { useSession } from "@/features/auth/useSession";
 import { cn } from "@/lib/cn";
 
@@ -20,6 +20,7 @@ export function FeatureRequestLink() {
 
 export function AppShell() {
   const { user } = useSession();
+  const logout = useLogout();
   return (
     <div className="min-h-screen">
       <header className="border-b bg-card">
@@ -39,7 +40,7 @@ export function AppShell() {
           </nav>
           <div className="ml-auto flex items-center gap-3">
             <span className="text-base text-muted-foreground">{user?.displayName}</span>
-            <Button variant="outline" onClick={() => authStore.clear()}>
+            <Button variant="outline" onClick={() => logout.mutate()} disabled={logout.isPending}>
               <LogOut aria-hidden="true" />
               Log out
             </Button>
