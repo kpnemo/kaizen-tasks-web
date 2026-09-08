@@ -1,0 +1,7 @@
+dist
+.mock
+node_modules
+src/api/types.ts
+src/api/openapi.json
+src/components/ui
+CHANGELOG.md
