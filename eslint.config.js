@@ -39,6 +39,12 @@ export default tseslint.config([
     rules: { "no-restricted-imports": "off" },
   },
   {
+    // tests/render.tsx is a test helper, not a component module: it exports a query-client
+    // factory and the renderApp() harness alongside a local <LocationProbe> used only inside it.
+    files: ["tests/render.tsx"],
+    rules: { "react-refresh/only-export-components": "off" },
+  },
+  {
     files: ["src/features/**"],
     ignores: ["src/features/**/*.test.tsx"],
     rules: {
