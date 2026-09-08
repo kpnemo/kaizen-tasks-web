@@ -16,7 +16,7 @@ From the master plan, verbatim:
 
 - Node 24 LTS everywhere, pinned by `.nvmrc` containing `24`; `engines.node` is `>=24 <25`. Run `nvm use` before any npm command.
 - Branching: work on `develop`. Feature branches come off `develop` and merge by pull request. `main` receives only `develop` by pull request after staging verification. Nothing is ever pushed to `main` directly. `develop` is the default branch on GitHub.
-- Commit messages end with the two trailer lines `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>` and `Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ`.
+- Every commit message ends with the single trailer line `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>` (orchestrator ruling R6, 2026-09-08). No other trailer line.
 - Secrets never enter a repository. `ANTHROPIC_API_KEY`, `JWT_SECRET`, `ADMIN_TOKEN`, `SEED_DEMO_PASSWORD`, and any GitHub token live only in Railway variables and in git-ignored local `.env` files. Mike pastes them.
 - Railway: only the new project `kaizen-tasks`. Never link to, modify, or redeploy any other project in the account. Railway operations follow the official `use-railway` skill.
 - GitHub: repos `kpnemo/kaizen-tasks-api`, `kpnemo/kaizen-tasks-web`, `kpnemo/kaizen-tasks-assembly-line`, `kpnemo/kaizen-tasks-product-skills`, all public.
@@ -39,6 +39,15 @@ From the web spec:
 - `dist/version.json` is `{ "commit": "<sha>", "builtAt": "<iso>" }`, written after `vite build`, served with `Cache-Control: no-store`.
 - Workflow and job ids are `ci` and `promote`.
 - No Playwright in this repo.
+
+Orchestrator rulings of 2026-09-08, already folded into the tasks below (listed so an implementer reading one task out of order knows them):
+
+- R1. `TaskSummary` carries `suggestionCount` (integer) and `aiError` (string or null). The task list reads both from the summary; there is no per-row detail query (Tasks 8, 9, 11).
+- R2. `GET /api/v1/health` returns `data.features.featureRequests` (boolean). The request-a-feature link and route appear only when it is true, read once per session; the served `/openapi.json` is never inspected (Tasks 8, 9, 17).
+- R3. The task list's tag filter is single-select and sends one `tagId` (Task 11).
+- R4. The tags page has no task-count column (Task 16).
+- R5. `.railway/railway.ts` is a named partial (`export const partial = "web"`) that owns only the `web` service, so applying it cannot destroy `api`, `Postgres`, or `Redis` (Task 6).
+- R6. The single commit trailer above; no `Claude-Session:` line anywhere.
 
 ## Pinned versions (verified with `npm view` on 2026-09-08)
 
@@ -80,8 +89,8 @@ The plan records them here per spec 2.1. Use exactly these in `package.json`.
 | eslint | 9.39.5 | |
 | @eslint/js | 9.39.5 | |
 | typescript-eslint | 8.70.0 | |
-| eslint-plugin-react-hooks | 7.1.1 | `configs.flat.recommended` |
-| eslint-plugin-react-refresh | 0.5.6 | `configs.vite()` is a function call |
+| eslint-plugin-react-hooks | 7.1.1 | `configs.flat.recommended`; it includes the React Compiler rules (`set-state-in-effect`, `refs`, `purity`, `immutability`, `set-state-in-render`), so no component in this plan calls a state setter inside an effect body |
+| eslint-plugin-react-refresh | 0.5.6 | import the named `reactRefresh` export: its `configs.vite()` is a function; the default export's `configs.vite` is a plain object (verified in the package's `index.d.ts`) |
 | eslint-config-prettier | 10.1.8 | |
 | globals | 17.12.0 | |
 | prettier | 3.9.6 | |
@@ -142,7 +151,7 @@ webapp/frontend/
 - **L2-M2 (all screens against the Prism mock, tests, docs, harness) = Tasks 8 through 21.** Task 8 must not start before L1-M1 is done (backend `openapi.json` committed) unless the fallback in Task 8 step 4 is taken.
 - **L2-M3** (switch to the real API) is a verification run with `VITE_PROXY_TARGET=http://localhost:3000 npm run dev`; it has no tasks here beyond fixing what that run reveals.
 
-Conventions for every task: run `nvm use` first; every `git commit` message ends with the two trailer lines; every test step names the exact command and the expected outcome; `npm run lint && npm run typecheck` must pass before each commit.
+Conventions for every task: run `nvm use` first; every `git commit` message ends with the single `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>` trailer line; every test step names the exact command and the expected outcome; `npm run lint && npm run typecheck` must pass before each commit.
 
 ---
 
@@ -320,7 +329,7 @@ export default mergeConfig(
 import js from "@eslint/js";
 import prettier from "eslint-config-prettier";
 import reactHooks from "eslint-plugin-react-hooks";
-import reactRefresh from "eslint-plugin-react-refresh";
+import { reactRefresh } from "eslint-plugin-react-refresh";
 import { globalIgnores } from "eslint/config";
 import globals from "globals";
 import tseslint from "typescript-eslint";
@@ -500,8 +509,7 @@ Expected: eslint and prettier report no problems; `tsc` exits 0; `vite build` pr
 git add .nvmrc package.json package-lock.json tsconfig.json vite.config.ts vitest.config.ts index.html eslint.config.js .prettierrc .prettierignore .env.example src tests
 git commit -m "chore: scaffold Vite 7 + React 19 + TypeScript with Vitest and ESLint
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -718,6 +726,8 @@ Expected: `✔ Created 12 files` under `src/components/ui/` (`button.tsx`, `inpu
 Run: `grep -L '@/lib/cn' src/components/ui/*.tsx | grep -v sonner || echo OK`
 Expected: `OK` (only `sonner.tsx` has no `cn` import).
 
+The CLI reads `components.json` (hand-written above; `add` does not need `init`) and may append theme variables or a base layer it considers missing to `src/styles/globals.css`. Run `git diff src/styles/globals.css`; keep the Step 3 file as written and delete any duplicated `--color-*`, `--radius-*`, or `@layer base` lines the CLI added.
+
 Because `sonner.tsx` from the registry imports `next-themes`, replace its content with a theme-free version:
 
 ```tsx
@@ -750,8 +760,7 @@ Expected: all green; `vite build` output lists a CSS asset larger than 40 kB (fo
 git add components.json src/lib src/styles src/components/ui src/main.tsx package.json package-lock.json
 git commit -m "feat: add Tailwind 4, shadcn/ui, and the Kaizen theme tokens
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -1336,8 +1345,7 @@ Expected: exit 0.
 git add src/api
 git commit -m "feat: add contract stub, generated types, ApiError, and in-memory auth store
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -1352,7 +1360,7 @@ Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
 - Consumes: `authStore`, `ApiError`, `paths` from Task 3.
 - Produces:
   - `client.ts`: `API_BASE` (same-origin `/api/v1` resolved against `window.location.origin`), `client` (openapi-fetch `createClient<paths>` with the auth middleware), `refreshAccessToken(): Promise<string | null>` (deduplicated), `unwrap<T>(result: { data?: T; error?: unknown; response: Response }): T` (throws `ApiError`).
-  - `tests/msw/handlers.ts`: `API` (`"http://localhost:3000/api/v1"`), `ok(data, meta?)`, `err(code, message, status?, details?)`, `authHandlers`, `handlers` (the default list; Task 8 appends task and tag handlers), `DEMO_PASSWORD`.
+  - `tests/msw/handlers.ts`: `API` (`"http://localhost:3000/api/v1"`), `ok(data, meta?, status?)`, `err(code, message, details?)` (the status is derived from the code), `authHandlers`, `handlers` (the default list; Task 8 appends task and tag handlers), `DEMO_PASSWORD`.
   - `tests/msw/fixtures.ts`: `demoUser: User`, `ISO` (a fixed timestamp).
   - `tests/msw/server.ts`: `server` (`setupServer(...handlers)`).
   - `tests/setup.ts` starts the server with `onUnhandledRequest: "error"`, resets handlers and the auth store between tests, and installs jsdom polyfills (`ResizeObserver`, `matchMedia`, `scrollIntoView`, pointer capture).
@@ -1737,14 +1745,13 @@ Expected: `Tests  8 passed (8)`. If "on 401 refreshes once and replays" fails wi
 - [ ] **Step 5: Lint, typecheck, full suite, commit**
 
 Run: `npm run lint && npm run typecheck && npm test`
-Expected: all green (`Test Files  4 passed`).
+Expected: all green (`Test Files  5 passed`: `App`, `cn`, `errors`, `auth-store`, `client`).
 
 ```bash
 git add src/api/client.ts src/api/client.test.ts tests
 git commit -m "feat: typed openapi-fetch client with 401 refresh-and-replay, MSW test server
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -1936,7 +1943,7 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
   );
 }
 
-/** Stub until Task 17 replaces it with the contract-probing link. */
+/** Stub until Task 17 replaces it with the link gated on the health feature flag. */
 export function FeatureRequestLink() {
   return null;
 }
@@ -2170,8 +2177,7 @@ Expected: green.
 git add -A src tests
 git commit -m "feat: app shell, router, auth guards, and session hook
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -2183,7 +2189,7 @@ Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
 
 **Interfaces:**
 - Consumes: the `build` script from Task 1 (`vite build && node scripts/write-version.mjs`).
-- Produces: `dist/version.json` = `{ "commit": "<sha>", "builtAt": "<iso>" }` (master plan interface "Web version"); the `Caddyfile` proxy (`/api/*` to `http://api.railway.internal:3000`) (interface "Proxy"); the `web` service declaration with `PORT=8080` (interface "Web port") that L3 applies with `railway config apply`.
+- Produces: `dist/version.json` = `{ "commit": "<sha>", "builtAt": "<iso>" }` (master plan interface "Web version"); the `Caddyfile` proxy (`/api/*` to `http://api.railway.internal:3000`) (interface "Proxy"); the `web` service declaration with `PORT=8080` (interface "Web port") that L3 applies with `railway config apply`, written as a named partial (`export const partial = "web"`) so the file owns only `web` and applying it can never destroy `api`, `Postgres`, or `Redis` (ruling R5).
 - `VERSION_OUT_DIR` (default `dist`) lets the test write elsewhere.
 
 - [ ] **Step 1: Failing test for the version writer**
@@ -2300,18 +2306,28 @@ Expected: `Cache-Control: no-store`.
 import { defineRailway, github, project, service } from "railway/iac";
 
 /**
+ * Named partial: this file owns ONLY the `web` service. Railway IaC treats "omitted" as "delete"
+ * inside the set of resources a file owns; exporting `partial` scopes that set to `web`, so
+ * applying this file can never destroy `api`, `Postgres`, or `Redis`, which the API repo's own
+ * `.railway/railway.ts` declares. This is the mechanism Railway documents for split repositories
+ * ("One file per project", docs.railway.com/infrastructure-as-code). Never rename it once applied.
+ */
+export const partial = "web";
+
+/**
  * The web service of project kaizen-tasks. Applied per environment by the CI/CD lane with
  * `railway config apply`; the branch follows the environment (develop -> staging, main -> production).
  * No `start`: Railpack serves dist/ through the root Caddyfile (see docs/ARCHITECTURE.md).
  * PORT is pinned to 8080 so the public domain's target port is deterministic (master plan interface
  * "Web port"); the Caddyfile binds :{$PORT}. The API service pins PORT=3000 in its own file.
- * Wait-for-CI is not a field here; it is switched on in the dashboard per environment.
+ * Wait-for-CI is the source field `checkSuites` (master plan section 5); it is already on for `web`
+ * in both environments, and declaring it keeps a future apply from switching it off.
  */
 export default defineRailway((ctx) => {
   const branch = ctx.isEnvironment("production") ? "main" : "develop";
 
   const web = service("web", {
-    source: github("kpnemo/kaizen-tasks-web", { branch }),
+    source: github("kpnemo/kaizen-tasks-web", { branch, checkSuites: true }),
     build: "npm ci && npm run build",
     healthcheck: "/version.json",
     healthcheckTimeout: 120,
@@ -2322,10 +2338,10 @@ export default defineRailway((ctx) => {
 });
 ```
 
-Run: `npm run typecheck && npx eslint .railway`
-Expected: exit 0 (the `railway` devDependency provides `railway/iac` types).
+Run: `npm run typecheck && npx eslint .railway && grep -c 'export const partial = "web"' .railway/railway.ts`
+Expected: exit 0 and `1` (the `railway` devDependency provides the `railway/iac` types: `defineRailway((ctx) => ...)`, `ctx.isEnvironment`, `github(repo, { branch, checkSuites })`, `build`, `healthcheck`, `healthcheckTimeout`, `env` are all in its `dist/iac/index.d.ts`).
 
-Hand-off note for L3 (do not apply from this lane): before `railway config apply`, run `railway config plan` in the linked environment and confirm the plan changes only the `web` service and shows `0 to destroy`. The API lane declares `api`, `Postgres`, and `Redis` in its own file; if the plan proposes destroying any of them, stop and resolve the split ownership with L3 before applying.
+Hand-off note for L3 (do not apply from this lane): before `railway config apply`, run `railway config plan` in the linked environment and confirm the plan lists only the `web` service and shows `0 to destroy`. The `partial` export means the plan cannot propose destroying `api`, `Postgres`, or `Redis` (the API lane declares those in its own file); if it does, the export is missing or was renamed, so stop and fix this file before applying. Never pass `--confirm-destructive` for this file.
 
 - [ ] **Step 5: Lint, full suite, commit**
 
@@ -2336,8 +2352,7 @@ Expected: green.
 git add scripts/write-version.mjs tests/write-version.test.ts Caddyfile .railway/railway.ts
 git commit -m "feat: version.json writer, Caddy production config, Railway web service declaration
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -2535,8 +2550,7 @@ Expected: green; `dist/version.json` shows the current HEAD.
 git add .github/workflows/ci.yml README.md CLAUDE.md CHANGELOG.md
 git commit -m "chore: ci workflow, README, CLAUDE.md, and CHANGELOG skeletons
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 - [ ] **Step 6: Push and watch CI (closes L2-M1)**
@@ -2561,8 +2575,9 @@ If `origin` does not exist yet, L3 pushes this branch when it creates the repo; 
 - Produces:
   - `scripts/pull-openapi.sh [ref] | --local <path> | [ref] --check`.
   - `models.ts` additions: `TaskListEnvelope`, `TaskSummary`, `TaskDetail`, `Tag`, `TaskStatus`, `AiStatus`, `AiSkipReason`, `SuggestionState`, `TaskListQuery`, `CreateTaskBody`, `UpdateTaskBody`, `ReplaceTagsBody`, `CreateTagBody`, `UpdateTagBody`, `FeatureRequestBody`, `FeatureRequestResult`.
+  - Contract rulings of 2026-09-08 (master plan section 4, "Task summary fields" and "Health"): `TaskSummary` carries `suggestionCount` (integer: direct children with origin `ai` in state `suggested`) and `aiError` (string or null), so the list needs no per-row detail query; `TaskDetail` adds `children` and `aiTagSuggestions`. The health payload carries `features.featureRequests` (boolean). Step 5 checks all three are in the pulled contract; if any is missing, stop and report to the coordinator instead of working around it in this repo.
   - `tests/msw/db.ts`: `db` (in-memory `tasks: TaskDetail[]`, `tags: Tag[]`, `reset()`), factories `makeTask`, `makeStep`, `makeTag`, and the seeded ids `T_SUGGESTED = "t-1"`, `T_SKIPPED = "t-2"`, `T_FAILED = "t-3"`, `TAG_WORK = "tag-1"`, `TAG_HOME = "tag-2"`.
-  - `tests/msw/handlers.ts`: `taskHandlers`, `tagHandlers`, `featureRequestHandlers`, `openapiHandlers`, and `handlers` (everything). `db.reset()` runs in `tests/setup.ts` before each test.
+  - `tests/msw/handlers.ts`: `taskHandlers`, `tagHandlers`, `featureRequestHandlers`, `healthHandlers`, `healthBody(featureRequests = true)` (the health payload, so a test can override the flag with `ok(healthBody(false))`), and `handlers` (everything). `db.reset()` runs in `tests/setup.ts` before each test.
 - Path parameter assumption: the pulled contract names the task and tag id parameter `{id}` (`/tasks/{id}`, `/tags/{id}`). Step 5 checks it; if the backend chose another name, rename it in this task's code (`models.ts`, `hooks.ts` in later tasks) rather than editing the contract.
 
 - [ ] **Step 1: Failing test for the pull script**
@@ -2808,10 +2823,12 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
           "rationale": { "type": ["string", "null"] },
           "tags": { "type": "array", "items": { "$ref": "#/components/schemas/Tag" } },
           "progress": { "$ref": "#/components/schemas/Progress" },
+          "suggestionCount": { "type": "integer", "minimum": 0, "description": "Direct children with origin ai in state suggested" },
+          "aiError": { "type": ["string", "null"] },
           "createdAt": { "type": "string", "format": "date-time" },
           "updatedAt": { "type": "string", "format": "date-time" }
         },
-        "required": ["id", "parentId", "title", "description", "status", "aiStatus", "aiSkipReason", "position", "origin", "suggestionState", "rationale", "tags", "progress", "createdAt", "updatedAt"]
+        "required": ["id", "parentId", "title", "description", "status", "aiStatus", "aiSkipReason", "position", "origin", "suggestionState", "rationale", "tags", "progress", "suggestionCount", "aiError", "createdAt", "updatedAt"]
       },
       "TaskDetail": {
         "allOf": [
@@ -2820,10 +2837,9 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
             "type": "object",
             "properties": {
               "children": { "type": "array", "items": { "$ref": "#/components/schemas/TaskSummary" } },
-              "aiTagSuggestions": { "type": "array", "items": { "type": "string" } },
-              "aiError": { "type": ["string", "null"] }
+              "aiTagSuggestions": { "type": "array", "items": { "type": "string" } }
             },
-            "required": ["children", "aiTagSuggestions", "aiError"]
+            "required": ["children", "aiTagSuggestions"]
           }
         ]
       },
@@ -2912,9 +2928,14 @@ Only if step 3 has no source: write `src/api/openapi.json` by hand from API spec
             "type": "object",
             "properties": { "db": { "type": "string" }, "redis": { "type": "string" } },
             "required": ["db", "redis"]
+          },
+          "features": {
+            "type": "object",
+            "properties": { "featureRequests": { "type": "boolean", "description": "True exactly when POST /feature-requests is mounted" } },
+            "required": ["featureRequests"]
           }
         },
-        "required": ["status", "commit", "env", "checks"]
+        "required": ["status", "commit", "env", "checks", "features"]
       },
       "AuthSessionEnvelope": {
         "type": "object",
@@ -3245,7 +3266,12 @@ Expected: `🚀 src/api/openapi.json → src/api/types.ts`.
 - [ ] **Step 5: Confirm the path parameter name and the envelope shape**
 
 Run: `node -e 'const d=require("./src/api/openapi.json"); console.log(Object.keys(d.paths).filter((p)=>p.includes("{")).join(" ")); console.log(Object.keys(d.paths["/tasks"].get.responses["200"].content["application/json"].schema.$ref ? d.components.schemas.TaskListEnvelope.properties : d.paths["/tasks"].get.responses["200"].content["application/json"].schema.properties).join(","))'`
-Expected: first line `/tasks/{id} /tasks/{id}/breakdown /tasks/{id}/suggestions/accept-all /tasks/{id}/suggestions/dismiss-all /tasks/{id}/tags /tags/{id}`; second line `data,meta`. If the first line shows another parameter name (for example `{taskId}`), use that name wherever this plan writes `{id}` in `client.GET("/tasks/{id}", ...)` calls and in `models.ts`. If the second command throws because the backend named the list envelope differently, read the schema name from the `$ref` and confirm it has `data` and `meta` properties; the plan's path-derived models do not depend on the name.
+Expected: first line `/tasks/{id} /tasks/{id}/breakdown /tasks/{id}/suggestions/accept-all /tasks/{id}/suggestions/dismiss-all /tasks/{id}/tags /tags/{id}`; second line `data,meta`.
+
+Then the ruling fields (R1, R2):
+
+Run: `node -e 'const d=require("./src/api/openapi.json");const s=d.components.schemas;const ts=(s.TaskSummary.properties)||{};console.log("suggestionCount" in ts, "aiError" in ts, JSON.stringify(s.Health.properties.features||null))'`
+Expected: `true true {"type":"object",...featureRequests...}`. If the backend nested `TaskSummary` differently, read the list item schema from `TaskListEnvelope.properties.data.items.$ref` and check the same two properties there. Any `false` or `null` means the backend has not applied the 2026-09-08 rulings: stop and report to the coordinator. If the first line shows another parameter name (for example `{taskId}`), use that name wherever this plan writes `{id}` in `client.GET("/tasks/{id}", ...)` calls and in `models.ts`. If the second command throws because the backend named the list envelope differently, read the schema name from the `$ref` and confirm it has `data` and `meta` properties; the plan's path-derived models do not depend on the name.
 
 - [ ] **Step 6: Extend the models**
 
@@ -3298,6 +3324,9 @@ describe("models derived from the contract", () => {
     expectTypeOf<TaskDetail["children"]>().toEqualTypeOf<TaskSummary[]>();
     expectTypeOf<TaskDetail["aiTagSuggestions"]>().toEqualTypeOf<string[]>();
     expectTypeOf<TaskSummary["progress"]>().toEqualTypeOf<{ done: number; total: number }>();
+    // Rulings R1: the summary carries the suggestion count and the AI error.
+    expectTypeOf<TaskSummary["suggestionCount"]>().toEqualTypeOf<number>();
+    expectTypeOf<TaskSummary["aiError"]>().toEqualTypeOf<string | null>();
     expectTypeOf<Tag>().toEqualTypeOf<{ id: string; name: string; color: string; createdAt: string }>();
   });
 });
@@ -3314,8 +3343,8 @@ Expected: exit 0 and `1 passed`.
 import type { Tag, TaskDetail, TaskSummary } from "@/api/models";
 import { ISO } from "./fixtures";
 
-/** A stored task row: everything on TaskDetail except the derived children and progress. */
-export type Row = Omit<TaskDetail, "children" | "progress">;
+/** A stored task row: everything on TaskDetail except the derived children, progress, and suggestionCount. */
+export type Row = Omit<TaskDetail, "children" | "progress" | "suggestionCount">;
 
 export const TAG_WORK = "tag-1";
 export const TAG_HOME = "tag-2";
@@ -3442,9 +3471,16 @@ export const db = {
   children(parentId: string): Row[] {
     return this.rows.filter((r) => r.parentId === parentId).sort(byPosition);
   },
+  /** TaskSummary = the row minus the detail-only aiTagSuggestions, plus the derived suggestionCount and progress (R1). */
   summary(row: Row): TaskSummary {
-    const { aiTagSuggestions: _s, aiError: _e, ...rest } = row;
-    return { ...rest, progress: progressOf(this.children(row.id)) };
+    const { aiTagSuggestions, ...rest } = row;
+    void aiTagSuggestions; // detail-only field, dropped from the summary
+    const children = this.children(row.id);
+    return {
+      ...rest,
+      suggestionCount: children.filter((c) => c.suggestionState === "suggested").length,
+      progress: progressOf(children),
+    };
   },
   detail(id: string): TaskDetail | undefined {
     const row = this.find(id);
@@ -3453,7 +3489,6 @@ export const db = {
       ...this.summary(row),
       children: this.children(id).map((c) => this.summary(c)),
       aiTagSuggestions: row.aiTagSuggestions,
-      aiError: row.aiError,
     };
   },
   /** Moves a row to the target index among its siblings and renumbers positions densely. */
@@ -3476,7 +3511,6 @@ Replace `tests/msw/handlers.ts` with the full set (the auth handlers stay as in 
 
 ```ts
 import { http, HttpResponse } from "msw";
-import openapiDocument from "@/api/openapi.json";
 import type {
   CreateTagBody,
   CreateTaskBody,
@@ -3717,16 +3751,25 @@ export const featureRequestHandlers = [
   }),
 ];
 
-export const openapiHandlers = [
-  http.get(`${API}/openapi.json`, () => HttpResponse.json(openapiDocument)),
-];
+/** The health payload. `features.featureRequests` is the flag the request-a-feature feature reads (R2). */
+export function healthBody(featureRequests = true) {
+  return {
+    status: "ok" as const,
+    commit: "test-sha",
+    env: "test",
+    checks: { db: "ok", redis: "ok" },
+    features: { featureRequests },
+  };
+}
+
+export const healthHandlers = [http.get(`${API}/health`, () => ok(healthBody()))];
 
 export const handlers = [
   ...authHandlers,
   ...taskHandlers,
   ...tagHandlers,
   ...featureRequestHandlers,
-  ...openapiHandlers,
+  ...healthHandlers,
 ];
 ```
 
@@ -3800,8 +3843,7 @@ Expected: green.
 git add scripts/pull-openapi.sh src/api tests .github/workflows/ci.yml README.md CHANGELOG.md
 git commit -m "feat: pull the API contract, derive models, and mock every endpoint with MSW
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -3934,7 +3976,7 @@ console.log(`build-mock-spec: wrote ${OUT} with ${Object.keys(examples).length} 
 
 - [ ] **Step 3: Curated examples**
 
-`mock/examples.json` (ids are real UUIDs so Prism's response validation accepts them; every example carries the full envelope):
+`mock/examples.json` (ids are real UUIDs so Prism's response validation accepts them; every example carries the full envelope; every task object carries `suggestionCount` and `aiError`, and the health example carries `features.featureRequests`, per the 2026-09-08 rulings):
 
 ```json
 {
@@ -3997,14 +4039,14 @@ console.log(`build-mock-spec: wrote ${OUT} with ${Object.keys(examples).length} 
           "suggestionState": null, "rationale": null,
           "tags": [{ "id": "aaaaaaaa-0000-4000-8000-000000000001", "name": "work", "color": "#3B3FBF", "createdAt": "2026-09-01T09:00:00.000Z" }],
           "progress": { "done": 1, "total": 2 },
-          "createdAt": "2026-09-08T08:00:00.000Z", "updatedAt": "2026-09-08T08:05:00.000Z"
+          "suggestionCount": 2, "aiError": null, "createdAt": "2026-09-08T08:00:00.000Z", "updatedAt": "2026-09-08T08:05:00.000Z"
         },
         {
           "id": "bbbbbbbb-0000-4000-8000-000000000002", "parentId": null,
           "title": "Renew the passport before the trip", "description": null,
           "status": "todo", "aiStatus": "done", "aiSkipReason": null, "position": 0, "origin": "user",
           "suggestionState": null, "rationale": null, "tags": [], "progress": { "done": 0, "total": 0 },
-          "createdAt": "2026-09-07T08:00:00.000Z", "updatedAt": "2026-09-07T08:00:00.000Z"
+          "suggestionCount": 0, "aiError": null, "createdAt": "2026-09-07T08:00:00.000Z", "updatedAt": "2026-09-07T08:00:00.000Z"
         },
         {
           "id": "bbbbbbbb-0000-4000-8000-000000000003", "parentId": null,
@@ -4013,14 +4055,14 @@ console.log(`build-mock-spec: wrote ${OUT} with ${Object.keys(examples).length} 
           "suggestionState": null, "rationale": null,
           "tags": [{ "id": "aaaaaaaa-0000-4000-8000-000000000002", "name": "home", "color": "#2F7D4F", "createdAt": "2026-09-01T09:00:00.000Z" }],
           "progress": { "done": 0, "total": 0 },
-          "createdAt": "2026-09-06T08:00:00.000Z", "updatedAt": "2026-09-06T08:00:00.000Z"
+          "suggestionCount": 0, "aiError": null, "createdAt": "2026-09-06T08:00:00.000Z", "updatedAt": "2026-09-06T08:00:00.000Z"
         },
         {
           "id": "bbbbbbbb-0000-4000-8000-000000000004", "parentId": null,
           "title": "Plan the team offsite agenda", "description": "Two days in October, twelve people.",
           "status": "todo", "aiStatus": "failed", "aiSkipReason": null, "position": 0, "origin": "user",
           "suggestionState": null, "rationale": null, "tags": [], "progress": { "done": 0, "total": 0 },
-          "createdAt": "2026-09-05T08:00:00.000Z", "updatedAt": "2026-09-05T08:02:00.000Z"
+          "suggestionCount": 0, "aiError": "The assistant is unavailable, try again", "createdAt": "2026-09-05T08:00:00.000Z", "updatedAt": "2026-09-05T08:02:00.000Z"
         }
       ],
       "meta": { "requestId": "mock", "nextCursor": null }
@@ -4033,8 +4075,8 @@ console.log(`build-mock-spec: wrote ${OUT} with ${Object.keys(examples).length} 
         "title": "Write the workshop runbook", "description": null,
         "status": "todo", "aiStatus": "pending", "aiSkipReason": null, "position": 0, "origin": "user",
         "suggestionState": null, "rationale": null, "tags": [], "progress": { "done": 0, "total": 0 },
-        "createdAt": "2026-09-08T09:00:00.000Z", "updatedAt": "2026-09-08T09:00:00.000Z",
-        "children": [], "aiTagSuggestions": [], "aiError": null
+        "suggestionCount": 0, "aiError": null, "createdAt": "2026-09-08T09:00:00.000Z", "updatedAt": "2026-09-08T09:00:00.000Z",
+        "children": [], "aiTagSuggestions": []
       },
       "meta": { "requestId": "mock" }
     }
@@ -4048,7 +4090,7 @@ console.log(`build-mock-spec: wrote ${OUT} with ${Object.keys(examples).length} 
         "suggestionState": null, "rationale": null,
         "tags": [{ "id": "aaaaaaaa-0000-4000-8000-000000000001", "name": "work", "color": "#3B3FBF", "createdAt": "2026-09-01T09:00:00.000Z" }],
         "progress": { "done": 1, "total": 2 },
-        "createdAt": "2026-09-08T08:00:00.000Z", "updatedAt": "2026-09-08T08:05:00.000Z",
+        "suggestionCount": 2, "aiError": null, "createdAt": "2026-09-08T08:00:00.000Z", "updatedAt": "2026-09-08T08:05:00.000Z",
         "children": [
           {
             "id": "cccccccc-0000-4000-8000-000000000001", "parentId": "bbbbbbbb-0000-4000-8000-000000000001",
@@ -4056,7 +4098,7 @@ console.log(`build-mock-spec: wrote ${OUT} with ${Object.keys(examples).length} 
             "status": "todo", "aiStatus": "skipped", "aiSkipReason": null, "position": 0, "origin": "ai",
             "suggestionState": "suggested", "rationale": "Everything else follows from what the room must decide.",
             "tags": [], "progress": { "done": 0, "total": 0 },
-            "createdAt": "2026-09-08T08:05:00.000Z", "updatedAt": "2026-09-08T08:05:00.000Z"
+            "suggestionCount": 0, "aiError": null, "createdAt": "2026-09-08T08:05:00.000Z", "updatedAt": "2026-09-08T08:05:00.000Z"
           },
           {
             "id": "cccccccc-0000-4000-8000-000000000002", "parentId": "bbbbbbbb-0000-4000-8000-000000000001",
@@ -4064,7 +4106,7 @@ console.log(`build-mock-spec: wrote ${OUT} with ${Object.keys(examples).length} 
             "status": "todo", "aiStatus": "skipped", "aiSkipReason": null, "position": 1, "origin": "ai",
             "suggestionState": "suggested", "rationale": "The numbers gate every other slide.",
             "tags": [], "progress": { "done": 0, "total": 0 },
-            "createdAt": "2026-09-08T08:05:00.000Z", "updatedAt": "2026-09-08T08:05:00.000Z"
+            "suggestionCount": 0, "aiError": null, "createdAt": "2026-09-08T08:05:00.000Z", "updatedAt": "2026-09-08T08:05:00.000Z"
           },
           {
             "id": "cccccccc-0000-4000-8000-000000000003", "parentId": "bbbbbbbb-0000-4000-8000-000000000001",
@@ -4072,7 +4114,7 @@ console.log(`build-mock-spec: wrote ${OUT} with ${Object.keys(examples).length} 
             "status": "done", "aiStatus": "skipped", "aiSkipReason": null, "position": 2, "origin": "ai",
             "suggestionState": "accepted", "rationale": "An outline makes the review cheap.",
             "tags": [], "progress": { "done": 0, "total": 0 },
-            "createdAt": "2026-09-08T08:05:00.000Z", "updatedAt": "2026-09-08T08:20:00.000Z"
+            "suggestionCount": 0, "aiError": null, "createdAt": "2026-09-08T08:05:00.000Z", "updatedAt": "2026-09-08T08:20:00.000Z"
           },
           {
             "id": "cccccccc-0000-4000-8000-000000000004", "parentId": "bbbbbbbb-0000-4000-8000-000000000001",
@@ -4080,11 +4122,10 @@ console.log(`build-mock-spec: wrote ${OUT} with ${Object.keys(examples).length} 
             "status": "todo", "aiStatus": "skipped", "aiSkipReason": null, "position": 3, "origin": "user",
             "suggestionState": null, "rationale": null,
             "tags": [], "progress": { "done": 0, "total": 0 },
-            "createdAt": "2026-09-08T08:30:00.000Z", "updatedAt": "2026-09-08T08:30:00.000Z"
+            "suggestionCount": 0, "aiError": null, "createdAt": "2026-09-08T08:30:00.000Z", "updatedAt": "2026-09-08T08:30:00.000Z"
           }
         ],
-        "aiTagSuggestions": ["planning"],
-        "aiError": null
+        "aiTagSuggestions": ["planning"]
       },
       "meta": { "requestId": "mock" }
     }
@@ -4097,7 +4138,7 @@ console.log(`build-mock-spec: wrote ${OUT} with ${Object.keys(examples).length} 
   },
   "GET /health": {
     "200": {
-      "data": { "status": "ok", "commit": "mock", "env": "mock", "checks": { "db": "ok", "redis": "ok" } },
+      "data": { "status": "ok", "commit": "mock", "env": "mock", "checks": { "db": "ok", "redis": "ok" }, "features": { "featureRequests": true } },
       "meta": { "requestId": "mock" }
     }
   }
@@ -4155,8 +4196,7 @@ Expected: green.
 git add mock scripts/build-mock-spec.mjs tests/build-mock-spec.test.ts tests/fixtures .gitignore README.md CHANGELOG.md
 git commit -m "feat: Prism mock with curated contract examples
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -4893,8 +4933,7 @@ Expected: green.
 git add -A src tests README.md CHANGELOG.md
 git commit -m "feat: auth pages, session restore, logout, and error toasts per code
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -4910,10 +4949,10 @@ Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
 - Produces:
   - `polling.ts`: `LIST_POLL_MS = 3000`, `DETAIL_POLL_MS = 2000`, `isAiActive(task)`, `activeAiInterval(data: WithAi | WithAi[] | null | undefined, intervalMs): number | false`.
   - `src/api/tags-query.ts`: `tagKeys.all = ["tags"]`, `useTags()` (shared by the tasks and tags features without a feature-to-feature import).
-  - `features/tasks/hooks.ts`: `TaskFilters = { status?: TaskStatus; tagId?: string }`, `taskKeys.list(filters) = ["tasks", filters]`, `taskKeys.detail(id) = ["tasks", id]`, `invalidateTaskLists(queryClient)`, `useTasks(filters)` (infinite query), `useTask(id)`, `useSuggestionCount(task)`, `useCreateTask()`, `useUpdateTask()` (variables `{ id, ...UpdateTaskBody }`), `useDeleteTask()`, `useBreakdown()`, `useAcceptAll()`, `useDismissAll()`, `useReplaceTags()` (variables `{ id, tagIds }`). Task 14 adds `useReorderStep`.
+  - `features/tasks/hooks.ts`: `TaskFilters = { status?: TaskStatus; tagId?: string }`, `taskKeys.list(filters) = ["tasks", filters]`, `taskKeys.detail(id) = ["tasks", id]`, `invalidateTaskLists(queryClient)`, `useTasks(filters)` (infinite query), `useTask(id)`, `useCreateTask()`, `useUpdateTask()` (variables `{ id, ...UpdateTaskBody }`), `useDeleteTask()`, `useBreakdown()`, `useAcceptAll()`, `useDismissAll()`, `useReplaceTags()` (variables `{ id, tagIds }`). Task 14 adds `useReorderStep`.
   - `TagChip({ tag, onRemove? })` in `src/components/tag-chip.tsx`; `ProgressBar({ done, total })` renders the `done/total` label.
-  - Selector contract: textbox "Task title", textbox "Description" revealed by the "Add description" button, Enter submits; each row is a `listitem` whose title is a link to `/tasks/:id`; chip text "Thinking", "N suggestions", "Breakdown failed", or the skip reason label.
-- Contract limits handled here: `TaskSummary` carries neither a suggestion count nor `aiError`, so the "N suggestions" chip reads the count through `useSuggestionCount`, a cached per-row detail query enabled only for `done` rows, and the failed chip says "Breakdown failed" while the message shows in the detail banner (Task 12). `GET /tasks` filters by one `tagId`, so the tag filter is single-select.
+  - Selector contract: textbox "Task title", textbox "Description" revealed by the "Add description" button, Enter submits; each row is a `listitem` whose title is a link to `/tasks/:id`; chip text "Thinking", "N suggestions" (from `suggestionCount`), "Breakdown failed: <aiError>" beside a "Retry" button, or the skip reason label.
+- Rulings applied: `TaskSummary` carries `suggestionCount` and `aiError` (R1), so the "N suggestions" chip and the failed chip's message come straight from the list payload and no row issues a detail request (the test below asserts zero `GET /tasks/:id` calls). `GET /tasks` filters by one `tagId`, so the tag filter is single-select: choosing a second tag replaces the first (R3).
 
 - [ ] **Step 1: Failing polling helper test**
 
@@ -4979,7 +5018,7 @@ Expected: `2 passed`.
 import { act, screen, waitFor, within } from "@testing-library/react";
 import { http } from "msw";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { db, makeStep, makeTask, T_FAILED, T_SUGGESTED, TAG_WORK } from "../../../tests/msw/db";
+import { db, makeStep, makeTask, T_FAILED, T_SUGGESTED, TAG_HOME, TAG_WORK } from "../../../tests/msw/db";
 import { API, err, ok } from "../../../tests/msw/handlers";
 import { server } from "../../../tests/msw/server";
 import { renderApp } from "../../../tests/render";
@@ -5012,7 +5051,11 @@ describe("task list", () => {
     expect(within(row("Buy milk")).getByText("Too short to break down")).toBeInTheDocument();
     expect(within(row("Rate limited task")).getByText("Hourly limit reached")).toBeInTheDocument();
     expect(within(row("Paused task")).getByText("Assistant paused")).toBeInTheDocument();
-    expect(within(row("Plan the team offsite agenda")).getByText("Breakdown failed")).toBeInTheDocument();
+    expect(
+      within(row("Plan the team offsite agenda")).getByText(
+        "Breakdown failed: The assistant is unavailable, try again",
+      ),
+    ).toBeInTheDocument();
     expect(within(row("Plan the team offsite agenda")).getByRole("button", { name: "Retry" })).toBeInTheDocument();
     // Every row is a listitem whose title is a link to the detail (smoke selector contract).
     expect(within(row("Buy milk")).getByRole("link", { name: "Buy milk" })).toHaveAttribute("href", "/tasks/t-2");
@@ -5112,6 +5155,10 @@ describe("task list", () => {
     await user.click(await screen.findByRole("button", { name: "work", pressed: false }));
     await waitFor(() => expect(queries.at(-1)).toContain(`tagId=${TAG_WORK}`));
     expect(queries.at(-1)).toContain("status=done");
+    // Single-select (R3): choosing a second tag replaces the first.
+    await user.click(screen.getByRole("button", { name: "home", pressed: false }));
+    await waitFor(() => expect(queries.at(-1)).toContain(`tagId=${TAG_HOME}`));
+    expect(queries.at(-1)).not.toContain(TAG_WORK);
   });
 
   it("retries a failed breakdown from the row", async () => {
@@ -5139,14 +5186,24 @@ describe("task list", () => {
     expect(await screen.findByText("Buy milk")).toBeInTheDocument();
   });
 
-  it("shows the suggested step count only once the detail is known", async () => {
+  it("reads the suggestion count from the summary and never requests a detail per row", async () => {
+    let detailCalls = 0;
+    server.use(
+      http.get(`${API}/tasks/:id`, () => {
+        detailCalls += 1;
+        return err("INTERNAL", "the list must not fetch details");
+      }),
+    );
     db.rows.push(
       makeTask({ id: "t-two", title: "Two suggestions task", aiStatus: "done" }),
       makeStep({ id: "s-x", parentId: "t-two", title: "First" }),
       makeStep({ id: "s-y", parentId: "t-two", title: "Second" }),
     );
     renderApp({ route: "/tasks" });
-    expect(await within(await screen.findByRole("listitem", { name: "Two suggestions task" })).findByRole("link", { name: "2 suggestions" })).toBeInTheDocument();
+    const twoRow = await screen.findByRole("listitem", { name: "Two suggestions task" });
+    expect(within(twoRow).getByRole("link", { name: "2 suggestions" })).toHaveAttribute("href", "/tasks/t-two");
+    await screen.findByText("Buy milk");
+    expect(detailCalls).toBe(0);
   });
 });
 ```
@@ -5192,7 +5249,6 @@ import type {
   TaskDetail,
   TaskListEnvelope,
   TaskStatus,
-  TaskSummary,
   UpdateTaskBody,
 } from "@/api/models";
 import { toastApiError } from "@/components/api-error-toast";
@@ -5248,19 +5304,6 @@ export function useTask(id: string) {
   }, [query.data, queryClient]);
 
   return query;
-}
-
-/** Suggested-step count for a done row, from a cached detail query; TaskSummary has no count. */
-export function useSuggestionCount(task: TaskSummary): number | undefined {
-  const query = useQuery({
-    queryKey: taskKeys.detail(task.id),
-    queryFn: async () =>
-      unwrap(await client.GET("/tasks/{id}", { params: { path: { id: task.id } } })).data,
-    enabled: task.aiStatus === "done",
-    staleTime: 60_000,
-  });
-  if (!query.data) return undefined;
-  return query.data.children.filter((c) => c.suggestionState === "suggested").length;
 }
 
 function useSettleDetail() {
@@ -5453,15 +5496,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { pluralize, skipReasonLabel } from "@/lib/format";
 
-/** The AI state of a list row, in words (spec 4.3 and the smoke selector contract). */
+/** The AI state of a list row, in words (spec 4.3 and the smoke selector contract). The count and
+ *  the failure message come from the summary's `suggestionCount` and `aiError` (ruling R1); the
+ *  smoke test only needs the word "failed" and the "N suggestions" pattern. */
 export function AiChip({
   task,
-  suggestionCount,
   onRetry,
   retrying = false,
 }: {
   task: TaskSummary;
-  suggestionCount: number | undefined;
   onRetry: () => void;
   retrying?: boolean;
 }) {
@@ -5475,12 +5518,12 @@ export function AiChip({
         </Badge>
       );
     case "done":
-      if (!suggestionCount) return null;
+      if (task.suggestionCount === 0) return null;
       return (
         <Badge asChild className="gap-1 bg-primary text-primary-foreground">
           <Link to={`/tasks/${task.id}`}>
             <Sparkles className="size-4" aria-hidden="true" />
-            {pluralize(suggestionCount, "suggestion")}
+            {pluralize(task.suggestionCount, "suggestion")}
           </Link>
         </Badge>
       );
@@ -5493,7 +5536,9 @@ export function AiChip({
     case "failed":
       return (
         <span className="inline-flex items-center gap-2">
-          <Badge variant="destructive">Breakdown failed</Badge>
+          <Badge variant="destructive">
+            Breakdown failed{task.aiError ? `: ${task.aiError}` : ""}
+          </Badge>
           <Button size="sm" variant="outline" onClick={onRetry} disabled={retrying}>
             <RefreshCw className="size-4" aria-hidden="true" />
             Retry
@@ -5510,12 +5555,11 @@ export function AiChip({
 import { Link } from "react-router";
 import type { TaskSummary } from "@/api/models";
 import { TagChip } from "@/components/tag-chip";
-import { useBreakdown, useSuggestionCount } from "../hooks";
+import { useBreakdown } from "../hooks";
 import { AiChip } from "./AiChip";
 import { ProgressBar } from "./ProgressBar";
 
 export function TaskRow({ task }: { task: TaskSummary }) {
-  const suggestionCount = useSuggestionCount(task);
   const breakdown = useBreakdown();
   const titleId = `task-${task.id}-title`;
   return (
@@ -5542,7 +5586,6 @@ export function TaskRow({ task }: { task: TaskSummary }) {
       <ProgressBar done={task.progress.done} total={task.progress.total} />
       <AiChip
         task={task}
-        suggestionCount={suggestionCount}
         onRetry={() => breakdown.mutate(task.id)}
         retrying={breakdown.isPending}
       />
@@ -5754,7 +5797,7 @@ Expected: `Tests  9 passed (9)`. If the polling test is flaky on the second adva
 
 - [ ] **Step 5: Mock check, docs, commit**
 
-With `npm run mock` and `npm run dev` running and after logging in, `/tasks` shows four rows: "3 suggestions" on the deck (the mock's detail has two suggested and one accepted, so the chip reads "2 suggestions" against the mock), no chip on the passport, "Too short to break down" on milk, and "Breakdown failed" with "Retry" on the offsite. Enter a title in the create bar: a "Thinking" row appears first.
+With `npm run mock` and `npm run dev` running and after logging in, `/tasks` shows four rows: "2 suggestions" on the deck (its summary example carries `suggestionCount: 2`, matching the two suggested children in the detail example), no chip on the passport, "Too short to break down" on milk, and "Breakdown failed: The assistant is unavailable, try again" with "Retry" on the offsite. Enter a title in the create bar: a "Thinking" row appears first.
 
 `README.md` "## Features": add `- Task list with create bar, status and tag filters, progress, AI chips, retry, load more, and polling while the assistant works`.
 
@@ -5767,8 +5810,7 @@ Expected: green.
 git add -A src README.md CHANGELOG.md
 git commit -m "feat: task list with AI chips, create bar, filters, load more, and polling
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -5786,6 +5828,7 @@ Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
   - `NativeSelect(props)`: styled `<select>`.
   - `TaskHeader({ task })`, `StepList({ task })`, `StepRow({ step })`, `DismissedSteps({ steps })`, `RationalePopover({ rationale })`.
   - Selector contract: detail heading = task title; each suggested step has a button named exactly "Accept"; the progress label `done/total`.
+  - `InlineText` keeps the editor in a child component that mounts only while editing and owns its own draft state, so no state setter runs inside an effect: `react-hooks/set-state-in-effect` is an error in eslint-plugin-react-hooks 7's recommended config (Task 1).
 - Task 13 adds `AiBanner` and `BulkBar` into `TaskDetailPage`; Task 14 replaces `StepList`/`StepRow` with sortable versions and adds `AddStepForm`; Task 15 extends `TaskHeader` with the add-tag popover and AI tag suggestions.
 
 - [ ] **Step 1: Failing InlineText test**
@@ -5853,7 +5896,7 @@ Expected: FAIL (module missing).
 `src/components/inline-text.tsx`:
 
 ```tsx
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useRef, useState, type FocusEvent, type KeyboardEvent } from "react";
 import { cn } from "@/lib/cn";
 
 type Props = {
@@ -5872,7 +5915,9 @@ type Props = {
 };
 
 /** Text that edits in place. The static view is a button whose text is the value, so a wrapping
- *  heading keeps the value as its accessible name. Saves on Enter or blur, cancels on Escape. */
+ *  heading keeps the value as its accessible name. Saves on Enter or blur, cancels on Escape.
+ *  The editor is a child component mounted only while editing; it owns the draft, so no state
+ *  setter runs inside an effect (react-hooks/set-state-in-effect). */
 export function InlineText({
   value,
   onSave,
@@ -5887,59 +5932,25 @@ export function InlineText({
 }: Props) {
   const [editingState, setEditingState] = useState(false);
   const editing = editingProp ?? editingState;
-  const [draft, setDraft] = useState(value);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   function setEditing(next: boolean) {
     setEditingState(next);
     onEditingChange?.(next);
   }
 
-  useEffect(() => {
-    if (!editing) return;
-    setDraft(value);
-    const el = inputRef.current ?? textareaRef.current;
-    el?.focus();
-    el?.select();
-  }, [editing, value]);
-
-  function commit() {
-    const next = multiline ? draft.trimEnd() : draft.trim();
-    if (next !== value && (next || allowEmpty)) onSave(next);
-    setEditing(false);
-  }
-
-  function cancel() {
-    setDraft(value);
-    setEditing(false);
-  }
-
-  function onKeyDown(event: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) {
-    if (event.key === "Escape") {
-      event.preventDefault();
-      cancel();
-    } else if (event.key === "Enter" && (!multiline || event.metaKey || event.ctrlKey)) {
-      event.preventDefault();
-      commit();
-    }
-  }
-
   if (editing) {
-    const shared = {
-      "aria-label": label,
-      value: draft,
-      onBlur: commit,
-      onKeyDown,
-      className: cn(
-        "w-full rounded-md border border-input bg-card px-3 py-2 font-[inherit] text-[inherit]",
-        className,
-      ),
-    };
-    return multiline ? (
-      <textarea ref={textareaRef} rows={3} {...shared} onChange={(e) => setDraft(e.target.value)} />
-    ) : (
-      <input ref={inputRef} {...shared} onChange={(e) => setDraft(e.target.value)} />
+    return (
+      <InlineEditor
+        label={label}
+        initial={value}
+        multiline={multiline}
+        className={className}
+        onCommit={(next) => {
+          if (next !== value && (next || allowEmpty)) onSave(next);
+          setEditing(false);
+        }}
+        onCancel={() => setEditing(false)}
+      />
     );
   }
 
@@ -5957,6 +5968,68 @@ export function InlineText({
         {value || placeholder}
       </button>
     </Tag>
+  );
+}
+
+function InlineEditor({
+  label,
+  initial,
+  multiline,
+  className,
+  onCommit,
+  onCancel,
+}: {
+  label: string;
+  initial: string;
+  multiline: boolean;
+  className?: string;
+  onCommit: (next: string) => void;
+  onCancel: () => void;
+}) {
+  const [draft, setDraft] = useState(initial);
+  // Enter commits and the parent then unmounts this editor; the guard keeps a blur that lands in
+  // between from committing or cancelling a second time.
+  const settled = useRef(false);
+
+  function commit() {
+    if (settled.current) return;
+    settled.current = true;
+    onCommit(multiline ? draft.trimEnd() : draft.trim());
+  }
+
+  function cancel() {
+    if (settled.current) return;
+    settled.current = true;
+    onCancel();
+  }
+
+  function onKeyDown(event: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      cancel();
+    } else if (event.key === "Enter" && (!multiline || event.metaKey || event.ctrlKey)) {
+      event.preventDefault();
+      commit();
+    }
+  }
+
+  const shared = {
+    "aria-label": label,
+    value: draft,
+    autoFocus: true,
+    onFocus: (event: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      event.currentTarget.select(),
+    onBlur: commit,
+    onKeyDown,
+    className: cn(
+      "w-full rounded-md border border-input bg-card px-3 py-2 font-[inherit] text-[inherit]",
+      className,
+    ),
+  };
+  return multiline ? (
+    <textarea rows={3} {...shared} onChange={(e) => setDraft(e.target.value)} />
+  ) : (
+    <input {...shared} onChange={(e) => setDraft(e.target.value)} />
   );
 }
 ```
@@ -6502,8 +6575,7 @@ Expected: green.
 git add -A src README.md CHANGELOG.md
 git commit -m "feat: task detail with suggested steps, rationale, and accept/edit/dismiss/undo
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -6788,8 +6860,7 @@ Expected: green.
 git add -A src README.md CHANGELOG.md
 git commit -m "feat: AI banner with regenerate and conflict toast, bulk actions, detail polling
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -7221,8 +7292,7 @@ Expected: green.
 git add -A src README.md CHANGELOG.md
 git commit -m "feat: reorder steps with dnd-kit and keyboard moves, add step
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -7582,8 +7652,7 @@ Expected: green.
 git add -A src README.md CHANGELOG.md
 git commit -m "feat: add-tag popover and AI tag suggestion adoption
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -7598,7 +7667,7 @@ Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
 **Interfaces:**
 - Consumes: `useTags`, `useCreateTag`, `useUpdateTag`, `useDeleteTag` (re-exported through `features/tags/hooks.ts`), `TAG_PALETTE`, `InlineText`, `Field`, shadcn `AlertDialog`, `Popover`.
 - Produces: `ColorPicker({ value, onChange, label })` (a `radiogroup` of the eight palette colors, each radio named by its color name), `TagRow({ tag })`.
-- The contract's `Tag` has no task count, so the "count of tasks if cheap" column from spec 4.5 is omitted.
+- No task-count column (ruling R4; spec 4.5): the table shows the color swatch and the name only, because the API's `Tag` carries no count.
 
 - [ ] **Step 1: Failing tests**
 
@@ -7956,13 +8025,12 @@ Expected: green.
 git add -A src README.md CHANGELOG.md
 git commit -m "feat: tags page with palette, inline edit, and confirmed delete
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
 
-### Task 17: Request-a-feature page with availability from the served contract
+### Task 17: Request-a-feature page with availability from the health feature flag
 
 **Files:**
 - Create: `src/features/feature-request/hooks.ts`, `src/features/feature-request/FeatureRequestLink.tsx`
@@ -7970,9 +8038,9 @@ Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
 - Test: `src/features/feature-request/RequestFeaturePage.test.tsx`
 
 **Interfaces:**
-- Consumes: `API_BASE`, `client`, `unwrap`, `Field`, `toastApiError`, `FeatureRequestBody`, `FeatureRequestResult`.
-- Produces: `useFeatureRequestAvailable(): { available: boolean | undefined }` (probes `GET /api/v1/openapi.json` once per session, `staleTime: Infinity`, and reports whether `paths["/feature-requests"]` exists), `useSubmitFeatureRequest()`, `FeatureRequestLink()` (the nav link, rendered only when available). `app/layout.tsx` imports `FeatureRequestLink` from the feature and deletes its stub.
-- Cross-lane note: the API spec says `GET /openapi.json` serves the committed file. For the link to hide when the route is not mounted, the served document must omit `/feature-requests` in that case (web spec 4.6). This plan implements the web side of that contract; the report to the coordinator flags the backend side.
+- Consumes: `client`, `unwrap`, `Field`, `toastApiError`, `FeatureRequestBody`, `FeatureRequestResult`; the MSW `healthBody` helper from Task 8.
+- Produces: `useFeatureRequestAvailable(): { available: boolean | undefined }` (reads `GET /api/v1/health` once per session with `staleTime: Infinity` and reports `data.features.featureRequests`; a non-2xx health answer counts as `false`), `useSubmitFeatureRequest()`, `FeatureRequestLink()` (the nav link, rendered only when available). `app/layout.tsx` imports `FeatureRequestLink` from the feature and deletes its stub.
+- Ruling R2 (master plan interface "Health", web spec 4.6): `features.featureRequests` is true exactly when the API mounted `POST /feature-requests`. The served `/openapi.json` is never inspected for this; it lists the path whether or not the route is mounted.
 
 - [ ] **Step 1: Failing tests**
 
@@ -7980,9 +8048,9 @@ Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
 
 ```tsx
 import { screen, waitFor } from "@testing-library/react";
-import { http, HttpResponse } from "msw";
+import { http } from "msw";
 import { describe, expect, it } from "vitest";
-import { API, err, ok } from "../../../tests/msw/handlers";
+import { API, err, healthBody, ok } from "../../../tests/msw/handlers";
 import { server } from "../../../tests/msw/server";
 import { renderApp } from "../../../tests/render";
 
@@ -7997,15 +8065,22 @@ function fill(user: ReturnType<typeof renderApp>["user"]) {
 }
 
 describe("request a feature", () => {
-  it("hides the nav link and the form when the served contract lacks the path", async () => {
-    server.use(http.get(`${API}/openapi.json`, () => HttpResponse.json({ openapi: "3.1.0", paths: { "/tasks": {} } })));
+  it("hides the nav link and the form when health reports featureRequests false", async () => {
+    server.use(http.get(`${API}/health`, () => ok(healthBody(false))));
     renderApp({ route: "/request-feature" });
     expect(await screen.findByText("Feature requests are not available in this environment.")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Request a feature" })).toBeNull();
     expect(screen.queryByRole("form", { name: "Request a feature" })).toBeNull();
   });
 
-  it("shows the link when the contract lists the path and files the request", async () => {
+  it("treats a failing health check as unavailable", async () => {
+    server.use(http.get(`${API}/health`, () => err("UNAVAILABLE", "redis check failed")));
+    renderApp({ route: "/request-feature" });
+    expect(await screen.findByText("Feature requests are not available in this environment.")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Request a feature" })).toBeNull();
+  });
+
+  it("shows the link when health reports featureRequests true and files the request", async () => {
     const bodies: unknown[] = [];
     server.use(
       http.post(`${API}/feature-requests`, async ({ request }) => {
@@ -8059,12 +8134,12 @@ describe("request a feature", () => {
     await waitFor(() => expect(screen.getByRole("button", { name: "Send request" })).toBeEnabled());
   });
 
-  it("probes the contract once per session", async () => {
+  it("reads health once per session", async () => {
     let probes = 0;
     server.use(
-      http.get(`${API}/openapi.json`, () => {
+      http.get(`${API}/health`, () => {
         probes += 1;
-        return HttpResponse.json({ openapi: "3.1.0", paths: { "/feature-requests": {} } });
+        return ok(healthBody(true));
       }),
     );
     const { user } = renderApp({ route: "/tasks" });
@@ -8087,21 +8162,18 @@ Expected: FAIL (the stub page; the link is never rendered).
 
 ```ts
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { API_BASE, client, unwrap } from "@/api/client";
+import { client, unwrap } from "@/api/client";
 import type { FeatureRequestBody } from "@/api/models";
 
-const FEATURE_REQUEST_PATH = "/feature-requests";
-
-/** Whether the running API mounted the feature-request route, read from the document it serves.
- *  Probed once per session. `undefined` while unknown. */
+/** Whether the running API mounted the feature-request route: `data.features.featureRequests` from
+ *  GET /health (master plan interface "Health", ruling R2). Read once per session; `undefined` while
+ *  unknown; a failing health check (503 UNAVAILABLE) counts as unavailable. */
 export function useFeatureRequestAvailable(): { available: boolean | undefined } {
   const query = useQuery({
-    queryKey: ["openapi", "feature-requests"],
+    queryKey: ["health", "features"],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/openapi.json`, { credentials: "include" });
-      if (!response.ok) return false;
-      const document = (await response.json()) as { paths?: Record<string, unknown> };
-      return Boolean(document.paths && FEATURE_REQUEST_PATH in document.paths);
+      const result = await client.GET("/health");
+      return result.data?.data.features?.featureRequests === true;
     },
     staleTime: Infinity,
     gcTime: Infinity,
@@ -8151,7 +8223,7 @@ export function FeatureRequestLink() {
 `src/features/feature-request/RequestFeaturePage.tsx`:
 
 ```tsx
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import { toApiError } from "@/api/errors";
 import type { FeatureRequestBody, FeatureRequestResult } from "@/api/models";
 import { toastApiError } from "@/components/api-error-toast";
@@ -8256,7 +8328,7 @@ export function RequestFeaturePage() {
             value: values[field.key] ?? "",
             "aria-invalid": Boolean(fields[field.key]),
             "aria-describedby": fields[field.key] ? `${id}-error` : `${id}-hint`,
-            onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+            onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
               setValues((v) => ({ ...v, [field.key]: e.target.value })),
           };
           return (
@@ -8277,30 +8349,27 @@ export function RequestFeaturePage() {
 }
 ```
 
-Add `import type React from "react";` at the top of the page file for the `React.ChangeEvent` type.
-
 Modify `src/app/layout.tsx`: delete the `FeatureRequestLink` stub function and add `import { FeatureRequestLink } from "@/features/feature-request/FeatureRequestLink";`. The nav already renders `<FeatureRequestLink />`.
 
 - [ ] **Step 3: Run the tests**
 
 Run: `npx vitest run src/features/feature-request src/app`
-Expected: green; `RequestFeaturePage.test.tsx` reports `5 passed`. The router test from Task 5 still expects no "Request a feature" link on `/tags`: it now passes only because the availability query has not resolved at assertion time; make it deterministic by adding `server.use(http.get(`${API}/openapi.json`, () => HttpResponse.json({ paths: {} })))` at the top of that router test (import `http`, `HttpResponse` from `msw` and `API`, `server` from the test helpers).
+Expected: green; `RequestFeaturePage.test.tsx` reports `6 passed`. The router test from Task 5 ("shows the shell with the display name, nav links, and log out") expects no "Request a feature" link on `/tags`, and the default health handler now reports `featureRequests: true`, so that assertion is a race. Make it deterministic: add `server.use(http.get(`${API}/health`, () => ok(healthBody(false))));` as the first line of that test, with `import { http } from "msw";`, `import { API, healthBody, ok } from "../../tests/msw/handlers";`, and `import { server } from "../../tests/msw/server";` at the top of `src/app/router.test.tsx`. Re-run `npx vitest run src/app` and expect `5 passed`.
 
 - [ ] **Step 4: Docs and commit**
 
-`README.md` "## Features": replace the parenthetical bullet with `- Request a feature: the issue form's five fields, filed as a GitHub issue through the API; the link appears only when the API serves the route`.
+`README.md` "## Features": replace the parenthetical bullet with `- Request a feature: the issue form's five fields, filed as a GitHub issue through the API; the link appears only when the API's health reports `features.featureRequests: true``.
 
-`CHANGELOG.md` `[Unreleased]` / `### Added`: `- Request-a-feature page; the nav link is shown only when the served contract lists the route.`
+`CHANGELOG.md` `[Unreleased]` / `### Added`: `- Request-a-feature page; the nav link and route are shown only when `GET /health` reports `features.featureRequests` true.`
 
 Run: `npm run lint && npm run typecheck && npm test`
 Expected: green.
 
 ```bash
 git add -A src README.md CHANGELOG.md
-git commit -m "feat: request-a-feature page with availability from the served contract
+git commit -m "feat: request-a-feature page gated on the health feature flag
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -8348,6 +8417,8 @@ flowchart LR
   the Prism mock; `http://localhost:3000` for the real API).
 - `src/api/client.ts` resolves `/api/v1` against `window.location.origin`. No other origin exists in
   the code base; the `reviewer` agent checks for absolute API origins.
+- `.railway/railway.ts` declares the `web` service as a named partial (`export const partial = "web"`),
+  so applying it can never destroy `api`, `Postgres`, or `Redis`, which the API repo's file declares.
 
 ## Authentication flow
 
@@ -8382,7 +8453,10 @@ TanStack Query owns server state; hooks live in `src/features/<domain>/hooks.ts`
 `["tasks", id]` for details, `["tags"]`. `src/lib/polling.ts` exports `activeAiInterval`, used by the
 list query (3 s while any visible row is pending or running) and by the detail query (2 s while the
 task is pending or running). When a detail settles, the list queries are invalidated so chips update.
-Reorder is optimistic with rollback.
+Reorder is optimistic with rollback. List rows never fetch a detail: `TaskSummary` carries
+`suggestionCount` and `aiError`. The request-a-feature link and route are gated on `GET /health`'s
+`data.features.featureRequests`, read once per session (`staleTime: Infinity`) by
+`features/feature-request/hooks.ts`.
 
 ## Mock
 
@@ -8431,6 +8505,8 @@ the Prism mock or a local API. The web service pins `PORT=8080`; the API pins `P
 
 - No runtime configuration in the app, no CORS anywhere, first-party cookies.
 - The API has no public domain; the web domain is the only entry point.
+- `.railway/railway.ts` is a named partial that owns only `web`; the API repo's file owns `api`,
+  `Postgres`, and `Redis`, so neither file can destroy the other's services.
 - The proxy target is a fixed hostname and port. Changing the API's port is a change to this file
   and to the API's Railway variables.
 - Verification item W1 (Railpack honoring the root Caddyfile) is confirmed on the first staging
@@ -8515,7 +8591,7 @@ name only. These names are a cross-repo contract; do not change them without cha
 | Register | submit | button "Create account"; success lands on `/tasks` |
 | Task list | create bar | textbox "Task title"; textbox "Description" revealed by the button "Add description"; Enter in the title submits |
 | Task list | row | `listitem` named by the task title; the title is a link to `/tasks/:id` |
-| Task list | AI chip | "Thinking" while pending or running; "N suggestions" when done with suggestions; "Breakdown failed" plus "Retry"; "Too short to break down", "Hourly limit reached", or "Assistant paused" when skipped |
+| Task list | AI chip | "Thinking" while pending or running; "N suggestions" (from the summary's `suggestionCount`) when done with suggestions; "Breakdown failed: <aiError>" plus a "Retry" button; "Too short to break down", "Hourly limit reached", or "Assistant paused" when skipped |
 | Detail | heading | the task title (URL `/tasks/<uuid>`) |
 | Detail | accept | button named exactly "Accept" on each suggested step |
 | Detail | progress | text `done/total`, for example `0/1` |
@@ -8552,8 +8628,7 @@ Expected: prettier accepts the markdown (CHANGELOG.md is ignored; the rest is fo
 git add docs README.md CHANGELOG.md
 git commit -m "docs: architecture, ADRs 0001-0003, selector contract, pipeline
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -9034,8 +9109,7 @@ Expected: green, and the last command prints `docs-check: OK` (the changelog bul
 git add scripts/docs-check.sh scripts/format-file.sh .claude/settings.json docs/architectural-files.txt .github/workflows/ci.yml tests/docs-check.test.ts tests/format-file.test.ts CHANGELOG.md
 git commit -m "feat: docs-check gate with types regeneration rule, formatter hook, Claude Code hooks
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -9216,7 +9290,7 @@ description: Use when cutting a version of kaizen-tasks-web. Moves the CHANGELOG
 4. Bump `"version"` in `package.json` to the same value and run `npm install --package-lock-only`
    so `package-lock.json` follows.
 5. Run `npm run lint && npm test`.
-6. Commit as `chore: release <version>` with the repo's commit trailers, on `develop`. The
+6. Commit as `chore: release <version>` with the repo's commit trailer (`Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`), on `develop`. The
    promotion to `main` happens by pull request after staging verification, never by a direct push.
 7. Reply with the version, the date, and the list of bullets that shipped.
 ````
@@ -9409,8 +9483,7 @@ Expected: five `ok` lines, `CLAUDE.md` under 80 lines, lint green. In a Claude C
 git add .claude CLAUDE.md CHANGELOG.md
 git commit -m "docs: skills, agents, and CLAUDE.md for the web harness
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -9587,8 +9660,7 @@ Expected: green and `docs-check: OK`.
 git add scripts/wait-for-version.sh .github/workflows/promote.yml tests/wait-for-version.test.ts README.md CHANGELOG.md
 git commit -m "ci: promote workflow gated on staging version.json and the smoke package
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_01HWmLNo9LBp2SgKdYisfRoJ"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 git push origin develop
 gh run watch --exit-status
 ```
@@ -9612,7 +9684,7 @@ Expected: `ci` green on `develop`. `promote` first runs when L3 opens the `devel
 | 4.3 task list (create bar, filters, rows, every chip state, load more, polling) | 11 |
 | 4.4 task detail (header, banner, steps, accept/edit/dismiss/undo, bulk, reorder, add step, polling) | 12, 13, 14, 15 |
 | 4.5 tags page | 16 |
-| 4.6 request a feature with availability probe | 17 |
+| 4.6 request a feature, availability from health `features.featureRequests` (R2) | 17 |
 | 4.7 errors by code | 10 |
 | 5.1 contract copy, pull script, CI drift warning | 3 (stub), 8 |
 | 5.2 client and hooks (`useTasks`, `useTask`, `useTags`, `useSession`, mutations, `activeAiInterval`) | 4, 5, 10, 11, 14, 15 |
@@ -9623,5 +9695,5 @@ Expected: `ci` green on `develop`. `promote` first runs when L3 opens the `devel
 | 8 ci.yml, promote.yml, Railway declaration | 7, 21, 6 |
 | 9 local development scripts | 1, 7 (README) |
 | 10 verification items W1, W2, W3 | 6, 9, 4 |
-| Master plan interfaces: API contract, Web version, Proxy, Web port, Smoke package, Check names, Per-repo skills, Docs-check | 8, 6, 6, 6, 21, 7 and 21, 20, 19 |
+| Master plan interfaces: API contract, Health, Task summary fields, Web version, Proxy, Web port, Smoke package, Check names, Per-repo skills, Docs-check, Railway services (named partial) | 8, 8 and 17, 8 and 11, 6, 6, 6, 21, 7 and 21, 20, 19, 6 |
 | Smoke selector contract | 5, 10, 11, 12, 18 (README section), 20 (CLAUDE.md pointer) |
