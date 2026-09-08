@@ -4,7 +4,7 @@
 |---|---|
 | Repo | `kaizen-tasks-web`, folder `webapp/frontend/` |
 | Status | Approved design 2026-09-08 |
-| Upstream | `webapp/docs/PRD.md` (sections 5, 6.3, 7); API contract in `kaizen-tasks-api` `openapi.json`; API spec `webapp/backend/docs/superpowers/specs/2026-09-08-kaizen-tasks-api-design.md` |
+| Upstream | `webapp/docs/PRD.md` (sections 5, 6.3, 7); API contract in `kaizen-tasks-api` `openapi.json`; API spec `webapp/backend/docs/superpowers/specs/2026-09-08-kaizen-tasks-api-design.md`. Contract rulings 2026-09-08: `TaskSummary` carries `suggestionCount` and `aiError`; `GET /health` carries `features.featureRequests` |
 | Downstream | `superpowers:writing-plans` produces `docs/superpowers/plans/` from this spec |
 
 ## 1. Purpose and scope
@@ -120,13 +120,13 @@ Top bar with the Kaizen mark and name, links to tasks, tags, and request a featu
 ### 4.3 Task list
 
 - Create bar at the top: title input, expandable description, submit on Enter. On success the new task appears first with its AI chip in thinking state, and the list query is invalidated.
-- Filter bar: status segmented control (all, todo, in progress, done) and a tag multi-select from `GET /tags`.
+- Filter bar: status segmented control (all, todo, in progress, done) and a single-tag select from `GET /tags`, because `GET /tasks` filters by one `tagId`.
 - Rows show title, tag chips, a progress bar with the `done/total` label from `progress`, and an AI chip:
   - pending or running: animated "thinking" chip
-  - done with suggested children: "N suggestions" chip that links to the detail
+  - done with suggested children: "N suggestions" chip from `suggestionCount` on the summary, linking to the detail
   - done with none suggested: no chip
   - skipped: chip with the reason in words from `aiSkipReason` (too short to break down, hourly limit reached, assistant paused)
-  - failed: chip with the message and a retry button that calls `POST /tasks/:id/breakdown`
+  - failed: chip with the `aiError` message from the summary and a retry button that calls `POST /tasks/:id/breakdown`
 - The list uses keyset pagination with a "load more" button driven by `meta.nextCursor`.
 - While any visible row is pending or running, the list query polls every three seconds; polling stops when none is.
 
@@ -142,11 +142,11 @@ Top bar with the Kaizen mark and name, links to tasks, tags, and request a featu
 
 ### 4.5 Tags
 
-Table of tags with name, color swatch, and count of tasks if cheap; create form with name and a fixed palette of eight colors; rename and recolor inline; delete with a confirm dialog explaining links are removed.
+Table of tags with name and color swatch (no task count; the API does not provide one); create form with name and a fixed palette of eight colors; rename and recolor inline; delete with a confirm dialog explaining links are removed.
 
 ### 4.6 Request a feature
 
-Availability is probed once per session with `OPTIONS`-free logic: the first navigation attempt calls `POST /feature-requests` only on submit; the nav link is shown when a lightweight `GET /openapi.json` lists the path, which is true only when the API mounted it. Form fields mirror the issue form: title, problem, proposed behavior, acceptance criteria, out of scope. Success shows the issue number and link.
+Availability comes from `GET /api/v1/health`, whose `data.features.featureRequests` is true exactly when the API mounted the route. The app reads health once per session (it is public and cheap) and shows the nav link and route only when the flag is true. Form fields mirror the issue form: title, problem, proposed behavior, acceptance criteria, out of scope. Success shows the issue number and link.
 
 ### 4.7 Errors
 
