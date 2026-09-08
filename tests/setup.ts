@@ -2,6 +2,7 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { afterAll, afterEach, beforeEach } from "vitest";
 import { authStore } from "@/api/auth-store";
+import { db } from "./msw/db";
 import { server } from "./msw/server";
 
 // Started at module scope, not inside beforeAll. openapi-fetch's createClient() reads
@@ -13,7 +14,10 @@ import { server } from "./msw/server";
 // Setup files import before the test file itself, so starting the server here guarantees the patch
 // lands first.
 server.listen({ onUnhandledRequest: "error" });
-beforeEach(() => authStore.reset());
+beforeEach(() => {
+  authStore.reset();
+  db.reset();
+});
 afterEach(() => {
   server.resetHandlers();
   cleanup();

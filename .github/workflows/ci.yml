@@ -35,3 +35,5 @@ jobs:
             }
             console.log("version.json ok:", v);
           '
+      - name: Contract drift warning
+        run: bash scripts/pull-openapi.sh develop --check

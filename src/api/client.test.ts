@@ -1,5 +1,6 @@
 import { http } from "msw";
 import { describe, expect, it } from "vitest";
+import { db, T_SUGGESTED } from "../../tests/msw/db";
 import { demoUser } from "../../tests/msw/fixtures";
 import { API, err, ok } from "../../tests/msw/handlers";
 import { server } from "../../tests/msw/server";
@@ -113,6 +114,24 @@ describe("client auth middleware", () => {
     expect(a.response.status).toBe(200);
     expect(b.response.status).toBe(200);
     expect(refreshes).toBe(1);
+  });
+
+  it("replays a POST with its body after the refresh", async () => {
+    authStore.setSession({ token: "stale", user: demoUser });
+    const bodies: string[] = [];
+    server.use(
+      http.post(`${API}/tasks`, async ({ request }) => {
+        bodies.push(await request.text());
+        if (request.headers.get("authorization") !== "Bearer fresh") {
+          return err("UNAUTHORIZED", "Token expired");
+        }
+        return ok(db.detail(T_SUGGESTED), {}, 201);
+      }),
+      http.post(`${API}/auth/refresh`, () => ok({ accessToken: "fresh" })),
+    );
+    const result = await client.POST("/tasks", { body: { title: "Write the plan" } });
+    expect(result.response.status).toBe(201);
+    expect(bodies).toEqual(['{"title":"Write the plan"}', '{"title":"Write the plan"}']);
   });
 });
 

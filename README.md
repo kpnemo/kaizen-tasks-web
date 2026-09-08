@@ -44,6 +44,10 @@ VITE_PROXY_TARGET=http://localhost:3000 npm run dev
 | `api:types`  | Regenerates `src/api/types.ts` from the contract                                             |
 | `docs:check` | Docs freshness gate (also the Claude Code Stop hook)                                         |
 
+`npm run api:pull -- --local ../backend/openapi.json` copies the contract from the nested backend
+checkout instead of GitHub. `npm run api:pull -- develop --check` only reports drift (CI does this
+and warns, never fails). Both `src/api/openapi.json` and `src/api/types.ts` are committed.
+
 ## URLs
 
 | Environment | URL                                                          |

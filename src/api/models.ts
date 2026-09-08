@@ -14,3 +14,24 @@ export type User = JsonBody<paths["/auth/me"]["get"]["responses"][200]>["data"][
 export type AuthSession = JsonBody<paths["/auth/login"]["post"]["responses"][200]>["data"];
 export type LoginBody = JsonRequest<paths["/auth/login"]["post"]["requestBody"]>;
 export type RegisterBody = JsonRequest<paths["/auth/register"]["post"]["requestBody"]>;
+
+export type TaskListEnvelope = JsonBody<paths["/tasks"]["get"]["responses"][200]>;
+export type TaskSummary = TaskListEnvelope["data"][number];
+export type TaskDetail = JsonBody<paths["/tasks/{id}"]["get"]["responses"][200]>["data"];
+export type Tag = JsonBody<paths["/tags"]["get"]["responses"][200]>["data"][number];
+
+export type TaskStatus = TaskSummary["status"];
+export type AiStatus = TaskSummary["aiStatus"];
+export type AiSkipReason = NonNullable<TaskSummary["aiSkipReason"]>;
+export type SuggestionState = NonNullable<TaskSummary["suggestionState"]>;
+
+export type TaskListQuery = NonNullable<paths["/tasks"]["get"]["parameters"]["query"]>;
+export type CreateTaskBody = JsonRequest<paths["/tasks"]["post"]["requestBody"]>;
+export type UpdateTaskBody = JsonRequest<paths["/tasks/{id}"]["patch"]["requestBody"]>;
+export type ReplaceTagsBody = JsonRequest<paths["/tasks/{id}/tags"]["put"]["requestBody"]>;
+export type CreateTagBody = JsonRequest<paths["/tags"]["post"]["requestBody"]>;
+export type UpdateTagBody = JsonRequest<paths["/tags/{id}"]["patch"]["requestBody"]>;
+export type FeatureRequestBody = JsonRequest<paths["/feature-requests"]["post"]["requestBody"]>;
+export type FeatureRequestResult = JsonBody<
+  paths["/feature-requests"]["post"]["responses"][201]
+>["data"];
