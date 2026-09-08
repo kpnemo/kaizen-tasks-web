@@ -4,8 +4,14 @@ import { afterAll, afterEach, beforeEach } from "vitest";
 import { authStore } from "@/api/auth-store";
 import { server } from "./msw/server";
 
-// Started at module scope, not inside beforeAll: see the "MSW must patch fetch before openapi-fetch
-// reads it" deviation in docs/ARCHITECTURE.md.
+// Started at module scope, not inside beforeAll. openapi-fetch's createClient() reads
+// globalThis.fetch once, synchronously, when src/api/client.ts is imported by a test file -
+// which happens during Vitest's module-collection phase, before any beforeAll callback runs.
+// MSW's fetch interceptor only patches globalThis.fetch once server.listen() actually executes,
+// so a beforeAll(() => server.listen(...)) here would patch fetch too late: the client would have
+// already captured the pristine, un-intercepted fetch and every request would hit the real network.
+// Setup files import before the test file itself, so starting the server here guarantees the patch
+// lands first.
 server.listen({ onUnhandledRequest: "error" });
 beforeEach(() => authStore.reset());
 afterEach(() => {
