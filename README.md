@@ -25,8 +25,10 @@ npm run dev       # Vite on http://localhost:5173, proxies /api to the mock
 
 The mock serves the curated examples in `mock/examples.json`, merged into a copy of the contract by
 `scripts/build-mock-spec.mjs` (output `.mock/openapi.json`, git-ignored). Prism runs in static mode
-because its `--dynamic` mode ignores examples. Every task detail comes back as the same example task;
-that is the mock's limit, not a bug.
+because its `--dynamic` mode ignores examples. Requests go to `http://localhost:4010/api/v1/...`:
+Prism ignores the contract's `servers` entry when routing, so the build script folds that base path
+into the mock artifact's own paths (the committed contract keeps its bare paths). Every task detail
+comes back as the same example task; that is the mock's limit, not a bug.
 
 Against the real API running locally on port 3000:
 

@@ -47,6 +47,21 @@ if (problems.length > 0) {
   process.exit(1);
 }
 
+// Prism CLI ignores `servers[].url` when routing: it matches the incoming request path directly
+// against the literal `paths` keys, never prepending the server's base path (confirmed against
+// @stoplight/prism-http's router, which only consults a base URL when a "__server" query param is
+// present). So the mock artifact folds the contract's base path into its own path keys and drops
+// `servers`, letting Prism serve the routes the app and the Vite proxy actually request
+// (e.g. "/api/v1/tasks"). The committed contract keeps its bare paths and its `servers` entry.
+const base = doc.servers?.[0]?.url;
+if (base && base !== "/") {
+  const prefix = base.replace(/\/$/, "");
+  doc.paths = Object.fromEntries(
+    Object.entries(doc.paths).map(([path, item]) => [`${prefix}${path}`, item]),
+  );
+  delete doc.servers;
+}
+
 mkdirSync(dirname(OUT), { recursive: true });
 writeFileSync(OUT, `${JSON.stringify(doc, null, 2)}\n`);
 console.log(
