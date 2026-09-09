@@ -10,6 +10,8 @@ export type ErrorEnvelope = JsonBody<paths["/auth/login"]["post"]["responses"][4
 export type ErrorBody = ErrorEnvelope["error"];
 export type ErrorCode = ErrorBody["code"];
 
+export type Health = JsonBody<paths["/health"]["get"]["responses"][200]>["data"];
+
 export type User = JsonBody<paths["/auth/me"]["get"]["responses"][200]>["data"]["user"];
 export type AuthSession = JsonBody<paths["/auth/login"]["post"]["responses"][200]>["data"];
 export type LoginBody = JsonRequest<paths["/auth/login"]["post"]["requestBody"]>;
