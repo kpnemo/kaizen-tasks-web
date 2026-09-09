@@ -51,6 +51,11 @@ describe("step reorder and add step", () => {
     expect(
       screen.getByRole("button", { name: "Move List the three decisions the deck must drive up" }),
     ).toBeDisabled();
+    // Let the mock's delayed db.move and the settle-refetch finish before the next test starts.
+    await new Promise((resolve) => setTimeout(resolve, 40));
+    await waitFor(() =>
+      expect(stepTitles()[2]).toBe("Pull last quarter's numbers from the dashboard"),
+    );
   });
 
   it("rolls back and shows a toast when the reorder fails", async () => {

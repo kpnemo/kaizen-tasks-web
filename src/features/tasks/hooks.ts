@@ -210,11 +210,7 @@ export function useReorderStep(parentId: string) {
       if (context?.previous) queryClient.setQueryData(taskKeys.detail(parentId), context.previous);
       toastApiError(error);
     },
-    // Only reconcile with the server on success: a rollback already restores the
-    // known-correct previous state, so there is nothing to refetch after a failure.
-    onSettled: (_data, error) => {
-      if (!error) void queryClient.invalidateQueries({ queryKey: taskKeys.detail(parentId) });
-    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: taskKeys.detail(parentId) }),
   });
 }
 
