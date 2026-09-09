@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Contract copy for the feature-request interview: `GET`/`POST /feature-requests/conversation`, the streamed turn route, and `conversationId` on `POST /feature-requests`; model aliases `Conversation`, `ConversationMessage`, `FeatureRequestDraft`, `RubricScore`, `ConversationTurnBody`, `ConversationEvent` and the `StreamBody` helper (ADR 0005).
+
 ## [1.0.0] - 2026-09-09
 
 ### Added
