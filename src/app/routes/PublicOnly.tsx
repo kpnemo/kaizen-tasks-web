@@ -1,4 +1,5 @@
 import { Navigate, Outlet, useSearchParams } from "react-router";
+import { WorkshopFooter } from "@/components/workshop-footer";
 import { safeReturnTo } from "@/features/auth/hooks";
 import { RestoringScreen } from "@/features/auth/RestoringScreen";
 import { useSession } from "@/features/auth/useSession";
@@ -11,5 +12,12 @@ export function PublicOnly() {
   if (status === "authenticated") {
     return <Navigate to={safeReturnTo(params.get("returnTo"))} replace />;
   }
-  return <Outlet />;
+  return (
+    <div className="flex min-h-screen flex-col">
+      <div className="flex-1">
+        <Outlet />
+      </div>
+      <WorkshopFooter />
+    </div>
+  );
 }
