@@ -74,7 +74,8 @@ browser only ever talks to the web origin, so there is no CORS and the refresh c
 ## Features
 
 - Login, registration, silent session restore on reload, logout
-- (Task list, task detail with AI steps, tags, and request-a-feature are added by later tasks.)
+- Task list with create bar, status and tag filters, progress, AI chips, retry, load more, and polling while the assistant works
+- (Task detail with AI steps, tags, and request-a-feature are added by later tasks.)
 
 ## Docs
 
