@@ -35,3 +35,19 @@ and mounts `node_modules/.vite` as a build cache; a nested `npm ci` inside the b
 collides with that mount and fails with `EBUSY`. This was the root cause of three failed staging
 builds. The API service was never affected: its own `.railway/railway.ts` build command is
 `npm run build` already.
+
+## Amendment 2026-09-09 (2)
+
+The static `handle` block in `Caddyfile` had no explicit cache header for the SPA shell
+(`index.html`), only for `/assets/*` (immutable) and `/version.json` (`no-store`). A stale cached
+shell can reference hashed asset URLs from a prior build that no longer exist, and Caddy's `header`
+directive runs before `try_files`/`rewrite` in its default directive order — so a matcher on
+`/index.html` would never see a deep-link request like `/tasks/abc` that only becomes `/index.html`
+after the SPA rewrite. The fix wraps `try_files` and the new `header /index.html Cache-Control
+"no-cache"` in an explicit `route { ... }` block, which executes its sub-directives in the literal
+order written instead of Caddy's default order, so the header directive evaluates after the
+rewrite and applies to every path that falls through to the shell, not just a direct request for
+`/index.html`. `/assets/*` stays `public, max-age=31536000, immutable` and `/version.json` stays
+`no-store`, unchanged. Verified with `caddy adapt`/`caddy validate` and a local `caddy run` against
+a built `dist/`: `GET /`, `GET /tasks/123` (the deep-link case) and a direct `GET /index.html` all
+return `Cache-Control: no-cache`, while `/assets/*` and `/version.json` keep their existing headers.
