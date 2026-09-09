@@ -6,19 +6,35 @@
 #   A  any code change needs a bullet under [Unreleased] in CHANGELOG.md
 #   B  a change to src/api/openapi.json needs src/api/types.ts regenerated with no diff
 #   C  a change to a file matching docs/architectural-files.txt needs an ADR in the change
-# Escape hatch (hook mode only): after three consecutive blocked stops the hook stops blocking so a
-# stuck agent cannot loop forever, but it never reports success: it prints a FAILED banner, writes
-# .claude/DOCS-CHECK-FAILED, and CI (same script, --ci) still fails the pull request.
+# Escape hatch (hook mode only): after MAX_BLOCKS consecutive blocked stops the hook stops blocking
+# so a stuck agent cannot loop forever, but it never reports success: it exits 1, prints a FAILED
+# banner, and writes .claude/DOCS-CHECK-FAILED; CI (same script, --ci) still fails the pull request.
 set -uo pipefail
+
+MODE="${1:-}"
+if [ "$MODE" != "--hook" ] && [ "$MODE" != "--ci" ]; then
+  echo "usage: scripts/docs-check.sh --hook | --ci" >&2
+  exit 1
+fi
+
 cd "$(dirname "$0")/.."
 
-MODE="${1:---hook}"
 COUNTER=".claude/.docs-check-blocks"
 MARKER=".claude/DOCS-CHECK-FAILED"
 MAX_BLOCKS=3
 
 reset_counter() {
   rm -f "$COUNTER" "$MARKER"
+}
+
+# Read at most `secs` seconds of stdin as a single line, never longer: a timed-out or EOF-without-
+# newline read still leaves whatever was read so far in the variable, which we return either way.
+# This bounds every stdin read in this script so an open-but-silent pipe (or a stuck upstream
+# process) can never hang the hook.
+read_stdin_bounded() {
+  local secs="${1:-5}" line=""
+  IFS= read -r -t "$secs" line
+  printf '%s' "$line"
 }
 
 # Claude Code feeds the Stop hook a JSON object on stdin, carrying stop_hook_active: true when this
@@ -30,7 +46,7 @@ reset_counter() {
 # of incrementing on every blocked call.
 STOP_HOOK_ACTIVE=""
 if [ "$MODE" = "--hook" ] && [ ! -t 0 ]; then
-  HOOK_INPUT="$(cat || true)"
+  HOOK_INPUT="$(read_stdin_bounded 5)"
   if [ -n "$HOOK_INPUT" ]; then
     STOP_HOOK_ACTIVE="$(printf '%s' "$HOOK_INPUT" | node -e '
       let s = "";
@@ -56,7 +72,10 @@ changed_files() {
       || ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
       base="$(git rev-parse HEAD~1 2>/dev/null || root_commit)"
     fi
-    git diff --name-only "$base" HEAD
+    # Prefer the triple-dot form (diff against the merge-base of $base and HEAD), which is right
+    # when $base and HEAD have diverged (a PR's base branch moved on); fall back to the plain
+    # two-dot form only if that fails (e.g. no common ancestor).
+    git diff --name-only "$base...HEAD" 2>/dev/null || git diff --name-only "$base" HEAD
   else
     if git rev-parse --verify -q origin/develop >/dev/null 2>&1; then
       base="$(git merge-base HEAD origin/develop 2>/dev/null || true)"
@@ -92,7 +111,12 @@ glob_match() {
 }
 
 unreleased_has_bullet() {
-  awk '/^## \[Unreleased\]/{f=1; next} /^## /{f=0} f && /^- /{found=1} END{exit found ? 0 : 1}' CHANGELOG.md
+  awk '
+    /^## \[Unreleased\]/ { f = 1; next }
+    /^## / { if (f) exit }
+    f && /^[[:space:]]*[-*] / { found = 1; exit }
+    END { exit found ? 0 : 1 }
+  ' CHANGELOG.md
 }
 
 CHANGED="$(changed_files)"
@@ -184,6 +208,8 @@ if [ "$MODE" = "--ci" ]; then
   exit 1
 fi
 
+# Hook mode: block (exit 2) up to MAX_BLOCKS consecutive times, then stop blocking but never report
+# success (exit 1, with the FAILED banner and the marker file), mirroring the backend script.
 mkdir -p .claude
 if [ "$STOP_HOOK_ACTIVE" = "false" ]; then
   rm -f "$COUNTER" # a fresh stop, not a continuation of an earlier block: the count starts over
@@ -193,15 +219,16 @@ count=0
 count=$((count + 1))
 echo "$count" > "$COUNTER"
 
-if [ "$count" -ge "$MAX_BLOCKS" ]; then
-  {
-    echo "DOCS CHECK FAILED, human intervention required (blocked $count times; no longer blocking the stop)"
-    print_failures
-  } | tee "$MARKER"
-  print_failures >&2
-  exit 0
-fi
-
 print_failures
 print_failures >&2
+
+if [ "$count" -gt "$MAX_BLOCKS" ]; then
+  print_failures > "$MARKER"
+  banner="DOCS CHECK FAILED, human intervention required (blocked $MAX_BLOCKS times; no longer blocking; see $MARKER; CI will still fail)"
+  echo "$banner"
+  echo "$banner" >&2
+  exit 1
+fi
+
+echo "(block $count of $MAX_BLOCKS)" >&2
 exit 2

@@ -7,7 +7,16 @@ cd "$(dirname "$0")/.."
 # Only read stdin when it is not a terminal, so a manual, unpiped run never hangs waiting for input.
 [ -t 0 ] && exit 0
 
-input="$(cat)"
+# Read at most 5 seconds of stdin as a single line: a timed-out or EOF-without-newline read still
+# leaves whatever was read so far in the variable, which we return either way. This bounds the read
+# so an open-but-silent pipe (or a stuck upstream process) can never hang the hook.
+read_stdin_bounded() {
+  local secs="${1:-5}" line=""
+  IFS= read -r -t "$secs" line
+  printf '%s' "$line"
+}
+
+input="$(read_stdin_bounded 5)"
 file="$(printf '%s' "$input" | node -e '
   let s = "";
   process.stdin.on("data", (d) => (s += d)).on("end", () => {

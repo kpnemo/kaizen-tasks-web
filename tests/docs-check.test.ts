@@ -1,5 +1,12 @@
 import { spawnSync } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -11,7 +18,7 @@ const GIT_ENV = {
   GIT_COMMITTER_EMAIL: "t@example.com",
 };
 
-function makeRepo() {
+function makeRepo(options: { withGenerator?: boolean } = {}) {
   const dir = mkdtempSync(join(tmpdir(), "kaizen-docs-check-"));
   const run = (cmd: string, args: string[], env: Record<string, string> = {}) =>
     spawnSync(cmd, args, {
@@ -30,6 +37,12 @@ function makeRepo() {
   write("CHANGELOG.md", "# Changelog\n\n## [Unreleased]\n\n## [0.1.0] - 2026-09-01\n\n- first\n");
   write("docs/architectural-files.txt", "src/api/**\nCaddyfile\n");
   write("docs/adr/0001-first.md", "# ADR 0001\n");
+  if (options.withGenerator) {
+    // Symlink this repo's node_modules (never copied) so the real openapi-typescript binary
+    // resolves inside the scratch repo, and copy package.json so `npm run api:types` works there.
+    symlinkSync(join(process.cwd(), "node_modules"), join(dir, "node_modules"), "dir");
+    copyFileSync(join(process.cwd(), "package.json"), join(dir, "package.json"));
+  }
   run("git", ["add", "-A"]);
   run("git", ["commit", "-q", "-m", "base"]);
   const check = (mode: "--hook" | "--ci", env: Record<string, string> = {}) =>
@@ -85,8 +98,8 @@ describe("scripts/docs-check.sh", () => {
     expect(repo.check("--hook").status).toBe(0);
   });
 
-  it("Rule B: a contract change needs regenerated types", () => {
-    const repo = makeRepo();
+  it("Rule B: a contract change needs regenerated types, and passes once they are regenerated", () => {
+    const repo = makeRepo({ withGenerator: true });
     repo.write("src/api/openapi.json", '{"openapi":"3.1.0","paths":{"/x":{}}}\n');
     repo.write(
       "CHANGELOG.md",
@@ -97,16 +110,22 @@ describe("scripts/docs-check.sh", () => {
     expect(blocked.status).toBe(2);
     expect(blocked.stdout).toContain("Rule B");
     expect(blocked.stdout).toContain("npm run api:types");
+    expect(blocked.stdout).toContain("not regenerated");
+
+    const gen = repo.run("npm", ["run", "--silent", "api:types"]);
+    expect(gen.status).toBe(0);
+    expect(repo.check("--hook").status).toBe(0);
   });
 
-  it("escape hatch: after three blocked stops it stops blocking but never reports success", () => {
+  it("escape hatch: after four blocked stops it stops blocking but never reports success", () => {
     const repo = makeRepo();
     repo.write("src/app.ts", "export const a = 3;\n");
     expect(repo.check("--hook").status).toBe(2);
     expect(repo.check("--hook").status).toBe(2);
-    const third = repo.check("--hook");
-    expect(third.status).toBe(0);
-    expect(third.stdout).toContain("DOCS CHECK FAILED, human intervention required");
+    expect(repo.check("--hook").status).toBe(2);
+    const fourth = repo.check("--hook");
+    expect(fourth.status).toBe(1);
+    expect(fourth.stdout).toContain("DOCS CHECK FAILED, human intervention required");
     expect(repo.exists(".claude/DOCS-CHECK-FAILED")).toBe(true);
     // CI mode still fails the same tree.
     const sha = repo.commit("undocumented");
