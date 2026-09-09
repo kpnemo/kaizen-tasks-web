@@ -1,0 +1,14 @@
+{
+  auto_https off
+}
+:{$PORT}
+handle /api/* {
+  reverse_proxy http://api.railway.internal:3000
+}
+handle {
+  root * dist
+  try_files {path} /index.html
+  file_server
+  header /assets/* Cache-Control "public, max-age=31536000, immutable"
+  header /version.json Cache-Control "no-store"
+}

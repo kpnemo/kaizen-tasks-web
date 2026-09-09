@@ -1,0 +1,54 @@
+name: promote
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: promote-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  promote:
+    name: promote
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      STAGING_WEB_URL: ${{ vars.STAGING_WEB_URL || 'https://web-staging-52c0.up.railway.app' }}
+      CANDIDATE_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Wait for staging to serve the candidate SHA
+        run: bash scripts/wait-for-version.sh "$STAGING_WEB_URL" "$CANDIDATE_SHA" 900 15
+
+      - name: Check out the smoke package
+        uses: actions/checkout@v7
+        with:
+          repository: kpnemo/kaizen-tasks-assembly-line
+          ref: main
+          path: assembly-line
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - run: npm ci
+        working-directory: assembly-line/smoke
+
+      - run: npx playwright install --with-deps chromium
+        working-directory: assembly-line/smoke
+
+      - name: Smoke test against staging
+        run: npm test
+        working-directory: assembly-line/smoke
+        env:
+          SMOKE_BASE_URL: ${{ env.STAGING_WEB_URL }}
+          SMOKE_AI_TIMEOUT_MS: "180000"
+
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: smoke-results
+          path: assembly-line/smoke/test-results/
+          if-no-files-found: ignore
