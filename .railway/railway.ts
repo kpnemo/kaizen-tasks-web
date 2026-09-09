@@ -23,7 +23,7 @@ export default defineRailway((ctx) => {
 
   const web = service("web", {
     source: github("kpnemo/kaizen-tasks-web", { branch, checkSuites: true }),
-    build: "npm ci && npm run build",
+    build: "npm run build",
     healthcheck: "/version.json",
     healthcheckTimeout: 120,
     env: { PORT: "8080" },

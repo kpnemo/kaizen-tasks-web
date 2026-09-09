@@ -26,3 +26,12 @@ the Prism mock or a local API. The web service pins `PORT=8080`; the API pins `P
   and to the API's Railway variables.
 - Verification item W1 (Railpack honoring the root Caddyfile) is confirmed on the first staging
   deploy; the fallback is a small Node server as the start command.
+
+## Amendment 2026-09-09
+
+`.railway/railway.ts`'s `web` service build command is `npm run build` only, not
+`npm ci && npm run build`. Railpack already runs its own install step before the build command
+and mounts `node_modules/.vite` as a build cache; a nested `npm ci` inside the build command
+collides with that mount and fails with `EBUSY`. This was the root cause of three failed staging
+builds. The API service was never affected: its own `.railway/railway.ts` build command is
+`npm run build` already.

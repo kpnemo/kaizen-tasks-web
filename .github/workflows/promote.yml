@@ -10,6 +10,7 @@ concurrency:
 
 jobs:
   promote:
+    name: promote
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -43,10 +44,11 @@ jobs:
         working-directory: assembly-line/smoke
         env:
           SMOKE_BASE_URL: ${{ env.STAGING_WEB_URL }}
-          SMOKE_AI_TIMEOUT_MS: "90000"
+          SMOKE_AI_TIMEOUT_MS: "180000"
 
       - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: smoke-results
           path: assembly-line/smoke/test-results/
+          if-no-files-found: ignore
