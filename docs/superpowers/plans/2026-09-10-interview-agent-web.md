@@ -89,6 +89,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
 ### Task 1: Contract pull, model aliases, ADR 0005
 
 **Files:**
+
 - Modify: `src/api/openapi.json` (replaced by `npm run api:pull`, never hand-edited)
 - Modify: `src/api/types.ts` (regenerated, never hand-edited)
 - Modify: `src/api/models.ts`
@@ -98,6 +99,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
 - Modify: `CHANGELOG.md`
 
 **Interfaces:**
+
 - Consumes: `JsonBody<R>`, `JsonRequest<R>`, `ErrorCode` from `src/api/models.ts`; `paths` from `src/api/types.ts`.
 - Produces, all exported from `src/api/models.ts`:
   - `type StreamBody<R> = R extends { content: { "text/event-stream": infer B } } ? B : never`
@@ -154,9 +156,9 @@ describe("conversation models derived from the contract", () => {
     expectTypeOf<Extract<ConversationEvent, { event: "state" }>["data"]>().toEqualTypeOf<{
       conversation: Conversation;
     }>();
-    expectTypeOf<Extract<ConversationEvent, { event: "error" }>["data"]["message"]>().toEqualTypeOf<
-      string
-    >();
+    expectTypeOf<
+      Extract<ConversationEvent, { event: "error" }>["data"]["message"]
+    >().toEqualTypeOf<string>();
     // The existing submit body carries the conversation (spec 3.2, row 4).
     expectTypeOf<FeatureRequestBody["conversationId"]>().toEqualTypeOf<string | undefined>();
   });
@@ -329,10 +331,12 @@ EOM
 ### Task 2: The SSE parser
 
 **Files:**
+
 - Create: `src/api/conversation-stream.ts`
 - Test: `src/api/conversation-stream.test.ts`
 
 **Interfaces:**
+
 - Consumes: `Conversation`, `ConversationEvent` from `src/api/models.ts` (Task 1).
 - Produces, exported from `src/api/conversation-stream.ts`:
   - `type ConversationStreamError = Extract<ConversationEvent, { event: "error" }>["data"]` — `{ code: ErrorCode; message: string }`
@@ -389,7 +393,11 @@ describe("readConversationStream", () => {
   it("ignores comment lines such as the 15 second ping", async () => {
     const handlers = spies();
     await readConversationStream(
-      streamOf(": ping\n\n", ': ping\n\nevent: delta\ndata: {"text":"hi"}\n\n', "event: done\ndata: {}\n\n"),
+      streamOf(
+        ": ping\n\n",
+        ': ping\n\nevent: delta\ndata: {"text":"hi"}\n\n',
+        "event: done\ndata: {}\n\n",
+      ),
       handlers,
     );
     expect(handlers.onDelta.mock.calls).toEqual([["hi"]]);
@@ -409,7 +417,10 @@ describe("readConversationStream", () => {
   it("keeps an escaped newline inside a data line's JSON string", async () => {
     const handlers = spies();
     await readConversationStream(
-      streamOf('event: delta\ndata: {"text":"first line\\nsecond line"}\n\n', "event: done\ndata: {}\n\n"),
+      streamOf(
+        'event: delta\ndata: {"text":"first line\\nsecond line"}\n\n',
+        "event: done\ndata: {}\n\n",
+      ),
       handlers,
     );
     expect(handlers.onDelta.mock.calls).toEqual([["first line\nsecond line"]]);
@@ -587,12 +598,14 @@ EOM
 ### Task 3: MSW conversation fixtures, store, and handlers
 
 **Files:**
+
 - Modify: `tests/msw/fixtures.ts`
 - Modify: `tests/msw/db.ts`
 - Modify: `tests/msw/handlers.ts`
 - Test: `tests/msw/conversation-handlers.test.ts` (create)
 
 **Interfaces:**
+
 - Consumes: `Conversation`, `ConversationEvent`, `ConversationMessage`, `ConversationTurnBody`, `FeatureRequestBody`, `FeatureRequestDraft`, `RubricScore` from `src/api/models.ts` (Task 1); `client`, `unwrap` from `src/api/client.ts`; `readConversationStream` from `src/api/conversation-stream.ts` (Task 2).
 - Produces:
   - `tests/msw/fixtures.ts`: `const GREETING: string`; `const EMPTY_DRAFT: FeatureRequestDraft`; `function makeMessage(overrides: Partial<ConversationMessage> & Pick<ConversationMessage, "id" | "role" | "content">): ConversationMessage`; `function makeConversation(overrides: Partial<Conversation> & Pick<Conversation, "id">): Conversation`
@@ -1077,10 +1090,12 @@ EOM
 ### Task 4: The conversation hooks
 
 **Files:**
+
 - Modify: `src/features/feature-request/hooks.ts`
 - Test: `src/features/feature-request/hooks.test.tsx` (create)
 
 **Interfaces:**
+
 - Consumes: `client`, `unwrap` from `src/api/client.ts`; `ApiError` from `src/api/errors.ts`; `readConversationStream` from `src/api/conversation-stream.ts` (Task 2); `Conversation` from `src/api/models.ts` (Task 1); `toastApiError` from `src/components/api-error-toast.tsx`; `makeQueryClient` from `tests/render.tsx`; `db`, `sse`, `API`, `err` from the MSW modules (Task 3).
 - Produces, exported from `src/features/feature-request/hooks.ts` (alongside the existing `useFeatureRequestAvailable`):
   - `const conversationKey = ["feature-request", "conversation"] as const`
@@ -1190,7 +1205,9 @@ describe("conversation hooks", () => {
         return err("NOT_FOUND", "none");
       }),
     );
-    const { result } = renderHook(() => useConversation(false), { wrapper: wrap(makeQueryClient()) });
+    const { result } = renderHook(() => useConversation(false), {
+      wrapper: wrap(makeQueryClient()),
+    });
     await waitFor(() => expect(result.current.fetchStatus).toBe("idle"));
     expect(probes).toBe(0);
   });
@@ -1563,10 +1580,12 @@ EOM
 ### Task 5: ConversationPanel
 
 **Files:**
+
 - Create: `src/features/feature-request/components/ConversationPanel.tsx`
 - Test: `src/features/feature-request/components/ConversationPanel.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `Conversation` from `src/api/models.ts` (Task 1); `useConversation`, `useSendTurn`, `useStartConversation`, `conversationKey` from `../hooks` (Task 4); `Button` from `@/components/ui/button`; `Textarea` from `@/components/ui/textarea`; `cn` from `@/lib/cn`.
 - Produces: `function ConversationPanel({ conversation }: { conversation: Conversation }): JSX.Element` — the only export of the file (the `react-refresh/only-export-components` rule is on for `src/**`).
 
@@ -1771,8 +1790,7 @@ import { useSendTurn, useStartConversation } from "../hooks";
 /** A chip is at least 44px tall (the projector floor; `min-h-11` is 49.5px at the app's 18px root)
  *  and wraps rather than overflowing: the shared Button is `h-9 whitespace-nowrap shrink-0`, and
  *  tailwind-merge keeps the later utility of each of those three groups. */
-const CHIP =
-  "min-h-11 h-auto max-w-full shrink whitespace-normal rounded-full px-4 py-2 text-left";
+const CHIP = "min-h-11 h-auto max-w-full shrink whitespace-normal rounded-full px-4 py-2 text-left";
 
 function Bubble({ who, text }: { who: "assistant" | "user"; text: string }) {
   return (
@@ -1940,10 +1958,12 @@ EOM
 ### Task 6: DraftPanel
 
 **Files:**
+
 - Create: `src/features/feature-request/components/DraftPanel.tsx`
 - Test: `src/features/feature-request/components/DraftPanel.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `Conversation`, `FeatureRequestDraft` from `src/api/models.ts` (Task 1); `Badge` from `@/components/ui/badge`; `Button` from `@/components/ui/button`; `cn` from `@/lib/cn`; `Link` from `react-router`.
 - Produces: `function DraftPanel({ conversation, onReview }: { conversation: Conversation; onReview: () => void }): JSX.Element` — the only export of the file.
 
@@ -2171,12 +2191,14 @@ EOM
 ### Task 7: The page switchboard and the prefilled form
 
 **Files:**
+
 - Create: `src/features/feature-request/components/FeatureRequestForm.tsx`
 - Modify: `src/features/feature-request/RequestFeaturePage.tsx` (whole file replaced)
 - Modify: `src/features/feature-request/RequestFeaturePage.test.tsx` (three tests gain one navigation step each)
 - Test: `src/features/feature-request/InterviewFlow.test.tsx` (create)
 
 **Interfaces:**
+
 - Consumes: `ConversationPanel` (Task 5), `DraftPanel` (Task 6), `useConversation`, `useStartConversation`, `useSubmitFeatureRequest`, `useFeatureRequestAvailable`, `conversationKey` (Task 4); `Conversation`, `FeatureRequestBody`, `FeatureRequestDraft`, `FeatureRequestResult` from `src/api/models.ts` (Task 1); `Field`, `Button`, `Input`, `Textarea`, `toastApiError`, `toApiError`.
 - Produces:
   - `function FeatureRequestForm({ initialValues, conversationId, note, onFiled }: { initialValues?: FeatureRequestDraft; conversationId?: string; note?: string; onFiled: (result: FeatureRequestResult) => void }): JSX.Element` — the only export of `components/FeatureRequestForm.tsx`
@@ -2551,34 +2573,38 @@ const EMPTY: FeatureRequestBody = {
   outOfScope: "",
 };
 
-const FIELDS: { key: keyof FeatureRequestDraft; label: string; hint: string; multiline: boolean }[] =
-  [
-    {
-      key: "title",
-      label: "Title",
-      hint: "One line, the way you would name it in a release note",
-      multiline: false,
-    },
-    { key: "problem", label: "Problem", hint: "What is hard today, and for whom", multiline: true },
-    {
-      key: "proposedBehavior",
-      label: "Proposed behavior",
-      hint: "What the product should do instead",
-      multiline: true,
-    },
-    {
-      key: "acceptanceCriteria",
-      label: "Acceptance criteria",
-      hint: "How we will know it works",
-      multiline: true,
-    },
-    {
-      key: "outOfScope",
-      label: "Out of scope",
-      hint: "What this request deliberately leaves out (optional)",
-      multiline: true,
-    },
-  ];
+const FIELDS: {
+  key: keyof FeatureRequestDraft;
+  label: string;
+  hint: string;
+  multiline: boolean;
+}[] = [
+  {
+    key: "title",
+    label: "Title",
+    hint: "One line, the way you would name it in a release note",
+    multiline: false,
+  },
+  { key: "problem", label: "Problem", hint: "What is hard today, and for whom", multiline: true },
+  {
+    key: "proposedBehavior",
+    label: "Proposed behavior",
+    hint: "What the product should do instead",
+    multiline: true,
+  },
+  {
+    key: "acceptanceCriteria",
+    label: "Acceptance criteria",
+    hint: "How we will know it works",
+    multiline: true,
+  },
+  {
+    key: "outOfScope",
+    label: "Out of scope",
+    hint: "What this request deliberately leaves out (optional)",
+    multiline: true,
+  },
+];
 
 /** The five-field issue form. With `initialValues` it opens prefilled from the interview draft and
  *  posts `conversationId` alongside the fields, so the issue carries the self-score and the
@@ -2829,20 +2855,20 @@ In `src/features/feature-request/RequestFeaturePage.test.tsx`, make exactly thes
 1. In `"shows the link when health reports featureRequests true and files the request"`, after the heading assertion insert:
 
 ```tsx
-    await user.click(screen.getByRole("link", { name: "Skip the interview, fill the form" }));
-    await screen.findByRole("form", { name: "Request a feature" });
+await user.click(screen.getByRole("link", { name: "Skip the interview, fill the form" }));
+await screen.findByRole("form", { name: "Request a feature" });
 ```
 
 2. In `"maps VALIDATION_ERROR onto the field"`, change the render line to:
 
 ```tsx
-    const { user } = renderApp({ route: "/request-feature?mode=form" });
+const { user } = renderApp({ route: "/request-feature?mode=form" });
 ```
 
 3. In `"shows an upstream failure as a toast with the request id"`, change the render line to:
 
 ```tsx
-    const { user } = renderApp({ route: "/request-feature?mode=form" });
+const { user } = renderApp({ route: "/request-feature?mode=form" });
 ```
 
 - [ ] **Step 6: Run both page test files to verify they pass**
@@ -2902,11 +2928,13 @@ EOM
 ### Task 8: Docs and the 1.1.0 release cut
 
 **Files:**
+
 - Modify: `README.md` (Features list, Selector contract table, Docs section)
 - Modify: `CHANGELOG.md` (release cut)
 - Modify: `package.json`, `package-lock.json` (version bump)
 
 **Interfaces:**
+
 - Consumes: the accessible names produced by Tasks 5, 6, and 7 — heading `Kaizen assistant`, list `Conversation`, textbox `Your answer`, button `Send`, button `Skip this question`, button `Start over`, region `Your request`, button `Review and file`, link `Skip the interview, fill the form`, and one button per option chip named by its own text.
 - Produces: version `1.1.0` in `package.json` (the same number the API repo cuts, per `CLAUDE.md`'s "Versions" convention and spec 5), and the selector rows a future smoke step can drive.
 
@@ -2937,9 +2965,9 @@ In `README.md`, under "## Features", directly after the existing bullet that beg
 In `README.md`, in the "## Selector contract (smoke test)" table, add three rows directly above the `| Anywhere  | log out |` row:
 
 ```markdown
-| Interview | chat             | heading "Kaizen assistant"; list "Conversation"; textbox "Your answer"; button "Send" (URL `/request-feature`)                                                                                                                                                        |
-| Interview | chips            | button "Skip this question", button "Start over", and one button per option named by its own visible text                                                                                                                                                           |
-| Interview | draft            | region "Your request"; button "Review and file"; link "Skip the interview, fill the form" (href `/request-feature?mode=form`)                                                                                                                                       |
+| Interview | chat | heading "Kaizen assistant"; list "Conversation"; textbox "Your answer"; button "Send" (URL `/request-feature`) |
+| Interview | chips | button "Skip this question", button "Start over", and one button per option named by its own visible text |
+| Interview | draft | region "Your request"; button "Review and file"; link "Skip the interview, fill the form" (href `/request-feature?mode=form`) |
 ```
 
 - [ ] **Step 4: List ADR 0005 in the README's Docs section**
@@ -3016,30 +3044,30 @@ The pull request to `develop` is opened by the controller, not by this plan. Not
 
 **1. Spec coverage**
 
-| Spec | Where |
-| --- | --- |
-| 1 Goal — interview, live fields, review then file, transcript on the issue | Tasks 4 to 7 (the `conversationId` on the filed body carries the transcript, which the API appends) |
-| 2 Chat panel: transcript, streaming reply, 3–4 option chips, skip chip, "Your answer" + Send, Enter sends / Shift+Enter newline, input disabled while streaming, thinking indicator until the first word | Task 5 |
-| 2 Your request panel: five read-only fields with placeholders, readiness chip with sub-scores in `title`, "Review and file", "Skip the interview, fill the form" | Task 6 |
-| 2 Start: resume the open conversation, otherwise create one whose first message is the greeting; a failed start is recoverable | Task 7 (auto-start effect, the toast, and "Try again"), Task 3 (the greeting fixture) |
-| 2 Turns, Ready | Task 3's scripted four turns; Task 6's `ready` predicate; Task 7's end-to-end run to readiness |
-| 2 Review and file: prefilled editable form, the note line, `conversationId` on the post, success shows the issue link, the conversation is cleared and the next visit is fresh | Tasks 4 (`useSubmitFeatureRequest` clears the cached conversation) and 7 (the end-to-end test files then reaches a new greeting) |
-| 2 Skip the interview | Task 6 link, Task 7 `?mode=form` |
-| 2 Start over | Task 5 |
-| 2 Errors: toast through `toastApiError`, input re-enabled, the transcript keeps the PM's message, rate limit names the hour | Task 4 (`pendingMessage`, `toastApiError`, the 429 `details` assertions), Task 5, Task 7's rate-limit and stream-error tests |
-| 2 Projector rules and the narrow layout | Global Constraints; `min-h-11 h-auto whitespace-normal` chips and `min-w-0` panels in Tasks 5 to 7; Task 5 step 5; Task 7 steps 1 and 8 |
-| 3.2 the four routes, the `Conversation` shape, the 429 `details`, submit's 404 and 409 | Task 1 aliases, Task 3 handlers and the rejection test, Task 4's rate-limit test |
-| 3.2 the body ends right after `done`; the client treats the end of the body as completion | Task 2's parser and its final-frame test, Task 4's `mutationFn` comment |
-| 3.3 stream protocol: `delta`, `state`, `error`, `done`, `: ping` comments, abort on disconnect | Task 2 parser and its tests, Task 3's `sse()` helper, Task 4's `AbortController` and unmount test, Task 7's leave-mid-stream test |
-| 4.1 `conversation-stream.ts` | Task 2 |
-| 4.1 hooks | Task 4 |
-| 4.1 `RequestFeaturePage` switchboard | Task 7 |
-| 4.1 `ConversationPanel`, `DraftPanel`, the form's new props | Tasks 5, 6, 7 |
-| 4.2 MSW handlers and every listed test | Tasks 3 to 7; the existing form tests stay green (Task 7 step 5) |
-| 4.3 `Caddyfile` unchanged, no `flush_interval`, `vite.config.ts` unchanged | No task touches them; stated in the header's architecture note, in Global Constraints, in decision 15, and in ADR 0005's consequences |
-| 4.4 accessible names and the README selector rows; the smoke test unchanged | Tasks 5, 6 and Task 8 step 3 |
-| 5 Web docs: ADR 0005, README features and selector rows, CHANGELOG, release 1.1.0 | Tasks 1 and 8 |
-| 6 Order: pull from `feat/interview-agent`, work on that branch, PR to `develop` after A2 | Task 1 steps 1 and 4, Task 8 steps 1 and 9 |
+| Spec                                                                                                                                                                                                     | Where                                                                                                                                   |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 Goal — interview, live fields, review then file, transcript on the issue                                                                                                                               | Tasks 4 to 7 (the `conversationId` on the filed body carries the transcript, which the API appends)                                     |
+| 2 Chat panel: transcript, streaming reply, 3–4 option chips, skip chip, "Your answer" + Send, Enter sends / Shift+Enter newline, input disabled while streaming, thinking indicator until the first word | Task 5                                                                                                                                  |
+| 2 Your request panel: five read-only fields with placeholders, readiness chip with sub-scores in `title`, "Review and file", "Skip the interview, fill the form"                                         | Task 6                                                                                                                                  |
+| 2 Start: resume the open conversation, otherwise create one whose first message is the greeting; a failed start is recoverable                                                                           | Task 7 (auto-start effect, the toast, and "Try again"), Task 3 (the greeting fixture)                                                   |
+| 2 Turns, Ready                                                                                                                                                                                           | Task 3's scripted four turns; Task 6's `ready` predicate; Task 7's end-to-end run to readiness                                          |
+| 2 Review and file: prefilled editable form, the note line, `conversationId` on the post, success shows the issue link, the conversation is cleared and the next visit is fresh                           | Tasks 4 (`useSubmitFeatureRequest` clears the cached conversation) and 7 (the end-to-end test files then reaches a new greeting)        |
+| 2 Skip the interview                                                                                                                                                                                     | Task 6 link, Task 7 `?mode=form`                                                                                                        |
+| 2 Start over                                                                                                                                                                                             | Task 5                                                                                                                                  |
+| 2 Errors: toast through `toastApiError`, input re-enabled, the transcript keeps the PM's message, rate limit names the hour                                                                              | Task 4 (`pendingMessage`, `toastApiError`, the 429 `details` assertions), Task 5, Task 7's rate-limit and stream-error tests            |
+| 2 Projector rules and the narrow layout                                                                                                                                                                  | Global Constraints; `min-h-11 h-auto whitespace-normal` chips and `min-w-0` panels in Tasks 5 to 7; Task 5 step 5; Task 7 steps 1 and 8 |
+| 3.2 the four routes, the `Conversation` shape, the 429 `details`, submit's 404 and 409                                                                                                                   | Task 1 aliases, Task 3 handlers and the rejection test, Task 4's rate-limit test                                                        |
+| 3.2 the body ends right after `done`; the client treats the end of the body as completion                                                                                                                | Task 2's parser and its final-frame test, Task 4's `mutationFn` comment                                                                 |
+| 3.3 stream protocol: `delta`, `state`, `error`, `done`, `: ping` comments, abort on disconnect                                                                                                           | Task 2 parser and its tests, Task 3's `sse()` helper, Task 4's `AbortController` and unmount test, Task 7's leave-mid-stream test       |
+| 4.1 `conversation-stream.ts`                                                                                                                                                                             | Task 2                                                                                                                                  |
+| 4.1 hooks                                                                                                                                                                                                | Task 4                                                                                                                                  |
+| 4.1 `RequestFeaturePage` switchboard                                                                                                                                                                     | Task 7                                                                                                                                  |
+| 4.1 `ConversationPanel`, `DraftPanel`, the form's new props                                                                                                                                              | Tasks 5, 6, 7                                                                                                                           |
+| 4.2 MSW handlers and every listed test                                                                                                                                                                   | Tasks 3 to 7; the existing form tests stay green (Task 7 step 5)                                                                        |
+| 4.3 `Caddyfile` unchanged, no `flush_interval`, `vite.config.ts` unchanged                                                                                                                               | No task touches them; stated in the header's architecture note, in Global Constraints, in decision 15, and in ADR 0005's consequences   |
+| 4.4 accessible names and the README selector rows; the smoke test unchanged                                                                                                                              | Tasks 5, 6 and Task 8 step 3                                                                                                            |
+| 5 Web docs: ADR 0005, README features and selector rows, CHANGELOG, release 1.1.0                                                                                                                        | Tasks 1 and 8                                                                                                                           |
+| 6 Order: pull from `feat/interview-agent`, work on that branch, PR to `develop` after A2                                                                                                                 | Task 1 steps 1 and 4, Task 8 steps 1 and 9                                                                                              |
 
 Not in scope for this lane and deliberately absent: everything in spec 3.1, 3.4, 3.5, 3.6, 3.7 (API), and the assembly-line bullet in spec 5.
 

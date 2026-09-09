@@ -69,9 +69,9 @@ describe("conversation models derived from the contract", () => {
     expectTypeOf<Extract<ConversationEvent, { event: "state" }>["data"]>().toEqualTypeOf<{
       conversation: Conversation;
     }>();
-    expectTypeOf<Extract<ConversationEvent, { event: "error" }>["data"]["message"]>().toEqualTypeOf<
-      string
-    >();
+    expectTypeOf<
+      Extract<ConversationEvent, { event: "error" }>["data"]["message"]
+    >().toEqualTypeOf<string>();
     // The existing submit body carries the conversation (spec 3.2, row 4).
     expectTypeOf<FeatureRequestBody["conversationId"]>().toEqualTypeOf<string | undefined>();
   });
