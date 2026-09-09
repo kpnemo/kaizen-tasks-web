@@ -18,3 +18,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Prism mock with curated contract examples; the mock artifact mounts the contract's servers base path so `/api/v1/*` resolves.
 - Login and registration pages, session restore on load, logout; one toast per API error code.
 - Task list: create bar, filters, AI chips for every state, retry, keyset load more, polling.
+- Task detail with inline editing, suggested steps, rationale popover, accept/edit/dismiss/undo.
