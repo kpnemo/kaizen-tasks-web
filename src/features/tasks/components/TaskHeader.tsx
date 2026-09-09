@@ -3,6 +3,8 @@ import { InlineText } from "@/components/inline-text";
 import { NativeSelect } from "@/components/native-select";
 import { TagChip } from "@/components/tag-chip";
 import { useReplaceTags, useUpdateTask } from "../hooks";
+import { AddTagPopover } from "./AddTagPopover";
+import { AiTagSuggestions } from "./AiTagSuggestions";
 import { ProgressBar } from "./ProgressBar";
 
 const STATUS_LABELS: Record<TaskStatus, string> = {
@@ -59,7 +61,9 @@ export function TaskHeader({ task }: { task: TaskDetail }) {
             }
           />
         ))}
+        <AddTagPopover task={task} />
       </div>
+      <AiTagSuggestions task={task} />
     </header>
   );
 }
