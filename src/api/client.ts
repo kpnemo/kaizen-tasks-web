@@ -12,6 +12,10 @@ export const API_BASE = new URL("/api/v1", window.location.origin).href;
 /** A 401 from these routes is an answer, not an expired token. */
 const AUTH_ROUTES = new Set(["/auth/login", "/auth/register", "/auth/refresh", "/auth/logout"]);
 
+/** Routes that need no session: no bearer token is attached and a 401 never triggers a refresh, so
+ *  the footer's health read can never touch the auth state. */
+const PUBLIC_ROUTES = new Set(["/health"]);
+
 let refreshInFlight: Promise<string | null> | null = null;
 
 /** POST /auth/refresh once, shared by every concurrent caller. Resolves to the new token or null. */
@@ -36,6 +40,7 @@ const replayable = new Map<string, Request>();
 
 const authMiddleware: Middleware = {
   async onRequest({ request, id, schemaPath }) {
+    if (PUBLIC_ROUTES.has(schemaPath)) return request;
     const token = authStore.getToken();
     if (token) request.headers.set("Authorization", `Bearer ${token}`);
     if (!AUTH_ROUTES.has(schemaPath)) replayable.set(id, request.clone());

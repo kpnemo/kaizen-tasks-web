@@ -1,7 +1,13 @@
+import { useQuery } from "@tanstack/react-query";
+import { healthQueryOptions } from "@/api/health-query";
 import { KaizenMark } from "@/components/kaizen-mark";
 
-/** One quiet line at the bottom of every page: who this app was made for. */
+/** One quiet line at the bottom of every page: who this app was made for, plus a second line
+ *  printing the web and API versions so the room can see which release each environment runs
+ *  (ADR 0004). The API segment turns amber with the API's own version when the two differ. */
 export function WorkshopFooter() {
+  const { data: health } = useQuery(healthQueryOptions);
+  const apiMatches = health ? health.version === __APP_VERSION__ : undefined;
   return (
     <footer className="mx-auto w-full max-w-5xl px-6 py-6">
       <p className="flex items-center justify-center gap-2 border-t pt-6 text-sm text-muted-foreground">
@@ -10,6 +16,26 @@ export function WorkshopFooter() {
           Created for the <span className="font-semibold text-foreground/80">NICE</span> product
           workshop, September 2026
         </span>
+      </p>
+      <p className="mt-2 flex items-center justify-center gap-2 font-mono text-sm text-muted-foreground">
+        <span>v{__APP_VERSION__}</span>
+        <span aria-hidden="true">·</span>
+        <span>web {__APP_COMMIT__}</span>
+        {health ? (
+          <>
+            <span aria-hidden="true">·</span>
+            {apiMatches ? (
+              <span>api {health.commit.slice(0, 7)}</span>
+            ) : (
+              <span
+                className="text-amber-700 dark:text-amber-400"
+                title="API and web versions differ"
+              >
+                api v{health.version} {health.commit.slice(0, 7)}
+              </span>
+            )}
+          </>
+        ) : null}
       </p>
     </footer>
   );

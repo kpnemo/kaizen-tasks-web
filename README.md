@@ -63,7 +63,8 @@ and warns, never fails). Both `src/api/openapi.json` and `src/api/types.ts` are 
 | Staging     | https://web-staging-52c0.up.railway.app (deploys `develop`)  |
 | Production  | https://web-production-7ef71.up.railway.app (deploys `main`) |
 
-`/version.json` on every deployed environment reports the commit that is live.
+`/version.json` on every deployed environment reports `commit`, `builtAt`, and `version` (the
+`package.json` version) for the build that is live.
 
 ## Ports and proxy
 
@@ -81,6 +82,7 @@ browser only ever talks to the web origin, so there is no CORS and the refresh c
 - Tags on a task: add from your tags, remove, and adopt the assistant's tag suggestions (creates the tag when needed)
 - Tags page: create with a fixed palette, rename and recolor inline, delete with confirmation
 - Request a feature: the issue form's five fields, filed as a GitHub issue through the API; the link appears only when the API's health reports `features.featureRequests: true`
+- Footer prints the web version and commit and, once health resolves, the API's commit (or its version and commit, in amber, when it differs from the web version)
 
 ## Selector contract (smoke test)
 
@@ -101,6 +103,7 @@ name only. These names are a cross-repo contract; do not change them without cha
 | Detail    | accept           | button named exactly "Accept" on each suggested step                                                                                                                                                                                                               |
 | Detail    | progress         | text `done/total`, for example `0/1`                                                                                                                                                                                                                               |
 | Anywhere  | log out          | button "Log out"                                                                                                                                                                                                                                                   |
+| Any       | footer           | role `contentinfo` containing "v<version>" and "api <7-char commit>" from `GET /api/v1/health`                                                                                                                                                                     |
 
 ## Pipeline
 
@@ -115,6 +118,7 @@ override it.
 ## Docs
 
 - `docs/ARCHITECTURE.md`: proxy topology, auth flow, contract copy, polling, mock.
-- `docs/adr/`: 0001 same-origin proxy, 0002 contract copied not linked, 0003 access token in memory.
+- `docs/adr/`: 0001 same-origin proxy, 0002 contract copied not linked, 0003 access token in memory,
+  0004 version in the footer.
 - `CHANGELOG.md`: Keep a Changelog; every change adds a bullet under `[Unreleased]`.
 - `CLAUDE.md`: conventions and the harness (skills, agents, hooks).

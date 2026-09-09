@@ -8,6 +8,7 @@ import type {
   UpdateTagBody,
   UpdateTaskBody,
 } from "@/api/models";
+import pkg from "../../package.json";
 import { db, makeTag, makeTask, nextId } from "./db";
 import { demoUser } from "./fixtures";
 
@@ -265,6 +266,7 @@ export function healthBody(featureRequests = true) {
   return {
     status: "ok" as const,
     commit: "test-sha",
+    version: pkg.version,
     env: "test",
     checks: { db: "ok", redis: "ok" },
     features: { featureRequests },
