@@ -79,6 +79,27 @@ describe("client auth middleware", () => {
     expect(authStore.getState().status).toBe("anonymous");
   });
 
+  it("sends no token and never refreshes for the public health route", async () => {
+    authStore.setToken("stale");
+    let refreshes = 0;
+    let authHeader: string | null = "unset";
+    server.use(
+      http.get(`${API}/health`, ({ request }) => {
+        authHeader = request.headers.get("authorization");
+        return err("UNAUTHORIZED", "no");
+      }),
+      http.post(`${API}/auth/refresh`, () => {
+        refreshes += 1;
+        return ok({ accessToken: "fresh" });
+      }),
+    );
+    const result = await client.GET("/health");
+    expect(result.response.status).toBe(401);
+    expect(authHeader).toBeNull();
+    expect(refreshes).toBe(0);
+    expect(authStore.getToken()).toBe("stale");
+  });
+
   it("does not refresh for a 401 from an auth route", async () => {
     let refreshes = 0;
     server.use(

@@ -42,3 +42,21 @@ describe("routing shell", () => {
     expect(await screen.findByRole("heading", { name: "Page not found" })).toBeInTheDocument();
   });
 });
+
+describe("workshop footer", () => {
+  it("shows the workshop credit when signed out at /login", async () => {
+    renderApp({ route: "/login", session: "anonymous" });
+    expect(await screen.findByRole("heading", { name: "Log in" })).toBeInTheDocument();
+    expect(screen.getByRole("contentinfo")).toHaveTextContent(
+      /Created for the NICE product workshop/,
+    );
+  });
+
+  it("shows the workshop credit when signed in at /tasks", async () => {
+    renderApp({ route: "/tasks" });
+    expect(await screen.findByRole("heading", { name: "Tasks" })).toBeInTheDocument();
+    expect(screen.getByRole("contentinfo")).toHaveTextContent(
+      /Created for the NICE product workshop/,
+    );
+  });
+});

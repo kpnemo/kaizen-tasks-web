@@ -134,6 +134,13 @@ describe("logout", () => {
     expect(await screen.findByRole("heading", { name: "Log in" })).toBeInTheDocument();
     await waitFor(() => expect(logouts).toBe(1));
     expect(authStore.getState()).toEqual({ status: "anonymous", token: null, user: null });
-    expect(queryClient.getQueryCache().getAll()).toHaveLength(0);
+    // The mutation's onSettled clears the whole cache; the login page's footer then mounts and
+    // re-issues the shared (session-less) health query, so that is the only query left standing.
+    expect(
+      queryClient
+        .getQueryCache()
+        .getAll()
+        .map((q) => q.queryKey),
+    ).toEqual([["health"]]);
   });
 });

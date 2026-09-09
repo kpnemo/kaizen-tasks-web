@@ -3,7 +3,8 @@
 #   --hook   Claude Code Stop hook. Exit 2 blocks the stop and feeds the fix list back.
 #   --ci     GitHub Actions. BASE_SHA is the PR base or the push's before-SHA. Exit 1 fails the job.
 # Rules:
-#   A  any code change needs a bullet under [Unreleased] in CHANGELOG.md
+#   A  any code change needs a bullet under [Unreleased] in CHANGELOG.md (a release cut that adds a
+#      dated version heading also counts)
 #   B  a change to src/api/openapi.json needs src/api/types.ts regenerated with no diff
 #   C  a change to a file matching docs/architectural-files.txt needs an ADR in the change
 # Escape hatch (hook mode only): after MAX_BLOCKS consecutive blocked stops the hook stops blocking
@@ -64,7 +65,9 @@ fi
 
 root_commit() { git rev-list --max-parents=0 HEAD | tail -n 1; }
 
-changed_files() {
+# Computed once into $BASE so changed_files() and changelog_adds_release_heading() diff against
+# the same commit.
+compute_base() {
   local base
   if [ "$MODE" = "--ci" ]; then
     base="${BASE_SHA:-}"
@@ -72,10 +75,6 @@ changed_files() {
       || ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
       base="$(git rev-parse HEAD~1 2>/dev/null || root_commit)"
     fi
-    # Prefer the triple-dot form (diff against the merge-base of $base and HEAD), which is right
-    # when $base and HEAD have diverged (a PR's base branch moved on); fall back to the plain
-    # two-dot form only if that fails (e.g. no common ancestor).
-    git diff --name-only "$base...HEAD" 2>/dev/null || git diff --name-only "$base" HEAD
   else
     if git rev-parse --verify -q origin/develop >/dev/null 2>&1; then
       base="$(git merge-base HEAD origin/develop 2>/dev/null || true)"
@@ -89,8 +88,19 @@ changed_files() {
     if [ -z "$base" ] || ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
       base="$(root_commit)"
     fi
+  fi
+  BASE="$base"
+}
+
+changed_files() {
+  if [ "$MODE" = "--ci" ]; then
+    # Prefer the triple-dot form (diff against the merge-base of $BASE and HEAD), which is right
+    # when $BASE and HEAD have diverged (a PR's base branch moved on); fall back to the plain
+    # two-dot form only if that fails (e.g. no common ancestor).
+    git diff --name-only "$BASE...HEAD" 2>/dev/null || git diff --name-only "$BASE" HEAD
+  else
     {
-      git diff --name-only "$base"
+      git diff --name-only "$BASE"
       git ls-files --others --exclude-standard
     } | sort -u
   fi
@@ -119,6 +129,20 @@ unreleased_has_bullet() {
   ' CHANGELOG.md
 }
 
+# A release cut (the release-notes skill) moves every [Unreleased] bullet under a new dated
+# heading and leaves [Unreleased] empty on purpose. The added heading in this change's diff is the
+# documentation, so it satisfies Rule A on its own. Diffs against the same $BASE changed_files uses.
+changelog_adds_release_heading() {
+  local diff
+  if [ "$MODE" = "--ci" ]; then
+    diff="$(git diff "$BASE...HEAD" -- CHANGELOG.md 2>/dev/null || git diff "$BASE" HEAD -- CHANGELOG.md 2>/dev/null)"
+  else
+    diff="$(git diff "$BASE" -- CHANGELOG.md 2>/dev/null)"
+  fi
+  printf '%s' "$diff" | grep -qE '^\+## \[[0-9]+\.[0-9]+\.[0-9]+\] - [0-9]{4}-[0-9]{2}-[0-9]{2}'
+}
+
+compute_base
 CHANGED="$(changed_files)"
 if [ -z "$CHANGED" ]; then
   reset_counter
@@ -166,8 +190,8 @@ fi
 FAILED=()
 
 if [ "$CODE_CHANGED" = 1 ]; then
-  if [ "$CHANGELOG_CHANGED" = 0 ] || ! unreleased_has_bullet; then
-    FAILED+=("Rule A: code changed but CHANGELOG.md has no new bullet under [Unreleased]. Fix: add a bullet under [Unreleased] in CHANGELOG.md")
+  if [ "$CHANGELOG_CHANGED" = 0 ] || { ! unreleased_has_bullet && ! changelog_adds_release_heading; }; then
+    FAILED+=("Rule A: code changed but CHANGELOG.md has no new bullet under [Unreleased] (a release cut that adds a dated version heading also counts). Fix: add a bullet under [Unreleased] in CHANGELOG.md")
   fi
 fi
 

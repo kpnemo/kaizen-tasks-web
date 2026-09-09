@@ -3,6 +3,7 @@ import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
+import pkg from "../package.json";
 
 const tmpDirs: string[] = [];
 
@@ -20,6 +21,7 @@ function run(env: Record<string, string>) {
   return JSON.parse(readFileSync(join(outDir, "version.json"), "utf8")) as {
     commit: string;
     builtAt: string;
+    version: string;
   };
 }
 
@@ -32,6 +34,11 @@ describe("scripts/write-version.mjs", () => {
     const v = run({ RAILWAY_GIT_COMMIT_SHA: "abc123" });
     expect(v.commit).toBe("abc123");
     expect(new Date(v.builtAt).toISOString()).toBe(v.builtAt);
+  });
+
+  it("writes the package.json version", () => {
+    const v = run({ RAILWAY_GIT_COMMIT_SHA: "abc123" });
+    expect(v.version).toBe(pkg.version);
   });
 
   it("falls back to git rev-parse HEAD", () => {

@@ -89,6 +89,23 @@ describe("scripts/docs-check.sh", () => {
     expect(repo.exists(".claude/.docs-check-blocks")).toBe(false);
   });
 
+  it("Rule A: a release cut that adds a dated version heading satisfies it in --hook and --ci", () => {
+    const repo = makeRepo();
+    repo.write("src/app.ts", "export const a = 5;\n");
+    repo.write(
+      "CHANGELOG.md",
+      "# Changelog\n\n## [Unreleased]\n\n## [0.2.0] - 2026-09-09\n\n- Changed a\n\n## [0.1.0] - 2026-09-01\n\n- first\n",
+    );
+    const hooked = repo.check("--hook");
+    expect(hooked.status).toBe(0);
+    expect(hooked.stdout).toContain("docs-check: OK");
+    repo.commit("release 0.2.0");
+    const base = repo.run("git", ["rev-parse", "HEAD~1"]).stdout.trim();
+    const ci = repo.check("--ci", { BASE_SHA: base });
+    expect(ci.status).toBe(0);
+    expect(ci.stdout).toContain("docs-check: OK");
+  });
+
   it("counts an untracked file as a change", () => {
     const repo = makeRepo();
     repo.write("src/new.ts", "export const n = 1;\n");

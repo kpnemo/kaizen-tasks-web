@@ -2,8 +2,9 @@
 // Writes <outDir>/version.json after `vite build` so the promote workflow and the smoke
 // package can tell which commit a web deployment is serving. Never cached (see Caddyfile).
 import { execSync } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 function resolveCommit() {
   const fromRailway = process.env.RAILWAY_GIT_COMMIT_SHA;
@@ -20,8 +21,15 @@ function resolveCommit() {
   }
 }
 
+const scriptDir = dirname(fileURLToPath(import.meta.url));
+const pkg = JSON.parse(readFileSync(join(scriptDir, "..", "package.json"), "utf8"));
+
 const outDir = process.env.VERSION_OUT_DIR || "dist";
-const version = { commit: resolveCommit(), builtAt: new Date().toISOString() };
+const version = {
+  commit: resolveCommit(),
+  builtAt: new Date().toISOString(),
+  version: pkg.version,
+};
 mkdirSync(outDir, { recursive: true });
 const file = join(outDir, "version.json");
 writeFileSync(file, `${JSON.stringify(version)}\n`);

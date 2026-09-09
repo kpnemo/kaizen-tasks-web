@@ -1322,6 +1322,8 @@ export interface components {
             /** @enum {string} */
             status: "ok";
             commit: string;
+            /** @description package.json version of the running build; the web app prints it in its footer */
+            version: string;
             /** @enum {string} */
             env: "development" | "test" | "staging" | "production";
             checks: {
