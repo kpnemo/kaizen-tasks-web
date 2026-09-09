@@ -80,7 +80,7 @@ browser only ever talks to the web origin, so there is no CORS and the refresh c
 - Reorder steps by drag handle or keyboard (Move up / Move down); add a step
 - Tags on a task: add from your tags, remove, and adopt the assistant's tag suggestions (creates the tag when needed)
 - Tags page: create with a fixed palette, rename and recolor inline, delete with confirmation
-- (Request-a-feature is added by a later task.)
+- Request a feature: the issue form's five fields, filed as a GitHub issue through the API; the link appears only when the API's health reports `features.featureRequests: true`
 
 ## Docs
 

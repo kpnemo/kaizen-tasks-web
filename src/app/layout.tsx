@@ -4,6 +4,7 @@ import { KaizenMark } from "@/components/kaizen-mark";
 import { Button } from "@/components/ui/button";
 import { useLogout } from "@/features/auth/hooks";
 import { useSession } from "@/features/auth/useSession";
+import { FeatureRequestLink } from "@/features/feature-request/FeatureRequestLink";
 import { cn } from "@/lib/cn";
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
@@ -11,11 +12,6 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
     "inline-flex items-center rounded-md px-3 text-base font-semibold text-foreground/80 hover:text-foreground",
     isActive && "bg-accent text-accent-foreground",
   );
-}
-
-/** Stub until Task 17 replaces it with the link gated on the health feature flag. */
-export function FeatureRequestLink() {
-  return null;
 }
 
 export function AppShell() {

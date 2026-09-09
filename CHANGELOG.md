@@ -23,3 +23,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Step reorder with dnd-kit (target index, optimistic with rollback) and add step.
 - Add-tag popover and AI tag suggestion adoption on the task detail; shared tag mutations.
 - Tags page with palette, inline rename and recolor, and confirmed delete.
+- Request-a-feature page; the nav link and route are shown only when `GET /health` reports `features.featureRequests` true.
