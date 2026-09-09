@@ -3,7 +3,7 @@ import { toApiError } from "@/api/errors";
 import { Field } from "@/components/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TAG_PALETTE } from "@/lib/tag-palette";
+import { nextPaletteColor } from "@/lib/tag-palette";
 import { ColorPicker } from "./components/ColorPicker";
 import { TagRow } from "./components/TagRow";
 import { useCreateTag, useTags } from "./hooks";
@@ -12,7 +12,11 @@ export function TagsPage() {
   const tags = useTags();
   const create = useCreateTag();
   const [name, setName] = useState("");
-  const [color, setColor] = useState<string>(TAG_PALETTE[0].value);
+  // null means "no manual pick yet": the picker shows the next unused palette color, recomputed
+  // from the currently loaded tags on every render (falls back to the first palette color before
+  // tags load). Reset to null after a successful create so the next tag again defaults this way.
+  const [manualColor, setManualColor] = useState<string | null>(null);
+  const color = manualColor ?? nextPaletteColor(tags.data ?? []);
   const error = create.error ? toApiError(create.error) : null;
   const nameError = error?.code === "CONFLICT" ? error.message : error?.fieldErrors().name;
 
@@ -26,7 +30,15 @@ export function TagsPage() {
           event.preventDefault();
           const trimmed = name.trim();
           if (!trimmed || create.isPending) return;
-          create.mutate({ name: trimmed, color }, { onSuccess: () => setName("") });
+          create.mutate(
+            { name: trimmed, color },
+            {
+              onSuccess: () => {
+                setName("");
+                setManualColor(null);
+              },
+            },
+          );
         }}
       >
         <Field id="tag-name" label="Name" error={nameError}>
@@ -41,7 +53,7 @@ export function TagsPage() {
         </Field>
         <div className="space-y-2">
           <p className="text-base font-semibold">Color</p>
-          <ColorPicker value={color} onChange={setColor} />
+          <ColorPicker value={color} onChange={setManualColor} />
         </div>
         <Button type="submit" disabled={!name.trim() || create.isPending}>
           Create tag

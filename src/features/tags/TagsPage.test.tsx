@@ -1,6 +1,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { http } from "msw";
 import { describe, expect, it } from "vitest";
+import { nextPaletteColor, TAG_PALETTE } from "@/lib/tag-palette";
 import { db, TAG_WORK } from "../../../tests/msw/db";
 import { API, err, ok } from "../../../tests/msw/handlers";
 import { server } from "../../../tests/msw/server";
@@ -103,5 +104,40 @@ describe("tags page", () => {
     server.use(http.get(`${API}/tags`, () => err("INTERNAL", "Tag store unavailable")));
     renderApp({ route: "/tags" });
     expect(await screen.findByRole("alert")).toHaveTextContent("Tag store unavailable");
+  });
+
+  it("defaults the create form's color to the first palette color not already used", async () => {
+    renderApp({ route: "/tags" });
+    await screen.findByRole("table", { name: "Your tags" });
+    const expectedColor = nextPaletteColor(db.tags);
+    const expectedName = TAG_PALETTE.find(
+      (c) => c.value.toUpperCase() === expectedColor.toUpperCase(),
+    )!.name;
+    const group = screen.getByRole("radiogroup", { name: "Color" });
+    expect(within(group).getByRole("radio", { name: expectedName })).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
+  });
+
+  it("navigates the create form's color picker with arrow keys and Home/End", async () => {
+    const { user } = renderApp({ route: "/tags" });
+    await screen.findByRole("table", { name: "Your tags" });
+    const group = screen.getByRole("radiogroup", { name: "Color" });
+    const radios = within(group).getAllByRole("radio");
+    const startIndex = radios.findIndex((r) => r.getAttribute("aria-checked") === "true");
+
+    radios[startIndex].focus();
+    await user.keyboard("{ArrowRight}");
+    const nextIndex = (startIndex + 1) % TAG_PALETTE.length;
+    expect(radios[nextIndex]).toHaveAttribute("aria-checked", "true");
+    expect(radios[nextIndex]).toHaveFocus();
+    expect(radios.filter((r) => r.tabIndex === 0)).toHaveLength(1);
+    expect(radios[nextIndex].tabIndex).toBe(0);
+
+    await user.keyboard("{End}");
+    const lastIndex = TAG_PALETTE.length - 1;
+    expect(radios[lastIndex]).toHaveAttribute("aria-checked", "true");
+    expect(radios[lastIndex]).toHaveFocus();
   });
 });
