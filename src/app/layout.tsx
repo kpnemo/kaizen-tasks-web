@@ -2,6 +2,7 @@ import { LogOut } from "lucide-react";
 import { NavLink, Outlet } from "react-router";
 import { KaizenMark } from "@/components/kaizen-mark";
 import { Button } from "@/components/ui/button";
+import { WorkshopFooter } from "@/components/workshop-footer";
 import { useLogout } from "@/features/auth/hooks";
 import { useSession } from "@/features/auth/useSession";
 import { FeatureRequestLink } from "@/features/feature-request/FeatureRequestLink";
@@ -18,7 +19,7 @@ export function AppShell() {
   const { user } = useSession();
   const logout = useLogout();
   return (
-    <div className="min-h-screen">
+    <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-10 border-b bg-card">
         <div className="mx-auto flex h-16 w-full max-w-5xl items-center gap-6 px-6">
           <NavLink to="/tasks" className="flex items-center gap-2 text-primary" data-nav>
@@ -43,9 +44,10 @@ export function AppShell() {
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-5xl px-6 py-8">
+      <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-8">
         <Outlet />
       </main>
+      <WorkshopFooter />
     </div>
   );
 }

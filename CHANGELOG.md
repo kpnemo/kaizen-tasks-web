@@ -28,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Docs freshness gate (docs-check with Rules A, B, C and the escape hatch), formatter hook, Claude Code hooks, architectural files manifest.
 - Claude Code harness: add-frontend-feature, write-adr, release-notes skills; reviewer and test-writer agents; full CLAUDE.md.
 - promote workflow: waits for staging to serve the PR head SHA, then runs the assembly-line smoke package.
+- Favicon (`public/favicon.svg`, the Kaizen steps mark on the primary color) and a one-line footer on every page crediting the NICE product workshop, September 2026.
 
 ### Changed
 
