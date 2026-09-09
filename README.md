@@ -82,6 +82,36 @@ browser only ever talks to the web origin, so there is no CORS and the refresh c
 - Tags page: create with a fixed palette, rename and recolor inline, delete with confirmation
 - Request a feature: the issue form's five fields, filed as a GitHub issue through the API; the link appears only when the API's health reports `features.featureRequests: true`
 
+## Selector contract (smoke test)
+
+The Playwright smoke test in `kaizen-tasks-assembly-line` locates this app by accessible role and
+name only. These names are a cross-repo contract; do not change them without changing the smoke test:
+
+| Screen    | Element          | Accessible name                                                                                                                                                                                                                                                    |
+| --------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Login     | heading          | "Log in" (URL ends in `/login`)                                                                                                                                                                                                                                    |
+| Login     | link to register | "Create an account"                                                                                                                                                                                                                                                |
+| Register  | inputs           | labels "Email", "Password", "Display name"                                                                                                                                                                                                                         |
+| Register  | submit           | button "Create account"; success lands on `/tasks`                                                                                                                                                                                                                 |
+| Task list | create bar       | textbox "Task title"; textbox "Description" revealed by the button "Add description"; Enter in the title submits                                                                                                                                                   |
+| Task list | row              | `listitem` named by the task title; the title is a link to `/tasks/:id`                                                                                                                                                                                            |
+| Task list | AI chip          | "Thinking" while pending or running; "N suggestions" (from the summary's `suggestionCount`) when done with suggestions; "Breakdown failed: <aiError>" plus a "Retry" button; "Too short to break down", "Hourly limit reached", or "Assistant paused" when skipped |
+| Detail    | heading          | the task title (URL `/tasks/<uuid>`)                                                                                                                                                                                                                               |
+| Detail    | accept           | button named exactly "Accept" on each suggested step                                                                                                                                                                                                               |
+| Detail    | progress         | text `done/total`, for example `0/1`                                                                                                                                                                                                                               |
+| Anywhere  | log out          | button "Log out"                                                                                                                                                                                                                                                   |
+
+## Pipeline
+
+`ci` runs on every pull request and on pushes to `develop` and `main`: typecheck, lint, tests,
+docs-check, build, a `dist/version.json` assertion, and a contract-drift warning. Railway deploys
+`develop` to staging and `main` to production with wait-for-CI on. `promote` runs on pull requests to
+`main`: it waits until staging serves the PR's head SHA at `/version.json`, then runs the smoke
+package from `kaizen-tasks-assembly-line` against staging. Both are required checks.
+
 ## Docs
 
-`docs/ARCHITECTURE.md`, `docs/adr/`, `CHANGELOG.md`, `CLAUDE.md`.
+- `docs/ARCHITECTURE.md`: proxy topology, auth flow, contract copy, polling, mock.
+- `docs/adr/`: 0001 same-origin proxy, 0002 contract copied not linked, 0003 access token in memory.
+- `CHANGELOG.md`: Keep a Changelog; every change adds a bullet under `[Unreleased]`.
+- `CLAUDE.md`: conventions and the harness (skills, agents, hooks).
