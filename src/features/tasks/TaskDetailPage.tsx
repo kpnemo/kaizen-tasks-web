@@ -1,6 +1,8 @@
 import { ArrowLeft } from "lucide-react";
 import { Link, useParams } from "react-router";
 import { toApiError } from "@/api/errors";
+import { AiBanner } from "./components/AiBanner";
+import { BulkBar } from "./components/BulkBar";
 import { StepList } from "./components/StepList";
 import { TaskHeader } from "./components/TaskHeader";
 import { useTask } from "./hooks";
@@ -39,6 +41,8 @@ export function TaskDetailPage() {
         All tasks
       </Link>
       <TaskHeader task={task.data} />
+      {task.data.parentId === null ? <AiBanner task={task.data} /> : null}
+      <BulkBar task={task.data} />
       <StepList task={task.data} />
     </article>
   );

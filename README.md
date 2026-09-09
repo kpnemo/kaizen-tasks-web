@@ -76,7 +76,8 @@ browser only ever talks to the web origin, so there is no CORS and the refresh c
 - Login, registration, silent session restore on reload, logout
 - Task list with create bar, status and tag filters, progress, AI chips, retry, load more, and polling while the assistant works
 - Task detail: inline title, description, and status; steps with "Suggested by AI" badges and rationale; accept, edit-then-accept, dismiss, undo
-- (AI banner, bulk actions, sortable steps, add-step, tags, and request-a-feature are added by later tasks.)
+- AI banner with regenerate (conflict-aware), accept all / dismiss all, live polling while the assistant works
+- (Sortable steps, add-step, tags, and request-a-feature are added by later tasks.)
 
 ## Docs
 

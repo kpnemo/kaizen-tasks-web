@@ -19,3 +19,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Login and registration pages, session restore on load, logout; one toast per API error code.
 - Task list: create bar, filters, AI chips for every state, retry, keyset load more, polling.
 - Task detail with inline editing, suggested steps, rationale popover, accept/edit/dismiss/undo.
+- AI banner (thinking, failed with retry, skipped with reason), regenerate with conflict handling, bulk accept and dismiss, detail polling.
