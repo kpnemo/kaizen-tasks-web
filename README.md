@@ -79,7 +79,8 @@ browser only ever talks to the web origin, so there is no CORS and the refresh c
 - AI banner with regenerate (conflict-aware), accept all / dismiss all, live polling while the assistant works
 - Reorder steps by drag handle or keyboard (Move up / Move down); add a step
 - Tags on a task: add from your tags, remove, and adopt the assistant's tag suggestions (creates the tag when needed)
-- (A dedicated tags page and request-a-feature are added by later tasks.)
+- Tags page: create with a fixed palette, rename and recolor inline, delete with confirmation
+- (Request-a-feature is added by a later task.)
 
 ## Docs
 

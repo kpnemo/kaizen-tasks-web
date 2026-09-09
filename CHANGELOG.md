@@ -22,3 +22,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - AI banner (thinking, failed with retry, skipped with reason), regenerate with conflict handling, bulk accept and dismiss, detail polling.
 - Step reorder with dnd-kit (target index, optimistic with rollback) and add step.
 - Add-tag popover and AI tag suggestion adoption on the task detail; shared tag mutations.
+- Tags page with palette, inline rename and recolor, and confirmed delete.
