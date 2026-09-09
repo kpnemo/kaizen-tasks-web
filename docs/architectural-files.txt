@@ -1,0 +1,6 @@
+# Globs of files whose change requires an ADR (docs-check Rule C).
+src/api/**
+Caddyfile
+.railway/**
+src/app/router.tsx
+src/main.tsx

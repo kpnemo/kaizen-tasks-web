@@ -25,3 +25,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Tags page with palette, inline rename and recolor, and confirmed delete.
 - Request-a-feature page; the nav link and route are shown only when `GET /health` reports `features.featureRequests` true.
 - Architecture doc and ADRs 0001 to 0003; selector contract and pipeline sections in the README.
+- Docs freshness gate (docs-check with Rules A, B, C and the escape hatch), formatter hook, Claude Code hooks, architectural files manifest.
