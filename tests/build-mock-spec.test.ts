@@ -1,11 +1,15 @@
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+
+const tmpDirs: string[] = [];
 
 function build(env: Record<string, string> = {}) {
-  const out = join(mkdtempSync(join(tmpdir(), "kaizen-mock-")), "openapi.json");
+  const dir = mkdtempSync(join(tmpdir(), "kaizen-mock-"));
+  tmpDirs.push(dir);
+  const out = join(dir, "openapi.json");
   execFileSync("node", ["scripts/build-mock-spec.mjs"], {
     env: { ...process.env, MOCK_OUT: out, ...env },
   });
@@ -13,6 +17,10 @@ function build(env: Record<string, string> = {}) {
 }
 
 describe("scripts/build-mock-spec.mjs", () => {
+  afterEach(() => {
+    for (const dir of tmpDirs.splice(0)) rmSync(dir, { recursive: true, force: true });
+  });
+
   it("injects curated examples into a copy of the contract", () => {
     const doc = build();
     const list =

@@ -6,7 +6,10 @@ import { isAiActive } from "@/lib/polling";
 import { useBreakdown } from "../hooks";
 
 /** AI state under the header: thinking, failed with retry, skipped with reason, or nothing when
- *  done. Regenerate is always offered and disabled while a generation is pending or running. */
+ *  done — once done and settled, Regenerate lives next to the status select in `TaskHeader`
+ *  instead of in a lone row here, so it stays reachable without pushing the suggestions further
+ *  down the page. Regenerate is always offered somewhere and disabled while a generation is
+ *  pending or running. */
 export function AiBanner({ task }: { task: TaskDetail }) {
   const breakdown = useBreakdown();
   const active = isAiActive(task);
@@ -64,5 +67,5 @@ export function AiBanner({ task }: { task: TaskDetail }) {
       </div>
     );
   }
-  return <div className="flex justify-end">{regenerate}</div>;
+  return null;
 }

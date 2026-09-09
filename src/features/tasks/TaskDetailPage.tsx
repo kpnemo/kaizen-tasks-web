@@ -31,7 +31,7 @@ export function TaskDetailPage() {
   }
 
   return (
-    <article className="space-y-10">
+    <article className="space-y-6">
       <Link
         to="/tasks"
         className="inline-flex items-center gap-1 font-semibold text-primary"

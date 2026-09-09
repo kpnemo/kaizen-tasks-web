@@ -1,8 +1,10 @@
+import { RefreshCw } from "lucide-react";
 import type { TaskDetail, TaskStatus } from "@/api/models";
 import { InlineText } from "@/components/inline-text";
 import { NativeSelect } from "@/components/native-select";
 import { TagChip } from "@/components/tag-chip";
-import { useReplaceTags, useUpdateTask } from "../hooks";
+import { Button } from "@/components/ui/button";
+import { useBreakdown, useReplaceTags, useUpdateTask } from "../hooks";
 import { AddTagPopover } from "./AddTagPopover";
 import { AiTagSuggestions } from "./AiTagSuggestions";
 import { ProgressBar } from "./ProgressBar";
@@ -16,6 +18,10 @@ const STATUS_LABELS: Record<TaskStatus, string> = {
 export function TaskHeader({ task }: { task: TaskDetail }) {
   const update = useUpdateTask();
   const replaceTags = useReplaceTags();
+  const breakdown = useBreakdown();
+  // Once a root task's breakdown has settled (AiBanner then renders nothing), Regenerate moves
+  // here so it stays reachable without a lone row pushing the suggestions further down the page.
+  const showRegenerate = task.parentId === null && task.aiStatus === "done";
   return (
     <header className="space-y-5">
       <InlineText
@@ -37,6 +43,16 @@ export function TaskHeader({ task }: { task: TaskDetail }) {
           ))}
         </NativeSelect>
         <ProgressBar done={task.progress.done} total={task.progress.total} />
+        {showRegenerate ? (
+          <Button
+            variant="outline"
+            onClick={() => breakdown.mutate(task.id)}
+            disabled={breakdown.isPending}
+          >
+            <RefreshCw aria-hidden="true" />
+            Regenerate
+          </Button>
+        ) : null}
       </div>
       <InlineText
         as="p"

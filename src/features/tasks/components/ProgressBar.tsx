@@ -12,7 +12,7 @@ export function ProgressBar({ done, total }: { done: number; total: number }) {
       >
         <div className="h-full bg-primary" style={{ width: `${percent}%` }} />
       </div>
-      <span className="text-sm font-semibold tabular-nums text-muted-foreground">
+      <span className="text-base font-semibold tabular-nums text-muted-foreground">
         {done}/{total}
       </span>
     </div>

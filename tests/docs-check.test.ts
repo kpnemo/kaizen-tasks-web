@@ -4,12 +4,13 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  rmSync,
   symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 const GIT_ENV = {
   GIT_AUTHOR_NAME: "t",
@@ -18,8 +19,15 @@ const GIT_ENV = {
   GIT_COMMITTER_EMAIL: "t@example.com",
 };
 
+// Rule B's scratch repo below symlinks this repo's real node_modules into the scratch tree so
+// the openapi-typescript binary resolves there. rmSync(dir, { recursive, force }) removes a
+// symlink it encounters by unlinking it (lstat, not stat), never traversing into or deleting the
+// link's target — verified locally against Node 24 before relying on it here.
+const tmpDirs: string[] = [];
+
 function makeRepo(options: { withGenerator?: boolean } = {}) {
   const dir = mkdtempSync(join(tmpdir(), "kaizen-docs-check-"));
+  tmpDirs.push(dir);
   const run = (cmd: string, args: string[], env: Record<string, string> = {}) =>
     spawnSync(cmd, args, {
       cwd: dir,
@@ -56,6 +64,10 @@ function makeRepo(options: { withGenerator?: boolean } = {}) {
 }
 
 describe("scripts/docs-check.sh", () => {
+  afterEach(() => {
+    for (const dir of tmpDirs.splice(0)) rmSync(dir, { recursive: true, force: true });
+  });
+
   it("passes with no changes", () => {
     const repo = makeRepo();
     expect(repo.check("--hook").status).toBe(0);

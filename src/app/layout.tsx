@@ -19,7 +19,7 @@ export function AppShell() {
   const logout = useLogout();
   return (
     <div className="min-h-screen">
-      <header className="border-b bg-card">
+      <header className="sticky top-0 z-10 border-b bg-card">
         <div className="mx-auto flex h-16 w-full max-w-5xl items-center gap-6 px-6">
           <NavLink to="/tasks" className="flex items-center gap-2 text-primary" data-nav>
             <KaizenMark />

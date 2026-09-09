@@ -1,11 +1,19 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+
+const tmpDirs: string[] = [];
+
+function makeTmpDir() {
+  const dir = mkdtempSync(join(tmpdir(), "kaizen-version-"));
+  tmpDirs.push(dir);
+  return dir;
+}
 
 function run(env: Record<string, string>) {
-  const outDir = mkdtempSync(join(tmpdir(), "kaizen-version-"));
+  const outDir = makeTmpDir();
   execFileSync("node", ["scripts/write-version.mjs"], {
     env: { ...process.env, VERSION_OUT_DIR: outDir, ...env },
   });
@@ -16,6 +24,10 @@ function run(env: Record<string, string>) {
 }
 
 describe("scripts/write-version.mjs", () => {
+  afterEach(() => {
+    for (const dir of tmpDirs.splice(0)) rmSync(dir, { recursive: true, force: true });
+  });
+
   it("prefers RAILWAY_GIT_COMMIT_SHA", () => {
     const v = run({ RAILWAY_GIT_COMMIT_SHA: "abc123" });
     expect(v.commit).toBe("abc123");
@@ -29,7 +41,7 @@ describe("scripts/write-version.mjs", () => {
   });
 
   it("prefers RAILWAY_GIT_COMMIT_SHA even when git rev-parse would fail", () => {
-    const outDir = mkdtempSync(join(tmpdir(), "kaizen-version-"));
+    const outDir = makeTmpDir();
     const scriptPath = join(process.cwd(), "scripts/write-version.mjs");
     execFileSync("node", [scriptPath], {
       cwd: outDir,
@@ -48,7 +60,7 @@ describe("scripts/write-version.mjs", () => {
   });
 
   it("fails loudly when no commit is available", () => {
-    const outDir = mkdtempSync(join(tmpdir(), "kaizen-version-"));
+    const outDir = makeTmpDir();
     const scriptPath = join(process.cwd(), "scripts/write-version.mjs");
     let error: { status: number | null; stderr: Buffer } | undefined;
     try {

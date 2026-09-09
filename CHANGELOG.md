@@ -29,8 +29,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Claude Code harness: add-frontend-feature, write-adr, release-notes skills; reviewer and test-writer agents; full CLAUDE.md.
 - promote workflow: waits for staging to serve the PR head SHA, then runs the assembly-line smoke package.
 
+### Changed
+
+- Task detail page: tightened vertical spacing (`space-y-10` to `space-y-6`) and moved the settled-state Regenerate button from a lone row under the AI banner to sit next to the status select in the task header, so the first suggested step's Accept button lands above the fold at projector size (1024x576).
+- Button, badge, and progress-label text sizes bumped for projector legibility (`text-sm` to `text-base` on buttons and the progress label, `text-xs` to `text-sm` on badges/the AI chip), matching the 18px root the projector rules already assume.
+- App header is now `sticky top-0 z-10` so navigation and Log out stay reachable while scrolling the task detail page.
+
 ### Fixed
 
+- README "Selector contract" table now names the register page's own heading ("Create your account"), so a future rename cannot silently reintroduce the login-to-register transition race the smoke test hit.
+- `tests/write-version.test.ts`, `tests/docs-check.test.ts`, `tests/build-mock-spec.test.ts`, and `tests/pull-openapi.test.ts` now remove their `mkdtempSync` scratch directories in `afterEach` instead of leaking one per test run.
 - `docs-check.sh` escape hatch now exits 1 (not 0) after the marker is written, matching the backend script and the assembly-line wrapper's exit-code contract; CI diffing tries the merge-base-aware three-dot form before falling back to two-dot; hook-mode stdin reads are bounded to 5 seconds so a stuck or silent pipe cannot hang the hook; `--hook`/`--ci` are the only accepted modes.
 - Claude Code harness docs corrected against review: `add-frontend-feature` and `test-writer` now cite the real MSW import sources (`server` from `tests/msw/server.ts`, `http` from `msw`); the CHANGELOG-trigger file set in `CLAUDE.md` and the `reviewer` agent now matches `docs-check.sh`'s `is_code()` exactly (adds `vite.config.ts`, `index.html`); `reviewer` gained an `unwrap`-discipline check.
 - `promote` workflow's smoke run now uses `SMOKE_AI_TIMEOUT_MS: "180000"`, matching the backend's reviewed workflow and the assembly-line plan; the previous `"90000"` equaled the smoke package's own default and bought nothing for a cold Sonnet 5 breakdown.

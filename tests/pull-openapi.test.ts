@@ -1,19 +1,25 @@
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 const DEST = "src/api/openapi.json";
+const tmpDirs: string[] = [];
 
 function tmpFile(content: string) {
   const dir = mkdtempSync(join(tmpdir(), "kaizen-openapi-"));
+  tmpDirs.push(dir);
   const file = join(dir, "openapi.json");
   writeFileSync(file, content);
   return file;
 }
 
 describe("scripts/pull-openapi.sh --check", () => {
+  afterEach(() => {
+    for (const dir of tmpDirs.splice(0)) rmSync(dir, { recursive: true, force: true });
+  });
+
   it("reports a match without writing", () => {
     const same = tmpFile(readFileSync(DEST, "utf8"));
     const out = execFileSync("bash", [
