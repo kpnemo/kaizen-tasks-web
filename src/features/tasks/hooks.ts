@@ -1,3 +1,4 @@
+import { arrayMove } from "@dnd-kit/sortable";
 import {
   useInfiniteQuery,
   useMutation,
@@ -178,6 +179,42 @@ export function useDismissAll() {
         .data,
     onSuccess: settle,
     onError: toastApiError,
+  });
+}
+
+/** Moves a child to a target index among its siblings. Optimistic, rolled back on error. */
+export function useReorderStep(parentId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, position }: { id: string; position: number }) =>
+      unwrap(await client.PATCH("/tasks/{id}", { params: { path: { id } }, body: { position } }))
+        .data,
+    onMutate: async ({ id, position }) => {
+      await queryClient.cancelQueries({ queryKey: taskKeys.detail(parentId) });
+      const previous = queryClient.getQueryData<TaskDetail>(taskKeys.detail(parentId));
+      if (previous) {
+        const from = previous.children.findIndex((c) => c.id === id);
+        if (from >= 0) {
+          queryClient.setQueryData<TaskDetail>(taskKeys.detail(parentId), {
+            ...previous,
+            children: arrayMove(previous.children, from, position).map((c, i) => ({
+              ...c,
+              position: i,
+            })),
+          });
+        }
+      }
+      return { previous };
+    },
+    onError: (error, _variables, context) => {
+      if (context?.previous) queryClient.setQueryData(taskKeys.detail(parentId), context.previous);
+      toastApiError(error);
+    },
+    // Only reconcile with the server on success: a rollback already restores the
+    // known-correct previous state, so there is nothing to refetch after a failure.
+    onSettled: (_data, error) => {
+      if (!error) void queryClient.invalidateQueries({ queryKey: taskKeys.detail(parentId) });
+    },
   });
 }
 
