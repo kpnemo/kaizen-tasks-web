@@ -26,7 +26,8 @@ Check every item and report each violation with the file, the line, and the fix:
 6. **Selector contract.** The accessible names listed in `README.md`, "Selector contract", are
    unchanged (grep for each literal).
 7. **Docs freshness.** `CHANGELOG.md` has a new `[Unreleased]` bullet for any change under
-   `src/`, `scripts/`, `.railway/`, `Caddyfile`, `package.json`; an ADR exists for any file matching
+   `src/`, `scripts/`, `.railway/`, `Caddyfile`, `package.json`, `vite.config.ts`, or `index.html`
+   (the exact set `scripts/docs-check.sh`'s `is_code()` checks); an ADR exists for any file matching
    `docs/architectural-files.txt`; `README.md` feature list mentions a new feature. Run
    `bash scripts/docs-check.sh --hook` and include its output.
 8. **Projector rules.** New interactive controls: 44px hit area (a `button`, `input`, `select`, or
@@ -34,6 +35,13 @@ Check every item and report each violation with the file, the line, and the fix:
    and no behavior available only on hover.
 9. **Error presentation.** Every mutation either passes `toastApiError` to `onError` or maps
    `fieldErrors()` onto a form; no `console.error`-only failures, no swallowed promises.
+10. **Unwrap discipline.** Every `client.GET|POST|PATCH|PUT|DELETE(...)` call in a hook
+    (`src/features/**/hooks.ts`) or under `src/api/**` should pass its result to `unwrap` before the
+    caller uses it. Grep `client\.(GET|POST|PATCH|PUT|DELETE)\(` in those paths and flag any call
+    whose result is not passed to `unwrap`, unless the call deliberately discards the result (a
+    comment says so, for example `useLogout` clearing the session regardless of the API outcome) or
+    deliberately treats a failed response as data (for example `useFeatureRequestAvailable` reading
+    `result.data` directly, per its own comment).
 
 Output format:
 

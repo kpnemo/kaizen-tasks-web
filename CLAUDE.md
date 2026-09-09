@@ -41,10 +41,10 @@ route and nav, green, docs, `npm run docs:check`.
 ## Docs are part of every change
 
 `CHANGELOG.md` `[Unreleased]` bullet for any change under `src/`, `scripts/`, `.railway/`,
-`Caddyfile`, `package.json`; regenerated `src/api/types.ts` when `openapi.json` changes; an ADR
-(`write-adr` skill) when an architectural file changes. `scripts/docs-check.sh` enforces this as the
-Stop hook (exit 2 blocks; after three blocks it prints `DOCS CHECK FAILED, human intervention
-required` and CI still fails) and in CI.
+`Caddyfile`, `package.json`, `vite.config.ts`, or `index.html`; regenerated `src/api/types.ts` when
+`openapi.json` changes; an ADR (`write-adr` skill) when an architectural file changes.
+`scripts/docs-check.sh` enforces this as the Stop hook (exit 2 blocks; after three blocks it prints
+`DOCS CHECK FAILED, human intervention required` and CI still fails) and in CI.
 
 ## Architectural files (docs/architectural-files.txt)
 

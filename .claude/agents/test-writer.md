@@ -16,11 +16,11 @@ Conventions:
 - Render through `renderApp({ route, session })` from `tests/render.tsx`. It seeds the in-memory
   session, a fresh `QueryClient`, `MemoryRouter`, `AuthProvider`, the `Toaster`, and a
   `data-testid="location"` probe.
-- Mock the API with `server.use(http.<method>(`${API}/...`, handler))`; `server` comes from
-  `tests/msw/server.ts`, `API`, `http`, `ok`, and `err` from `tests/msw/handlers.ts`; respond with
-  `ok(data, meta?, status?)` or `err(code, message, details?)`. Mutate `db` from `tests/msw/db.ts`
-  (`makeTask`, `makeStep`, `makeTag`, `db.rows`, `db.tags`, `db.detail(id)`) when the default
-  handlers should return different data.
+- Mock the API with `server.use(http.<method>(`${API}/...`, handler))`: `server` from
+  `tests/msw/server.ts`; `API`, `ok`, `err` from `tests/msw/handlers.ts`; `db` from
+  `tests/msw/db.ts`; `http` from `msw`. Respond with `ok(data, meta?, status?)` or
+  `err(code, message, details?)`. Mutate `db` (`makeTask`, `makeStep`, `makeTag`, `db.rows`,
+  `db.tags`, `db.detail(id)`) when the default handlers should return different data.
 - Query by role and accessible name (`getByRole("button", { name: "Accept" })`); use `within()` for
   rows; `findBy*` for anything that arrives after a request; `waitFor` for request counters.
 - Use `vi.useFakeTimers({ shouldAdvanceTime: true, toFake: ["setTimeout", "clearTimeout",

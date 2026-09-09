@@ -18,7 +18,8 @@ hook (`scripts/docs-check.sh --hook`) blocks the session until they are done.
 3. **Write the failing component test first.** In `src/features/<domain>/<Feature>.test.tsx`, render
    through `renderApp({ route, session })` from `tests/render.tsx`, override MSW with `server.use(...)`
    (`server` from `tests/msw/server.ts`; `ok`, `err`, and `API` from `tests/msw/handlers.ts`; `db`
-   and its factories from `tests/msw/db.ts`), and assert by role and accessible name. Every
+   and its factories from `tests/msw/db.ts`; `http` from the `msw` package), and assert by role and
+   accessible name. Every
    feature needs a happy-path test and an error-state test (the API error rendered through
    `toastApiError` or a field error). Run it and watch it fail for the right reason.
 4. **Add or extend the feature folder.** `src/features/<domain>/` holds the page, `components/`, and
