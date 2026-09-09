@@ -107,7 +107,9 @@ name only. These names are a cross-repo contract; do not change them without cha
 docs-check, build, a `dist/version.json` assertion, and a contract-drift warning. Railway deploys
 `develop` to staging and `main` to production with wait-for-CI on. `promote` runs on pull requests to
 `main`: it waits until staging serves the PR's head SHA at `/version.json`, then runs the smoke
-package from `kaizen-tasks-assembly-line` against staging. Both are required checks.
+package from `kaizen-tasks-assembly-line` against staging. Both are required checks. The staging URL
+defaults to the domain recorded in the master plan; set the repository variable STAGING_WEB_URL to
+override it.
 
 ## Docs
 
