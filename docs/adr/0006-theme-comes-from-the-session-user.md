@@ -32,11 +32,19 @@ never the media query directly.
 
 - One source of truth: what the API returns on the user is what the page shows, and no reconciliation
   code is needed on sign-in, sign-out, or token refresh.
-- The cost is a first paint in light for a signed-in dark user while `AuthProvider` restores the
-  session. `RestoringScreen` covers that window, so it reads as one neutral screen rather than a
-  flash, but it is real and a `localStorage` cache is the fix if it ever bothers anyone.
-- A signed-out visitor is always `system`: `login` and `register` follow the OS, which is the same
-  answer the default gives.
+- The first paint in light for a signed-in dark user while `AuthProvider` restores the session was
+  real: `RestoringScreen` covered the window before a token existed, but `AuthProvider` renders
+  `AppRoutes` again as soon as `authStore.setToken` flips the status to `authenticated`, which is
+  before `GET /auth/me` returns the account's `user.theme`, so `useThemePreference` had nothing but
+  `DEFAULT_THEME` ("system") to fall back on. A `localStorage` cache (`kaizen.theme`, per device, not
+  the account, so ADR 0003's in-memory rule for the access token does not apply) is now that fix: an
+  inline script in `index.html`'s `<head>`, before the stylesheet, reads it and sets the `dark` class
+  before first paint; `theme.ts`'s `applyTheme` writes the key every time it applies a theme; and
+  `useThemePreference` reads it as the fallback while there is no session user yet, so the page shows
+  this device's last theme instead of always `system` during that window. The session user's
+  preference still wins the moment it loads, and only replaces the cache when it actually differs.
+- A signed-out visitor now shows this device's last applied theme (the cache), not always `system`,
+  unless nothing has ever been applied here — `login` and `register` follow the same cache.
 - Every `dark:` utility already in the shadcn primitives now means "the user chose dark". They were
   previously wired to the OS setting and effectively unreachable, because no dark tokens existed.
 - The API must ship first: the web's typed client cannot call `PATCH /auth/me` until the contract in

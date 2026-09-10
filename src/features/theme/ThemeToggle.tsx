@@ -11,6 +11,7 @@ export function ThemeToggle() {
     <NativeSelect
       aria-label="Theme"
       value={preference}
+      disabled={update.isPending}
       onChange={(event) => update.mutate(event.target.value as ThemePreference)}
     >
       {THEME_OPTIONS.map((option) => (

@@ -4,12 +4,17 @@ import { authStore } from "@/api/auth-store";
 import { client, unwrap } from "@/api/client";
 import type { ThemePreference } from "@/api/models";
 import { toastApiError } from "@/components/api-error-toast";
-import { applyTheme, darkMediaQuery, DEFAULT_THEME } from "./theme";
+import { applyTheme, darkMediaQuery, DEFAULT_THEME, readStoredTheme } from "./theme";
 
-/** The signed-in user's preference, or the default while nobody is signed in. */
+/**
+ * The signed-in user's preference; while there is none yet (restoring, or signed out), the last
+ * theme this device applied, cached in `localStorage` (ADR 0006), so the page never shows a value
+ * that then flips once the session user loads. The session user's preference overrides the cache
+ * the moment it arrives, and only when it actually differs.
+ */
 export function useThemePreference(): ThemePreference {
   const state = useSyncExternalStore(authStore.subscribe, authStore.getState, authStore.getState);
-  return state.user?.theme ?? DEFAULT_THEME;
+  return state.user?.theme ?? readStoredTheme() ?? DEFAULT_THEME;
 }
 
 /** Writes the preference onto the document and, while it is `system`, follows the OS as it changes. */

@@ -6,6 +6,7 @@ import { demoUser } from "../../../tests/msw/fixtures";
 import { API, err, ok } from "../../../tests/msw/handlers";
 import { server } from "../../../tests/msw/server";
 import { renderApp } from "../../../tests/render";
+import { THEME_STORAGE_KEY } from "./theme";
 
 const original = window.matchMedia;
 
@@ -28,6 +29,7 @@ afterEach(() => {
   window.matchMedia = original;
   document.documentElement.classList.remove("dark");
   document.documentElement.style.colorScheme = "";
+  localStorage.clear();
 });
 
 const toggle = () => screen.getByRole("combobox", { name: "Theme" });
@@ -38,6 +40,22 @@ async function signInWith(theme: ThemePreference) {
   const rendered = renderApp({ route: "/tasks", session: "restoring" });
   await screen.findByRole("combobox", { name: "Theme" });
   return rendered;
+}
+
+/** Gates `PATCH /auth/me` so a test can assert state while the save is genuinely mid-flight,
+ *  the way `gatedTurn` in the feature-request tests does for its streamed turn. */
+function gatedSave(theme: ThemePreference) {
+  let release: () => void = () => {};
+  const gate = new Promise<void>((resolve) => {
+    release = () => resolve();
+  });
+  server.use(
+    http.patch(`${API}/auth/me`, async () => {
+      await gate;
+      return ok({ user: { ...demoUser, theme } });
+    }),
+  );
+  return () => release();
 }
 
 describe("theme toggle", () => {
@@ -93,5 +111,25 @@ describe("theme toggle", () => {
     expect(await screen.findByText("Could not save your theme")).toBeInTheDocument();
     await waitFor(() => expect(document.documentElement).not.toHaveClass("dark"));
     expect(toggle()).toHaveValue("light");
+  });
+
+  it("disables the control while a save is in flight, and re-enables it once it settles", async () => {
+    const { user } = await signInWith("light");
+    const release = gatedSave("dark");
+    await user.selectOptions(toggle(), "dark");
+    // Optimistic apply still happens at once; only the save itself is gated.
+    expect(document.documentElement).toHaveClass("dark");
+    expect(toggle()).toBeDisabled();
+    release();
+    await waitFor(() => expect(toggle()).not.toBeDisabled());
+    expect(toggle()).toHaveValue("dark");
+  });
+
+  it("the session user's saved theme overrides a different value cached on this device", async () => {
+    localStorage.setItem(THEME_STORAGE_KEY, "light");
+    await signInWith("dark");
+    expect(document.documentElement).toHaveClass("dark");
+    expect(toggle()).toHaveValue("dark");
+    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("dark");
   });
 });
