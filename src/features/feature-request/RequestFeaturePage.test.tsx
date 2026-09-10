@@ -62,6 +62,8 @@ describe("request a feature", () => {
     const { user } = renderApp({ route: "/tasks" });
     await user.click(await screen.findByRole("link", { name: "Request a feature" }));
     expect(await screen.findByRole("heading", { name: "Request a feature" })).toBeInTheDocument();
+    await user.click(screen.getByRole("link", { name: "Skip the interview, fill the form" }));
+    await screen.findByRole("form", { name: "Request a feature" });
     await fill(user);
     await user.click(screen.getByRole("button", { name: "Send request" }));
     expect(await screen.findByRole("heading", { name: "Request #42 filed" })).toBeInTheDocument();
@@ -88,7 +90,7 @@ describe("request a feature", () => {
         ]),
       ),
     );
-    const { user } = renderApp({ route: "/request-feature" });
+    const { user } = renderApp({ route: "/request-feature?mode=form" });
     await screen.findByRole("form", { name: "Request a feature" });
     await fill(user);
     await user.click(screen.getByRole("button", { name: "Send request" }));
@@ -102,7 +104,7 @@ describe("request a feature", () => {
         err("UPSTREAM_ERROR", "GitHub rejected the issue"),
       ),
     );
-    const { user } = renderApp({ route: "/request-feature" });
+    const { user } = renderApp({ route: "/request-feature?mode=form" });
     await screen.findByRole("form", { name: "Request a feature" });
     await fill(user);
     await user.click(screen.getByRole("button", { name: "Send request" }));

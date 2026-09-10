@@ -14,6 +14,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Conversation hooks: `useConversation`, `useStartConversation`, and `useSendTurn` (streamed reply text, the assistant's state replacing the cached conversation, the failed-turn path that keeps the PM's message, and an abort on unmount so leaving the page cancels the model).
 - `ConversationPanel`: the interview transcript with the streaming reply, a thinking indicator, wrapping option chips, a "Skip this question" chip, the "Your answer" box (Enter sends, Shift+Enter is a newline), and "Start over".
 - `DraftPanel`: the readiness chip (sub-scores in its title), the five request fields as read-only text with placeholders, "Review and file", and the wrapping link to the plain form.
+- `/request-feature` is an interview: two panels side by side from 900px (stacked below, chips and links wrapping rather than overflowing), the assistant's questions on the left and the live draft on the right; "Review and file" opens the existing form prefilled with the note `Refined with the assistant · readiness N of 20` and files it with `conversationId`; `?mode=form` still shows the plain form. A failed start is toasted and offers "Try again"; leaving the page mid-answer cancels the turn.
+
+### Changed
+
+- The five-field request form moved into `components/FeatureRequestForm.tsx` and now takes `initialValues`, `conversationId`, and a note line; `RequestFeaturePage` is the switchboard over the interview, the review, and the plain form. `src/app/router.tsx` is unchanged.
+
+### Fixed
+
+- Test isolation: sonner keeps its toast list in a module singleton whose `subscribe()` replays every still-active toast to each new subscriber, so a toast raised by one test reappeared under the next test's `<Toaster />`. `tests/setup.ts` now dismisses all toasts in `afterEach`, which is what makes an assertion that no toast was shown mean anything.
 
 ## [1.0.0] - 2026-09-09
 
