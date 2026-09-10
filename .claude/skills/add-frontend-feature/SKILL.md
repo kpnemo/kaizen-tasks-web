@@ -35,13 +35,15 @@ hook (`scripts/docs-check.sh --hook`) blocks the session until they are done.
    field errors itself.
 6. **Wire the route and nav.** `src/app/router.tsx` (under `RequireAuth` unless public) and, if it
    needs a link, `src/app/layout.tsx`. Both files are architectural (docs-check Rule C).
-7. **Run the tests to green.** `npm test`, then `npm run lint && npm run typecheck`.
-8. **Update the docs.** Add a bullet to the feature list in `README.md`; add a bullet under
-   `[Unreleased]` in `CHANGELOG.md`; if you touched a file matching `docs/architectural-files.txt`,
-   write an ADR with the `write-adr` skill. Then run `npm run product-map` and commit
-   `docs/product-map.md` with the rest: docs-check Rule D regenerates it on every run and a stale
-   map blocks the gate.
-9. **Run `npm run docs:check`.** It must print `docs-check: OK`.
+7. **Update the docs, before the green run.** Add a bullet to the feature list in `README.md`; add a
+   bullet under `[Unreleased]` in `CHANGELOG.md`; if you touched a file matching
+   `docs/architectural-files.txt`, write an ADR with the `write-adr` skill. Then run
+   `npm run product-map`. The docs come first because `tests/product-map.test.ts` asserts that the
+   committed map matches this checkout: a change to the router, the layout, a feature's page, the
+   contract, the changelog or an ADR cannot go green until the map is regenerated.
+8. **Run the tests to green.** `npm test`, then `npm run lint && npm run typecheck`.
+9. **Run `npm run docs:check`.** It must print `docs-check: OK`. Commit everything together, the
+   regenerated `docs/product-map.md` included.
 10. **Check the projector rules** before you finish: 44px hit areas, visible focus ring, no
     hover-only control, copy in sentence case with plain verbs.
 11. **Screenshot the change if it is visible.** Any change a user can see needs a screenshot of the
@@ -52,16 +54,21 @@ hook (`scripts/docs-check.sh --hook`) blocks the session until they are done.
 
 Only for a change a user can see. Everything else skips this section.
 
-1. Start the local stack: Postgres and Redis running, the API's `npm run dev` (port 3000), and
-   `npm run dev` here (port 5173). Set `WEB_URL` if either runs elsewhere.
+1. Start the local stack: Postgres and Redis running, the API's `npm run dev` (port 3000), then
+   `VITE_PROXY_TARGET=http://localhost:3000 npm run dev` here (port 5173). The proxy target matters:
+   a plain `npm run dev` points `/api` at the Prism mock on 4010, which cannot register a user.
+   `VITE_PROXY_TARGET` chooses which API the dev server proxies to; `WEB_URL` (default
+   `http://localhost:5173`) tells the screenshot runner which dev server to drive, and everything it
+   asks the API goes through that origin's `/api/v1`.
 2. Pick or write a scenario. `scripts/screenshots/<name>.mjs` exports `{ route, ready, act }`:
    `route` is the path to capture, `ready` waits for something that proves the screen is really
    there (a heading, the control you changed), and the optional `act` drives the screen into the
    state worth showing. `tasks` and `theme-open` exist; add one named after the screen you changed
    rather than widening an existing one.
 3. Run `node scripts/screenshot.mjs <name>`. It registers a throwaway user, logs in through the UI,
-   sets the account's theme for each capture, asserts the route and the `dark` class before every
-   shot, and writes `docs/screenshots/<name>-light.png` and `-dark.png` at 1280x800 (1024x640 at the
+   waits for the session to restore, sets the account's theme for each capture, waits for the `dark`
+   class to match and asserts the route and the class again immediately before every shot, and
+   writes `docs/screenshots/<name>-light.png` and `-dark.png` at 1280x800 (1024x640 at the
    projector's 125%). Chrome must be installed: playwright-core drives it with `channel: "chrome"`.
 4. **Open both PNGs with the Read tool and compare them with the spec's "Looks" section** (control
    type, icons, placement, both themes) before you open the pull request. A mismatch is a code
@@ -88,7 +95,8 @@ Pull request body:
 <the failing-then-passing test, and the commands that pass>
 ```
 
-The one exception: if `scripts/screenshot.mjs` exits 2 it prints one line, for example
+The one exception: if `scripts/screenshot.mjs` exits 2 it prints exactly one line on stderr, for
+example
 `Screenshot unavailable: Google Chrome is not installed (...)` or
 `Screenshot unavailable: no dev stack on http://localhost:5173 (...)`. Put that exact line in the
 pull request body where the images would go, and say what you checked instead. Do not retry blindly,
