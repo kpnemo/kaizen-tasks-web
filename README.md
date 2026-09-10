@@ -38,18 +38,19 @@ VITE_PROXY_TARGET=http://localhost:3000 npm run dev
 
 ## Scripts
 
-| Script       | Does                                                                                         |
-| ------------ | -------------------------------------------------------------------------------------------- |
-| `dev`        | Vite dev server with the `/api` proxy (`VITE_PROXY_TARGET`, default `http://localhost:4010`) |
-| `build`      | `vite build`, then writes `dist/version.json`                                                |
-| `preview`    | Serves `dist/` locally                                                                       |
-| `test`       | Vitest, jsdom, Testing Library, MSW                                                          |
-| `lint`       | ESLint and Prettier check                                                                    |
-| `typecheck`  | `tsc --noEmit`                                                                               |
-| `mock`       | Prism mock of the contract on port 4010                                                      |
-| `api:pull`   | Copies the API contract into `src/api/openapi.json` and regenerates types                    |
-| `api:types`  | Regenerates `src/api/types.ts` from the contract                                             |
-| `docs:check` | Docs freshness gate (also the Claude Code Stop hook)                                         |
+| Script        | Does                                                                                         |
+| ------------- | -------------------------------------------------------------------------------------------- |
+| `dev`         | Vite dev server with the `/api` proxy (`VITE_PROXY_TARGET`, default `http://localhost:4010`) |
+| `build`       | `vite build`, then writes `dist/version.json`                                                |
+| `preview`     | Serves `dist/` locally                                                                       |
+| `test`        | Vitest, jsdom, Testing Library, MSW                                                          |
+| `lint`        | ESLint and Prettier check                                                                    |
+| `typecheck`   | `tsc --noEmit`                                                                               |
+| `mock`        | Prism mock of the contract on port 4010                                                      |
+| `api:pull`    | Copies the API contract into `src/api/openapi.json` and regenerates types                    |
+| `api:types`   | Regenerates `src/api/types.ts` from the contract                                             |
+| `product-map` | Regenerates the generated half of `docs/product-map.md`                                      |
+| `docs:check`  | Docs freshness gate (also the Claude Code Stop hook)                                         |
 
 `npm run api:pull -- --local ../backend/openapi.json` copies the contract from the nested backend
 checkout instead of GitHub. `npm run api:pull -- develop --check` only reports drift (CI does this
@@ -124,6 +125,15 @@ override it.
 
 - `docs/ARCHITECTURE.md`: proxy topology, auth flow, contract copy, polling, mock.
 - `docs/adr/`: 0001 same-origin proxy, 0002 contract copied not linked, 0003 access token in memory,
-  0004 version in the footer, 0005 streamed conversation through the typed client.
+  0004 version in the footer, 0005 streamed conversation through the typed client, 0006 theme
+  from the session user, 0007 product map generated and gated.
 - `CHANGELOG.md`: Keep a Changelog; every change adds a bullet under `[Unreleased]`.
 - `CLAUDE.md`: conventions and the harness (skills, agents, hooks).
+- `docs/product-map.md`: what this app is and what it has, for an agent about to interview a
+  product owner. The header is prose reviewed by a person; everything below
+  `<!-- product-map:generated -->` is written by `npm run product-map` from `src/app/router.tsx`,
+  `src/app/layout.tsx`, `src/features/*/`, `src/api/openapi.json`, `CHANGELOG.md` and `docs/adr/`,
+  so the generated part matches this checkout. Docs-check Rule D regenerates it and compares on
+  every run, in both modes, so a stale map cannot merge: run `npm run product-map` and commit the
+  file whenever the gate asks (ADR 0007).
+- `docs/ui-conventions.md`: how a new or changed control should look and behave.

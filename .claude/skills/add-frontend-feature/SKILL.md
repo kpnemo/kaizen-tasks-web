@@ -34,7 +34,9 @@ hook (`scripts/docs-check.sh --hook`) blocks the session until they are done.
 7. **Run the tests to green.** `npm test`, then `npm run lint && npm run typecheck`.
 8. **Update the docs.** Add a bullet to the feature list in `README.md`; add a bullet under
    `[Unreleased]` in `CHANGELOG.md`; if you touched a file matching `docs/architectural-files.txt`,
-   write an ADR with the `write-adr` skill.
+   write an ADR with the `write-adr` skill. Then run `npm run product-map` and commit
+   `docs/product-map.md` with the rest: docs-check Rule D regenerates it on every run and a stale
+   map blocks the gate.
 9. **Run `npm run docs:check`.** It must print `docs-check: OK`.
 10. **Check the projector rules** before you finish: 44px hit areas, visible focus ring, no
     hover-only control, copy in sentence case with plain verbs.
