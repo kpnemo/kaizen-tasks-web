@@ -16,9 +16,12 @@ before any of the three choices could work.
 ## Decision
 
 The preference is read from `authStore`'s session user (`user.theme`, new in the contract this
-change pulls) and from nowhere else; there is no browser copy. `src/features/theme/` owns the whole
-feature: `theme.ts` resolves a preference plus the OS setting into `light` or `dark` and is the only
-code that touches the DOM for it, `hooks.ts` applies it and saves it, `ThemeToggle.tsx` is the
+change pulls); the account is the source of truth. The only browser copy is a per-device first-paint
+cache (`kaizen.theme` in `localStorage`, described under Consequences) that never overrides the
+session user. `src/features/theme/` owns the whole feature: `theme.ts` resolves a preference plus the
+OS setting into `light` or `dark` and is the only application code that touches the DOM for it (the
+inline script in `index.html` sets the same class once, before first paint, from the cache),
+`hooks.ts` applies it and saves it, `ThemeToggle.tsx` is the
 control the header renders. `useApplyTheme()` is mounted once, in `AppRoutes`, so every screen —
 signed in or not — is themed by one effect; while the preference is `system` that effect also
 subscribes to the `(prefers-color-scheme: dark)` media query, so a change to the OS setting is
