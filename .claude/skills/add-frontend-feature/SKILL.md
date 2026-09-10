@@ -1,6 +1,6 @@
 ---
 name: add-frontend-feature
-description: Use when adding or changing anything a user sees in kaizen-tasks-web (a page, a control, a hook, an error state). Walks the feature-folder, test-first, contract-typed, docs-included checklist that every feature change in this repo follows.
+description: Use when adding or changing anything a user sees in kaizen-tasks-web (a page, a control, a hook, an error state). Walks the feature-folder, test-first, contract-typed, docs-included checklist that every feature change in this repo follows, including the UI conventions and the screenshot every visible change needs.
 ---
 
 # Add a frontend feature
@@ -24,7 +24,11 @@ hook (`scripts/docs-check.sh --hook`) blocks the session until they are done.
    `toastApiError` or a field error). Run it and watch it fail for the right reason.
 4. **Add or extend the feature folder.** `src/features/<domain>/` holds the page, `components/`, and
    `hooks.ts`. Shared primitives go in `src/components/` (shadcn under `ui/`), pure helpers in
-   `src/lib/`. A feature never imports another feature; share through `api/`, `components/`, or `lib/`.
+   `src/lib/`. A feature never imports another feature; share through `api/`, `components/`, or `lib/`. Anything a user sees follows `docs/ui-conventions.md`: the primitives in
+   `src/components/ui/` before anything native, a lucide icon on every mode, state or action control,
+   new header controls matching the ones beside them, all four screen states, and both themes. The
+   rules apply to what you add or alter, never to controls you leave alone; a request that names a
+   specific look wins, inside the accessibility rules.
 5. **Add the hook.** Queries and mutations in `hooks.ts` use `client` and `unwrap` from
    `src/api/client.ts`; keys follow `["tasks", filters]`, `["tasks", id]`, `["tags"]`; every mutation
    invalidates the affected keys on success and calls `toastApiError` on error unless the page maps
@@ -40,6 +44,55 @@ hook (`scripts/docs-check.sh --hook`) blocks the session until they are done.
 9. **Run `npm run docs:check`.** It must print `docs-check: OK`.
 10. **Check the projector rules** before you finish: 44px hit areas, visible focus ring, no
     hover-only control, copy in sentence case with plain verbs.
+11. **Screenshot the change if it is visible.** Any change a user can see needs a screenshot of the
+    changed screen in both themes, in the pull request. See "Screenshots" below. Checklist for a
+    visible change: screenshot captured, looked at, committed, and embedded in the pull request.
+
+## Screenshots
+
+Only for a change a user can see. Everything else skips this section.
+
+1. Start the local stack: Postgres and Redis running, the API's `npm run dev` (port 3000), and
+   `npm run dev` here (port 5173). Set `WEB_URL` if either runs elsewhere.
+2. Pick or write a scenario. `scripts/screenshots/<name>.mjs` exports `{ route, ready, act }`:
+   `route` is the path to capture, `ready` waits for something that proves the screen is really
+   there (a heading, the control you changed), and the optional `act` drives the screen into the
+   state worth showing. `tasks` and `theme-open` exist; add one named after the screen you changed
+   rather than widening an existing one.
+3. Run `node scripts/screenshot.mjs <name>`. It registers a throwaway user, logs in through the UI,
+   sets the account's theme for each capture, asserts the route and the `dark` class before every
+   shot, and writes `docs/screenshots/<name>-light.png` and `-dark.png` at 1280x800 (1024x640 at the
+   projector's 125%). Chrome must be installed: playwright-core drives it with `channel: "chrome"`.
+4. **Open both PNGs with the Read tool and compare them with the spec's "Looks" section** (control
+   type, icons, placement, both themes) before you open the pull request. A mismatch is a code
+   change, not a caption change. Never describe a screen you have not looked at.
+5. Commit the PNGs, then embed them with commit-pinned URLs. The SHA is the commit that added them:
+   `git log -1 --format=%H -- docs/screenshots`. If a later commit replaces the images, update the
+   SHA in the pull request body.
+
+Pull request body:
+
+```markdown
+## What changed
+
+<one paragraph, then the acceptance criteria as a checklist>
+
+## Screenshots
+
+| Light                                                                                                               | Dark                                                                                                              |
+| ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| ![<name>, light](https://raw.githubusercontent.com/kpnemo/kaizen-tasks-web/<sha>/docs/screenshots/<name>-light.png) | ![<name>, dark](https://raw.githubusercontent.com/kpnemo/kaizen-tasks-web/<sha>/docs/screenshots/<name>-dark.png) |
+
+## Tests
+
+<the failing-then-passing test, and the commands that pass>
+```
+
+The one exception: if `scripts/screenshot.mjs` exits 2 it prints one line, for example
+`Screenshot unavailable: Google Chrome is not installed (...)` or
+`Screenshot unavailable: no dev stack on http://localhost:5173 (...)`. Put that exact line in the
+pull request body where the images would go, and say what you checked instead. Do not retry blindly,
+and do not open a pull request that claims a look nobody has seen.
 
 ## Templates
 

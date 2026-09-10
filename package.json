@@ -58,6 +58,7 @@
     "jsdom": "30.0.1",
     "msw": "2.15.0",
     "openapi-typescript": "7.13.0",
+    "playwright-core": "1.63.0",
     "prettier": "3.9.6",
     "railway": "3.11.0",
     "tailwindcss": "4.3.3",

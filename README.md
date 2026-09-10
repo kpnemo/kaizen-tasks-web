@@ -137,3 +137,6 @@ override it.
   every run, in both modes, so a stale map cannot merge: run `npm run product-map` and commit the
   file whenever the gate asks (ADR 0007).
 - `docs/ui-conventions.md`: how a new or changed control should look and behave.
+- `docs/screenshots/`: the light and dark captures a visible change carries, written by
+  `node scripts/screenshot.mjs <scenario>` against the local dev stack (scenarios live in
+  `scripts/screenshots/`).
