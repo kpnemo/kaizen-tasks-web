@@ -43,6 +43,9 @@ flowchart LR
    stores the new token, and replays a clone of the original request. A second 401 clears the store;
    `RequireAuth` then redirects to `/login?returnTo=<path>`.
 4. Logout calls the API, clears the store, clears the query cache, and navigates to `/login`.
+5. The session user carries the account's theme preference, so `useApplyTheme()` in `AppRoutes` puts
+   the `dark` class on `<html>` from the same store, with no second request and no browser copy
+   (ADR 0006).
 
 ## Contract copy and typed client
 

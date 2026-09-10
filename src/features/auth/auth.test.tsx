@@ -16,7 +16,9 @@ describe("login", () => {
     expect(await screen.findByRole("heading", { name: "Tasks" })).toBeInTheDocument();
     expect(screen.getByText("Demo")).toBeInTheDocument();
     expect(authStore.getToken()).toBe("access-1");
-    expect(localStorage.length).toBe(0);
+    // ADR 0003 still holds for the access token: nothing lands in `localStorage` but the harmless
+    // per-device theme cache `useApplyTheme` writes on every mount (ADR 0006).
+    expect(Object.keys(localStorage)).toEqual(["kaizen.theme"]);
   });
 
   it("honors a same-origin returnTo", async () => {

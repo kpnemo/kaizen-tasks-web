@@ -83,6 +83,7 @@ browser only ever talks to the web origin, so there is no CORS and the refresh c
 - Tags page: create with a fixed palette, rename and recolor inline, delete with confirmation
 - Request a feature: the issue form's five fields, filed as a GitHub issue through the API; the link appears only when the API's health reports `features.featureRequests: true`
 - Request a feature, refined: an assistant interviews you one question at a time, the five fields fill in live beside the chat with a readiness chip, and "Review and file" opens the form prefilled and files it with the transcript and the self-score; "Skip the interview, fill the form" goes straight to the plain form
+- Theme: a Light / Dark / System control in the header; System follows the operating system's `prefers-color-scheme` and the choice is saved to the account, so it applies on another device
 - Footer prints the web version and commit and, once health resolves, the API's commit (or its version and commit, in amber, when it differs from the web version)
 
 ## Selector contract (smoke test)

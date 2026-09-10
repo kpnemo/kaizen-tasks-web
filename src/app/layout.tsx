@@ -6,6 +6,7 @@ import { WorkshopFooter } from "@/components/workshop-footer";
 import { useLogout } from "@/features/auth/hooks";
 import { useSession } from "@/features/auth/useSession";
 import { FeatureRequestLink } from "@/features/feature-request/FeatureRequestLink";
+import { ThemeToggle } from "@/features/theme/ThemeToggle";
 import { cn } from "@/lib/cn";
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
@@ -36,6 +37,7 @@ export function AppShell() {
             <FeatureRequestLink />
           </nav>
           <div className="ml-auto flex items-center gap-3">
+            <ThemeToggle />
             <span className="text-base text-muted-foreground">{user?.displayName}</span>
             <Button variant="outline" onClick={() => logout.mutate()} disabled={logout.isPending}>
               <LogOut aria-hidden="true" />

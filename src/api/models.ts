@@ -13,6 +13,8 @@ export type ErrorCode = ErrorBody["code"];
 export type Health = JsonBody<paths["/health"]["get"]["responses"][200]>["data"];
 
 export type User = JsonBody<paths["/auth/me"]["get"]["responses"][200]>["data"]["user"];
+export type ThemePreference = User["theme"];
+export type UpdateMeBody = JsonRequest<paths["/auth/me"]["patch"]["requestBody"]>;
 export type AuthSession = JsonBody<paths["/auth/login"]["post"]["responses"][200]>["data"];
 export type LoginBody = JsonRequest<paths["/auth/login"]["post"]["requestBody"]>;
 export type RegisterBody = JsonRequest<paths["/auth/register"]["post"]["requestBody"]>;
