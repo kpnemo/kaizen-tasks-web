@@ -95,11 +95,37 @@ describe("ConversationPanel", () => {
         return err("UPSTREAM_ERROR", "stop here");
       }),
     );
-    db.openConversation();
+    db.openConversation({
+      questionCount: 1,
+      messages: [
+        {
+          id: "m-1",
+          role: "assistant",
+          content: "Who has this problem?",
+          at: "2026-09-01T09:00:00.000Z",
+          options: ["An agent during a call"],
+        },
+      ],
+    });
     const { user } = renderPanel();
     await user.click(await screen.findByRole("button", { name: "Skip this question" }));
     await waitFor(() => expect(bodies).toHaveLength(1));
     expect(bodies[0]).toEqual({ content: "(skipped)", skip: true });
+  });
+
+  it("hides the skip chip while the greeting is the last message, and shows it once a question is pending", async () => {
+    db.openConversation();
+    const { user } = renderPanel();
+    await screen.findByText(GREETING);
+    expect(screen.queryByRole("button", { name: "Skip this question" })).toBeNull();
+
+    await user.type(screen.getByRole("textbox", { name: "Your answer" }), "I want to snooze tasks");
+    await user.click(screen.getByRole("button", { name: "Send" }));
+
+    expect(
+      await screen.findByRole("button", { name: "A team supervisor before a coaching session" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Skip this question" })).toBeInTheDocument();
   });
 
   it("sends on Enter and inserts a newline on Shift+Enter", async () => {
@@ -158,7 +184,18 @@ describe("ConversationPanel", () => {
   });
 
   it("lets a long chip wrap instead of forcing a horizontal scrollbar", async () => {
-    db.openConversation();
+    db.openConversation({
+      questionCount: 1,
+      messages: [
+        {
+          id: "m-1",
+          role: "assistant",
+          content: "Who has this problem?",
+          at: "2026-09-01T09:00:00.000Z",
+          options: ["An agent during a call"],
+        },
+      ],
+    });
     renderPanel();
     const skip = await screen.findByRole("button", { name: "Skip this question" });
     expect(skip).toHaveClass("whitespace-normal");

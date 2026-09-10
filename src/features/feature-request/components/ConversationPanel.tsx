@@ -88,7 +88,7 @@ export function ConversationPanel({ conversation }: { conversation: Conversation
         </p>
       ) : null}
 
-      {!closed && !busy ? (
+      {!closed && !busy && options.length > 0 ? (
         <div className="flex min-w-0 flex-wrap gap-2">
           {options.map((option) => (
             <Button key={option} variant="outline" className={CHIP} onClick={() => send(option)}>

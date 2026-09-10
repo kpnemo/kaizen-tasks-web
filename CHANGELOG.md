@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Fixed
+
+- `ConversationPanel` no longer shows the "Skip this question" chip while the assistant's greeting is the last message, before any question has been asked. The chip now renders only when the last assistant message carries a non-empty `options` array.
+
 ## [1.1.0] - 2026-09-10
 
 ### Added

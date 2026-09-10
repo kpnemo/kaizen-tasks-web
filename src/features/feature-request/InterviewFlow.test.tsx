@@ -168,11 +168,21 @@ describe("the feature-request interview", () => {
   });
 
   it("sends a skip and counts it as an answered question", async () => {
-    db.openConversation();
+    db.openConversation({
+      questionCount: 1,
+      messages: [
+        {
+          id: "m-1",
+          role: "assistant",
+          content: "Who has this problem?",
+          at: "2026-09-01T09:00:00.000Z",
+          options: ["An agent during a call"],
+        },
+      ],
+    });
     const { user } = renderApp({ route: "/request-feature" });
-    await screen.findByText(GREETING);
-    await user.click(screen.getByRole("button", { name: "Skip this question" }));
-    await waitFor(() => expect(db.conversation?.questionCount).toBe(1));
+    await user.click(await screen.findByRole("button", { name: "Skip this question" }));
+    await waitFor(() => expect(db.conversation?.questionCount).toBe(2));
     expect(db.conversation?.messages.some((m) => m.skipped === true)).toBe(true);
     expect(db.conversation?.messages.at(-2)?.content).toBe("(skipped)");
   });
