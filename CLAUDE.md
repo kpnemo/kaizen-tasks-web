@@ -44,7 +44,9 @@ route and nav, green, docs, `npm run docs:check`.
 `Caddyfile`, `package.json`, `vite.config.ts`, or `index.html`; regenerated `src/api/types.ts` when
 `openapi.json` changes; an ADR (`write-adr` skill) when an architectural file changes.
 `scripts/docs-check.sh` enforces this as the Stop hook (exit 2 blocks; after three blocks it prints
-`DOCS CHECK FAILED, human intervention required` and CI still fails) and in CI.
+`DOCS CHECK FAILED, human intervention required` and CI still fails) and in CI. Rule D also
+regenerates `docs/product-map.md` on every run and fails on any difference, so run
+`npm run product-map` and commit the file with the change (ADR 0007).
 
 ## Architectural files (docs/architectural-files.txt)
 
