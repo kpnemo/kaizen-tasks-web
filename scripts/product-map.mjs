@@ -66,22 +66,51 @@ function resolveImport(root, fromFile, specifier) {
   return candidate;
 }
 
-/** local name -> source path, for every import in the file. */
-function importMap(root, sf) {
+/**
+ * local name -> { module, imported } for every import binding in the file, so an alias
+ * (`import { Route as R }`) is understood as what it really is, not as the letters in the JSX.
+ * `imported` is the exported name, `"default"` for a default import, `"*"` for a namespace.
+ */
+function importBindings(root, sf) {
   const map = new Map();
   for (const statement of sf.statements) {
     if (!ts.isImportDeclaration(statement) || !statement.importClause) continue;
-    const from = resolveImport(root, sf.fileName, statement.moduleSpecifier.text);
+    const module = resolveImport(root, sf.fileName, statement.moduleSpecifier.text);
     const clause = statement.importClause;
-    if (clause.name) map.set(clause.name.text, from);
+    if (clause.name) map.set(clause.name.text, { module, imported: "default" });
     const bindings = clause.namedBindings;
     if (bindings && ts.isNamedImports(bindings)) {
-      for (const element of bindings.elements) map.set(element.name.text, from);
+      for (const element of bindings.elements) {
+        map.set(element.name.text, {
+          module,
+          imported: (element.propertyName ?? element.name).text,
+        });
+      }
     } else if (bindings && ts.isNamespaceImport(bindings)) {
-      map.set(bindings.name.text, from);
+      map.set(bindings.name.text, { module, imported: "*" });
     }
   }
   return map;
+}
+
+/** Top-level names the file declares itself: the only components it may be credited with. */
+function localDeclarations(sf) {
+  const names = new Set();
+  for (const statement of sf.statements) {
+    if (ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement)) {
+      if (statement.name) names.add(statement.name.text);
+    } else if (ts.isVariableStatement(statement)) {
+      for (const declaration of statement.declarationList.declarations) {
+        if (ts.isIdentifier(declaration.name)) names.add(declaration.name.text);
+      }
+    }
+  }
+  return names;
+}
+
+function scopeOf(root, rel) {
+  const sf = sourceFileOf(root, rel);
+  return { root, sf, imports: importBindings(root, sf), locals: localDeclarations(sf) };
 }
 
 const openingOf = (node) => (ts.isJsxSelfClosingElement(node) ? node : node.openingElement);
@@ -118,54 +147,102 @@ function stringAttribute(attribute) {
   return null;
 }
 
-/** Where a component rendered in this file comes from: an import, or the file itself. */
-function componentSource(root, sf, imports, name) {
-  const imported = imports.get(name);
-  if (imported) return imported;
-  return exists(root, sf.fileName) ? sf.fileName : null;
+const isComponentTag = (node, sf) => /^[A-Z]/.test(tagOf(node, sf));
+
+/**
+ * What a JSX tag really refers to: the component's own name, the file or package it lives in, and
+ * the name it was exported under, so `<R>` from `import { Route as R }` is a Route and
+ * `<Pages.TagsPage />` belongs to the namespace's module rather than to this file. `null` when the
+ * scanner cannot tell; every caller turns that into an exit 1 rather than a guess.
+ */
+function resolveTag(scope, node) {
+  const tagName = openingOf(node).tagName;
+  if (ts.isIdentifier(tagName)) {
+    const binding = scope.imports.get(tagName.text);
+    if (binding) {
+      if (binding.imported === "*") return null; // a whole namespace used as a component
+      const name = binding.imported === "default" ? tagName.text : binding.imported;
+      return { name, source: binding.module, imported: binding.imported };
+    }
+    if (scope.locals.has(tagName.text)) {
+      return { name: tagName.text, source: scope.sf.fileName, imported: tagName.text };
+    }
+    return null;
+  }
+  if (ts.isPropertyAccessExpression(tagName) && ts.isIdentifier(tagName.expression)) {
+    const binding = scope.imports.get(tagName.expression.text);
+    if (binding?.imported === "*") {
+      return { name: tagName.name.text, source: binding.module, imported: tagName.name.text };
+    }
+  }
+  return null;
+}
+
+/** Resolve or stop: a component the scanner cannot place is never guessed at. */
+function requireTag(scope, node, what) {
+  const resolved = resolveTag(scope, node);
+  if (!resolved) {
+    fail(
+      scope.sf,
+      node,
+      `${what} <${tagOf(node, scope.sf)}> cannot be resolved to a component (import it, or declare it in this file)`,
+    );
+  }
+  return resolved;
 }
 
 // ---------------------------------------------------------------- routes
 
+const ROOT_PATH = "/";
+
+/** A route's own path joined onto its parent's, with the standalone wildcard left alone. */
 function joinPath(parent, path) {
-  if (!parent || path.startsWith("/")) return path;
-  return `${parent.replace(/\/$/, "")}/${path}`;
+  if (path.startsWith("/")) return path;
+  const base = parent === ROOT_PATH ? "" : parent.replace(/\/$/, "");
+  if (path === "*") return base ? `${base}/*` : "*";
+  return `${base}/${path}`;
 }
 
 function collectRoutes(root) {
-  const sf = sourceFileOf(root, ROUTER_FILE);
-  const imports = importMap(root, sf);
+  const scope = scopeOf(root, ROUTER_FILE);
+  const sf = scope.sf;
   const routes = [];
 
   const visit = (node, parentPath) => {
     let childPath = parentPath;
-    if (isJsx(node) && tagOf(node, sf) === "Route") {
-      const attributes = attributesOf(node, sf);
-      const pathAttribute = attributes.get("path");
-      let path = null;
-      if (pathAttribute) {
-        path = stringAttribute(pathAttribute);
-        if (path === null) {
-          fail(sf, pathAttribute, "<Route> has a path the product map cannot read as a literal");
+    if (isJsx(node) && isComponentTag(node, sf)) {
+      // Every component in the router must resolve: an unplaceable one could be a <Route> the map
+      // would otherwise drop without a word.
+      const resolved = requireTag(scope, node, "the router's");
+      if (resolved.imported === "Route") {
+        const attributes = attributesOf(node, sf);
+        const pathAttribute = attributes.get("path");
+        let path = null;
+        if (pathAttribute) {
+          path = stringAttribute(pathAttribute);
+          if (path === null) {
+            fail(sf, pathAttribute, "<Route> has a path the product map cannot read as a literal");
+          }
+          childPath = joinPath(parentPath, path);
         }
-        childPath = joinPath(parentPath, path);
-      }
-      const isIndex = attributes.has("index");
-      if (path !== null || isIndex) {
-        routes.push(
-          readRoute(root, sf, imports, node, attributes, isIndex ? parentPath : childPath, isIndex),
-        );
+        const isIndex = attributes.has("index");
+        if (path !== null || isIndex) {
+          routes.push(
+            readRoute(scope, node, attributes, isIndex ? parentPath : childPath, isIndex),
+          );
+        }
       }
     }
     node.forEachChild((child) => visit(child, childPath));
   };
-  visit(sf, "");
+  visit(sf, ROOT_PATH);
 
   if (routes.length === 0) throw new MapError(`${ROUTER_FILE}: no <Route> elements found`);
   return routes;
 }
 
-function readRoute(root, sf, imports, node, attributes, path, isIndex) {
+function readRoute(scope, node, attributes, path, isIndex) {
+  const sf = scope.sf;
   const elementAttribute = attributes.get("element");
   const initializer = elementAttribute?.initializer;
   if (
@@ -180,25 +257,27 @@ function readRoute(root, sf, imports, node, attributes, path, isIndex) {
   if (!isJsx(element)) {
     fail(sf, node, "<Route> element is not a JSX element the product map can read");
   }
-  const tag = tagOf(element, sf);
-  if (!/^[A-Z]/.test(tag)) {
-    fail(sf, node, `<Route> element <${tag}> is not a component the product map can read`);
+  if (!isComponentTag(element, sf)) {
+    fail(
+      sf,
+      node,
+      `<Route> element <${tagOf(element, sf)}> is not a component the product map can read`,
+    );
   }
-  if (tag === "Navigate") {
+  const resolved = requireTag(scope, element, "the route element");
+  if (resolved.imported === "Navigate") {
     const to = stringAttribute(attributesOf(element, sf).get("to"));
     if (to === null) fail(sf, element, "<Navigate> has no literal `to` the product map can read");
     return { path, kind: "redirect", to, index: isIndex };
   }
-  const source = componentSource(root, sf, imports, tag);
-  if (!source) fail(sf, element, `<${tag}> is neither imported nor declared in this file`);
-  return { path, kind: "page", component: tag, source, index: isIndex };
+  return { path, kind: "page", component: resolved.name, source: resolved.source, index: isIndex };
 }
 
 // ---------------------------------------------------------------- app shell
 
 function collectShell(root) {
-  const sf = sourceFileOf(root, LAYOUT_FILE);
-  const imports = importMap(root, sf);
+  const scope = scopeOf(root, LAYOUT_FILE);
+  const sf = scope.sf;
   const controls = [];
 
   const visit = (node, region) => {
@@ -207,11 +286,11 @@ function collectShell(root) {
       const tag = tagOf(node, sf);
       if (tag === "header") childRegion = "header";
       else if (tag === "footer") childRegion = "footer";
-      else if (/^[A-Z]/.test(tag)) {
+      else if (isComponentTag(node, sf)) {
         const to = stringAttribute(attributesOf(node, sf).get("to"));
-        const source = componentSource(root, sf, imports, tag);
-        if (!source) fail(sf, node, `<${tag}> is neither imported nor declared in this file`);
-        controls.push({ name: to === null ? tag : `${tag} to="${to}"`, region, source });
+        const resolved = requireTag(scope, node, "the shell's");
+        const name = to === null ? resolved.name : `${resolved.name} to="${to}"`;
+        controls.push({ name, region, source: resolved.source });
       }
     }
     node.forEachChild((child) => visit(child, childRegion));

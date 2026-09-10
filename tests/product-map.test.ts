@@ -52,6 +52,11 @@ function row(text: string, firstCell: string): string[] | undefined {
     .find((cells) => cells[0] === firstCell);
 }
 
+/** 1-based line of the first line containing `needle`, so exit-1 assertions do not hard-code it. */
+function lineOf(source: string, needle: string): number {
+  return source.split("\n").findIndex((line) => line.includes(needle)) + 1;
+}
+
 const FIXTURE_ROUTER = `import { Navigate, Route, Routes } from "react-router";
 import { ThingPage } from "@/features/thing/ThingPage";
 import { NestedPage } from "./NestedPage";
@@ -67,6 +72,25 @@ export function AppRoutes() {
       <Route path="/" element={<Navigate to="/things" replace />} />
       <Route path="*" element={<NestedPage />} />
     </Routes>
+  );
+}
+`;
+
+// Aliased Route and Navigate, a namespace-imported page, a default import, a root index route and
+// a relative nested path: the shapes a scanner that matches tag text would get wrong.
+const FIXTURE_ROUTER_ALIASED = `import { Navigate as GoTo, Route as R, Routes as Switch } from "react-router";
+import * as ThingModule from "@/features/thing/ThingPage";
+import Nested from "./NestedPage";
+
+export function AppRoutes() {
+  return (
+    <Switch>
+      <R index element={<Nested />} />
+      <R path="things" element={<ThingModule.ThingPage />}>
+        <R path=":id" element={<Nested />} />
+      </R>
+      <R path="/gone" element={<GoTo to="/things" replace />} />
+    </Switch>
   );
 }
 `;
@@ -201,7 +225,7 @@ describe("scripts/product-map.mjs (fixtures)", () => {
     const bad = FIXTURE_ROUTER.replace('path="/things"', "path={THINGS}");
     const result = generate(makeRoot(fixtureFiles({ "src/app/router.tsx": bad })));
     expect(result.status).toBe(1);
-    expect(result.stderr).toMatch(/src\/app\/router\.tsx:10/);
+    expect(result.stderr).toContain(`src/app/router.tsx:${lineOf(bad, "path={THINGS}")}`);
     expect(result.stderr).toMatch(/path/);
   });
 
@@ -209,7 +233,41 @@ describe("scripts/product-map.mjs (fixtures)", () => {
     const bad = FIXTURE_ROUTER.replace("element={<ThingPage />}", "element={renderThing()}");
     const result = generate(makeRoot(fixtureFiles({ "src/app/router.tsx": bad })));
     expect(result.status).toBe(1);
-    expect(result.stderr).toMatch(/src\/app\/router\.tsx:10/);
+    expect(result.stderr).toContain(`src/app/router.tsx:${lineOf(bad, "renderThing()")}`);
+  });
+
+  it("exits 1 for a route element that is neither imported nor declared here", () => {
+    const bad = FIXTURE_ROUTER.replace("element={<ThingPage />}", "element={<Mystery />}");
+    const result = generate(makeRoot(fixtureFiles({ "src/app/router.tsx": bad })));
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain(`src/app/router.tsx:${lineOf(bad, "<Mystery />")}`);
+    expect(result.stderr).toMatch(/cannot be resolved/);
+  });
+
+  it("reads aliased and namespaced JSX names, not the letters in the tag", () => {
+    const { text, status } = generate(
+      makeRoot(fixtureFiles({ "src/app/router.tsx": FIXTURE_ROUTER_ALIASED })),
+    );
+    expect(status).toBe(0);
+    // `Route as R` is still a route, `Navigate as GoTo` is still a redirect, and a namespaced page
+    // belongs to its own module, not to router.tsx.
+    expect(row(text, "`/things`")).toEqual([
+      "`/things`",
+      "`ThingPage`",
+      "`src/features/thing/ThingPage.tsx`",
+    ]);
+    expect(row(text, "`/gone`")?.[1]).toBe("redirect to `/things`");
+    expect(row(text, "`/ (index)`")?.[2]).toBe("`src/app/NestedPage.tsx`");
+    expect(text).not.toContain("`GoTo`");
+  });
+
+  it("joins a relative nested path onto its parent and roots an index route at /", () => {
+    const { text } = generate(
+      makeRoot(fixtureFiles({ "src/app/router.tsx": FIXTURE_ROUTER_ALIASED })),
+    );
+    expect(row(text, "`/ (index)`")?.[1]).toBe("`Nested`");
+    expect(row(text, "`/things/:id`")?.[1]).toBe("`Nested`");
+    expect(row(text, "`things`")).toBeUndefined();
   });
 
   it("inventories the shell's header controls with their source paths", () => {
