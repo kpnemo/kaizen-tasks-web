@@ -201,7 +201,7 @@ describe("scripts/product-map.mjs (fixtures)", () => {
     const bad = FIXTURE_ROUTER.replace('path="/things"', "path={THINGS}");
     const result = generate(makeRoot(fixtureFiles({ "src/app/router.tsx": bad })));
     expect(result.status).toBe(1);
-    expect(result.stderr).toMatch(/src\/app\/router\.tsx:9/);
+    expect(result.stderr).toMatch(/src\/app\/router\.tsx:10/);
     expect(result.stderr).toMatch(/path/);
   });
 
@@ -209,7 +209,7 @@ describe("scripts/product-map.mjs (fixtures)", () => {
     const bad = FIXTURE_ROUTER.replace("element={<ThingPage />}", "element={renderThing()}");
     const result = generate(makeRoot(fixtureFiles({ "src/app/router.tsx": bad })));
     expect(result.status).toBe(1);
-    expect(result.stderr).toMatch(/src\/app\/router\.tsx:9/);
+    expect(result.stderr).toMatch(/src\/app\/router\.tsx:10/);
   });
 
   it("inventories the shell's header controls with their source paths", () => {

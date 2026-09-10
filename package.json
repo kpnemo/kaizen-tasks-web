@@ -17,6 +17,7 @@
     "mock": "node scripts/build-mock-spec.mjs && prism mock .mock/openapi.json -p 4010",
     "api:pull": "bash scripts/pull-openapi.sh",
     "api:types": "openapi-typescript src/api/openapi.json -o src/api/types.ts",
+    "product-map": "node scripts/product-map.mjs",
     "docs:check": "bash scripts/docs-check.sh --hook"
   },
   "dependencies": {
