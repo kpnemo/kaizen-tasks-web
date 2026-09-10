@@ -27,6 +27,7 @@ const OUT_DIR = process.env.SCREENSHOT_DIR ?? join(ROOT, "docs", "screenshots");
 const VIEWPORT = { width: 1024, height: 640 };
 const SCALE = 1.25; // 1024x640 at 125% is the 1280x800 the room sees on the projector
 const DEADLINE_MS = 60_000;
+const SETTLE_MS = 300;
 const THEMES = ["light", "dark"];
 
 class Bounded extends Error {}
@@ -130,6 +131,10 @@ async function capture(page, scenario, name, theme, token) {
   }
 
   if (scenario.act) await scenario.act(page);
+  // Let the web fonts land and the primitives' transitions finish, so the two themes are compared
+  // in their settled state rather than mid-fade.
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(SETTLE_MS);
   const file = join(OUT_DIR, `${name}-${theme}.png`);
   await page.screenshot({ path: file });
   process.stdout.write(`${file.replace(`${ROOT}`, "")}\n`);
