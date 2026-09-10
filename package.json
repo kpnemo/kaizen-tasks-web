@@ -17,6 +17,7 @@
     "mock": "node scripts/build-mock-spec.mjs && prism mock .mock/openapi.json -p 4010",
     "api:pull": "bash scripts/pull-openapi.sh",
     "api:types": "openapi-typescript src/api/openapi.json -o src/api/types.ts",
+    "product-map": "node scripts/product-map.mjs",
     "docs:check": "bash scripts/docs-check.sh --hook"
   },
   "dependencies": {
@@ -57,6 +58,7 @@
     "jsdom": "30.0.1",
     "msw": "2.15.0",
     "openapi-typescript": "7.13.0",
+    "playwright-core": "1.63.0",
     "prettier": "3.9.6",
     "railway": "3.11.0",
     "tailwindcss": "4.3.3",
