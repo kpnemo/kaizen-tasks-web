@@ -37,3 +37,22 @@ export type FeatureRequestBody = JsonRequest<paths["/feature-requests"]["post"][
 export type FeatureRequestResult = JsonBody<
   paths["/feature-requests"]["post"]["responses"][201]
 >["data"];
+
+/** The body of a response whose content is the SSE stream. openapi-typescript keys stream content
+ *  by its media type exactly as it keys JSON, so the turn route's events are reachable from `paths`
+ *  like every other model (spec 3.3). */
+export type StreamBody<R> = R extends { content: { "text/event-stream": infer B } } ? B : never;
+
+export type Conversation = JsonBody<
+  paths["/feature-requests/conversation"]["get"]["responses"][200]
+>["data"];
+export type ConversationMessage = Conversation["messages"][number];
+export type FeatureRequestDraft = Conversation["draft"];
+export type RubricScore = NonNullable<Conversation["score"]>;
+export type ConversationTurnBody = JsonRequest<
+  paths["/feature-requests/conversation/{id}/messages"]["post"]["requestBody"]
+>;
+/** The discriminated union the turn route streams: `{ event, data }`, one per `event:`/`data:` frame. */
+export type ConversationEvent = StreamBody<
+  paths["/feature-requests/conversation/{id}/messages"]["post"]["responses"][200]
+>;

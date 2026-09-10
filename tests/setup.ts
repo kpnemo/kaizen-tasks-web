@@ -1,5 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
+import { toast } from "sonner";
 import { afterAll, afterEach, beforeEach } from "vitest";
 import { authStore } from "@/api/auth-store";
 import { db } from "./msw/db";
@@ -21,6 +22,10 @@ beforeEach(() => {
 afterEach(() => {
   server.resetHandlers();
   cleanup();
+  // sonner's ToastState is a module singleton, and subscribe() replays every still-active toast to
+  // each new subscriber. Without this, a toast raised by one test reappears under the next test's
+  // <Toaster />, so any "no toast was shown" assertion would read another test's toast.
+  toast.dismiss();
 });
 afterAll(() => server.close());
 

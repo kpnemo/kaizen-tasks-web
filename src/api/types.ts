@@ -1198,7 +1198,7 @@ export interface paths {
         put?: never;
         /**
          * File a feature request as a GitHub issue
-         * @description Mounted only when GITHUB_TOKEN and GITHUB_REPO are configured. The issue is labeled `feature-request` and carries the submitter's display name.
+         * @description Mounted only when GITHUB_TOKEN and GITHUB_REPO are configured. The issue is labeled `feature-request` and carries the submitter's display name. With `conversationId`, the issue body also carries the interview's self-score and transcript, and the conversation becomes `filed`.
          */
         post: {
             parameters: {
@@ -1243,8 +1243,220 @@ export interface paths {
                         "application/json": components["schemas"]["ErrorEnvelope"];
                     };
                 };
+                /** @description NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description CONFLICT */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
                 /** @description UPSTREAM_ERROR */
                 502: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/feature-requests/conversation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get the caller's open interview conversation
+         * @description Returns the caller's conversation whose status is `open` or `ready`. `NOT_FOUND` when there is none, which is how the web knows to start one.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The caller's conversation */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["Conversation"];
+                            meta: components["schemas"]["Meta"];
+                        };
+                    };
+                };
+                /** @description UNAUTHORIZED */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Start a new interview conversation
+         * @description Abandons any `open` or `ready` conversation the caller has, then creates one whose first assistant message is the fixed greeting. No body, no model call.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The new conversation */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["Conversation"];
+                            meta: components["schemas"]["Meta"];
+                        };
+                    };
+                };
+                /** @description UNAUTHORIZED */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/feature-requests/conversation/{id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send one answer and stream the assistant's reply
+         * @description `skip: true` records `(skipped)` as the user message and tells the model the PM skipped; the submitted `content` is ignored, and the turn still counts. Ownership, status and rate-limit failures happen before the stream starts and are ordinary JSON error envelopes. Once the stream has started a failed turn is an `error` event and nothing is persisted, so a resend is a clean retry.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ConversationTurnBody"];
+                };
+            };
+            responses: {
+                /** @description The turn as Server-Sent Events: `delta` chunks in order, then one `state` or one `error`, then `done`. A `: ping` comment line is written every 15 seconds while waiting on the model. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/event-stream": components["schemas"]["ConversationEvent"];
+                    };
+                };
+                /** @description VALIDATION_ERROR */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description UNAUTHORIZED */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description CONFLICT */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description RATE_LIMITED */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description UNAVAILABLE */
+                503: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1478,6 +1690,104 @@ export interface components {
             proposedBehavior: string;
             acceptanceCriteria: string;
             outOfScope?: string;
+            /** Format: uuid */
+            conversationId?: string;
+        };
+        Conversation: {
+            /** Format: uuid */
+            id: string;
+            status: components["schemas"]["ConversationStatus"];
+            messages: components["schemas"]["ConversationMessage"][];
+            draft: components["schemas"]["FeatureRequestDraft"];
+            score: components["schemas"]["RubricScore"];
+            questionCount: number;
+            stillMissing: string[];
+            issueNumber: number | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        /** @enum {string} */
+        ConversationStatus: "open" | "ready" | "filed" | "abandoned";
+        ConversationMessage: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            role: "assistant" | "user";
+            content: string;
+            /** Format: date-time */
+            at: string;
+            options?: string[];
+            skipped?: boolean;
+        };
+        FeatureRequestDraft: {
+            title: string;
+            problem: string;
+            proposedBehavior: string;
+            acceptanceCriteria: string;
+            outOfScope: string;
+        };
+        RubricScore: {
+            clarity: number;
+            complexity: number;
+            risk: number;
+            archChange: boolean;
+            readiness: number;
+            reasons: {
+                clarity: string;
+                complexity: string;
+                risk: string;
+            };
+        } | null;
+        ConversationEvent: components["schemas"]["ConversationDeltaEvent"] | components["schemas"]["ConversationStateEvent"] | components["schemas"]["ConversationErrorEvent"] | components["schemas"]["ConversationDoneEvent"];
+        ConversationDeltaEvent: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            event: "delta";
+            data: components["schemas"]["ConversationDelta"];
+        };
+        ConversationDelta: {
+            text: string;
+        };
+        ConversationStateEvent: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            event: "state";
+            data: components["schemas"]["ConversationState"];
+        };
+        ConversationState: {
+            conversation: components["schemas"]["Conversation"];
+        };
+        ConversationErrorEvent: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            event: "error";
+            data: components["schemas"]["ConversationError"];
+        };
+        ConversationError: {
+            /** @enum {string} */
+            code: "VALIDATION_ERROR" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "RATE_LIMITED" | "UPSTREAM_ERROR" | "UNAVAILABLE" | "INTERNAL";
+            message: string;
+        };
+        ConversationDoneEvent: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            event: "done";
+            data: components["schemas"]["ConversationDone"];
+        };
+        ConversationDone: Record<string, never>;
+        ConversationTurnBody: {
+            content: string;
+            skip?: boolean;
         };
         SeedResetResponse: {
             /** Format: uuid */
