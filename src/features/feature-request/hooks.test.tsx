@@ -6,12 +6,18 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { authStore } from "@/api/auth-store";
 import { ApiError } from "@/api/errors";
 import type { Conversation } from "@/api/models";
+import { toastApiError } from "@/components/api-error-toast";
 import { db } from "../../../tests/msw/db";
 import { demoUser } from "../../../tests/msw/fixtures";
 import { API, err } from "../../../tests/msw/handlers";
 import { server } from "../../../tests/msw/server";
 import { makeQueryClient } from "../../../tests/render";
 import { conversationKey, useConversation, useSendTurn, useStartConversation } from "./hooks";
+
+// `renderHook` mounts only `QueryClientProvider`, no `<Toaster />`, so a sonner DOM query can never
+// see a toast either way; a spy on the one function every toast goes through is the real assertion
+// (`vitest.config.ts`'s `restoreMocks: true` clears its call history before every test).
+vi.mock("@/components/api-error-toast", () => ({ toastApiError: vi.fn() }));
 
 function wrap(client: QueryClient) {
   return function Wrapper({ children }: { children: ReactNode }) {
@@ -233,6 +239,6 @@ describe("conversation hooks", () => {
     });
 
     expect(client.getQueryData<Conversation>(conversationKey)).toEqual(conversation);
-    expect(document.querySelectorAll("[data-sonner-toast]")).toHaveLength(0);
+    expect(toastApiError).not.toHaveBeenCalled();
   });
 });

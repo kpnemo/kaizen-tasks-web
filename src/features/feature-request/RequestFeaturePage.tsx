@@ -37,12 +37,25 @@ export function RequestFeaturePage() {
       requested.current = false;
       return;
     }
-    if (conversation.isPending || conversation.isError || start.isPending || requested.current) {
+    if (
+      conversation.isPending ||
+      conversation.isFetching ||
+      conversation.isError ||
+      start.isPending ||
+      requested.current
+    ) {
       return;
     }
     requested.current = true;
     start.mutate();
-  }, [interview, conversation.data, conversation.isPending, conversation.isError, start]);
+  }, [
+    interview,
+    conversation.data,
+    conversation.isPending,
+    conversation.isFetching,
+    conversation.isError,
+    start,
+  ]);
 
   /** Clears the one-shot guard and re-reads; a `null` read then re-arms the auto-start. */
   function retryStart() {
@@ -139,11 +152,25 @@ export function RequestFeaturePage() {
   const refined = reviewing ? conversation.data : null;
   const score = refined?.score ?? null;
   return (
-    <FeatureRequestForm
-      initialValues={refined?.draft}
-      conversationId={refined?.id}
-      note={score ? `Refined with the assistant · readiness ${score.readiness} of 20` : undefined}
-      onFiled={setFiled}
-    />
+    <div className="space-y-4">
+      {reviewing && (
+        // A 409 on filing (the conversation was already filed or abandoned) leaves a body that can
+        // never succeed; this is the way back that does not lose the conversation (review finding 3).
+        <Button
+          type="button"
+          variant="outline"
+          className="min-h-11 h-auto"
+          onClick={() => setReviewing(false)}
+        >
+          Back to the interview
+        </Button>
+      )}
+      <FeatureRequestForm
+        initialValues={refined?.draft}
+        conversationId={refined?.id}
+        note={score ? `Refined with the assistant · readiness ${score.readiness} of 20` : undefined}
+        onFiled={setFiled}
+      />
+    </div>
   );
 }

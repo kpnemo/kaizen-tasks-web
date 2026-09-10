@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Fixed
 
 - Test isolation: sonner keeps its toast list in a module singleton whose `subscribe()` replays every still-active toast to each new subscriber, so a toast raised by one test reappeared under the next test's `<Toaster />`. `tests/setup.ts` now dismisses all toasts in `afterEach`, which is what makes an assertion that no toast was shown mean anything.
+- "Try again" waits for the retried conversation read before starting a new interview, so a slow read cannot blank the one just created; review mode has a way back to the interview.
 
 ## [1.0.0] - 2026-09-09
 

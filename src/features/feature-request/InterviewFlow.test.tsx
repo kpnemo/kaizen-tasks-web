@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import type { Conversation, FeatureRequestBody } from "@/api/models";
 import { db } from "../../../tests/msw/db";
 import { GREETING } from "../../../tests/msw/fixtures";
-import { API, err } from "../../../tests/msw/handlers";
+import { API, err, ok } from "../../../tests/msw/handlers";
 import { server } from "../../../tests/msw/server";
 import { renderApp } from "../../../tests/render";
 
@@ -92,6 +92,51 @@ describe("the feature-request interview", () => {
     expect(db.conversation?.status).toBe("open");
   });
 
+  it("waits for the retried read before auto-starting, so a slow GET cannot create a second conversation (regression, review finding 1)", async () => {
+    server.use(
+      http.post(
+        `${API}/feature-requests/conversation`,
+        () => err("UPSTREAM_ERROR", "Could not start the interview"),
+        { once: true },
+      ),
+    );
+    const { user } = renderApp({ route: "/request-feature" });
+    expect(await screen.findByText("Could not start the interview")).toBeInTheDocument();
+
+    // Count only the POSTs made from here on: the legitimate retry, and any premature duplicate
+    // the bug would cause.
+    let posts = 0;
+    server.use(
+      http.post(`${API}/feature-requests/conversation`, () => {
+        posts += 1;
+        return ok(db.startConversation(), {}, 201);
+      }),
+    );
+
+    // The retried GET answers only after release(), the way the file's other gated handlers delay
+    // an in-flight response (see "abandons the turn..." below).
+    let release: () => void = () => {};
+    const gate = new Promise<void>((resolve) => {
+      release = () => resolve();
+    });
+    server.use(
+      http.get(`${API}/feature-requests/conversation`, async () => {
+        await gate;
+        return err("NOT_FOUND", "No open conversation");
+      }),
+    );
+
+    await user.click(await screen.findByRole("button", { name: "Try again" }));
+
+    // While the retried GET is still in flight, the guard must not let a new POST through.
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(posts).toBe(0);
+
+    release();
+    expect(await screen.findByText(GREETING)).toBeInTheDocument();
+    expect(posts).toBe(1);
+  });
+
   it("toasts a failed read of the open conversation and recovers from Try again", async () => {
     server.use(
       http.get(
@@ -153,6 +198,23 @@ describe("the feature-request interview", () => {
     expect(bodies).toHaveLength(1);
     expect(bodies[0].conversationId).toBe(conversation.id);
     expect(bodies[0].title).toBe("Snooze a task until a date");
+  });
+
+  it("goes back to the interview from review mode without losing the conversation (review finding 3)", async () => {
+    const conversation = db.openConversation(READY);
+    const { user } = renderApp({ route: "/request-feature" });
+    await screen.findByText(GREETING);
+    await user.click(screen.getByRole("button", { name: "Review and file" }));
+    expect(await screen.findByRole("form", { name: "Request a feature" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Back to the interview" }));
+
+    expect(await screen.findByRole("heading", { name: "Kaizen assistant" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Your request" })).toBeInTheDocument();
+    expect(screen.getByText(GREETING)).toBeInTheDocument();
+    expect(screen.getByText("Readiness 15 of 20")).toBeInTheDocument();
+    expect(db.conversation?.id).toBe(conversation.id);
+    expect(db.conversation?.status).toBe("ready");
   });
 
   it("interviews to readiness, files, and starts fresh afterwards", async () => {
