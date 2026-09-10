@@ -398,6 +398,11 @@ describe("scripts/product-map.mjs (this checkout)", () => {
     expect(lines).toContain("src/api/openapi.json");
     expect(lines).toContain("CHANGELOG.md");
     expect(lines.some((line) => line.startsWith("docs/adr/"))).toBe(true);
+    // Everything a feature contributes to the map, not only its pages: a component or a hooks file
+    // changes the generated part too, and Rule D's message names the source that changed.
+    expect(lines).toContain("src/features/tasks/TaskListPage.tsx");
+    expect(lines).toContain("src/features/tasks/components/AiChip.tsx");
+    expect(lines).toContain("src/features/tasks/hooks.ts");
     for (const line of lines) expect(existsSync(line)).toBe(true);
     expect(run().stdout).toBe(first.stdout);
   });

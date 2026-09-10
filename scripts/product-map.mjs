@@ -514,8 +514,18 @@ function renderSections(root) {
 function collectSources(root) {
   const sources = [ROUTER_FILE, LAYOUT_FILE, SPEC_FILE, CHANGELOG_FILE];
   for (const adr of collectAdrs(root)) sources.push(`${ADR_DIR}/${adr.file}`);
+  // Everything a feature contributes to the map: the pages and components it lists, and the hooks
+  // file whose presence it reports. A file listed here is a file the map's output depends on.
   for (const feature of collectFeatures(root)) {
-    for (const page of feature.pages) sources.push(`${feature.dir}/${page}.tsx`);
+    for (const component of [...feature.pages, ...feature.components]) {
+      for (const candidate of [
+        `${feature.dir}/${component}.tsx`,
+        `${feature.dir}/components/${component}.tsx`,
+      ]) {
+        if (exists(root, candidate)) sources.push(candidate);
+      }
+    }
+    if (feature.hooks) sources.push(`${feature.dir}/hooks.ts`);
   }
   return sources.filter((rel) => exists(root, rel)).sort();
 }

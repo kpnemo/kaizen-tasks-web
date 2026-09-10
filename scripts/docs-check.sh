@@ -69,6 +69,15 @@ fi
 
 root_commit() { git rev-list --max-parents=0 HEAD | tail -n 1; }
 
+# An explicit template, because BSD mktemp (macOS, where the hook runs) treats a bare `mktemp` as a
+# usage error on older systems. Empty output is a failure, whatever the exit status says.
+new_temp_file() {
+  local file
+  file="$(mktemp "${TMPDIR:-/tmp}/kaizen-docs-check-$1.XXXXXX")" || return 1
+  [ -n "$file" ] || return 1
+  printf '%s' "$file"
+}
+
 # Computed once into $BASE so changed_files() and changelog_adds_release_heading() diff against
 # the same commit.
 compute_base() {
@@ -174,7 +183,10 @@ check_product_map() {
     RULE_D="Rule D: $PRODUCT_MAP is missing. Fix: run npm run product-map and commit $PRODUCT_MAP"
     return
   fi
-  tmp="$(mktemp)"
+  tmp="$(new_temp_file product-map)" || {
+    RULE_D="Rule D: could not create a temp file to regenerate $PRODUCT_MAP into. Fix: check TMPDIR"
+    return
+  }
   if ! out="$(node "$PRODUCT_MAP_GENERATOR" --out "$tmp" 2>&1)"; then
     RULE_D="Rule D: the product map generator failed ($(printf '%s' "$out" | tail -n 1)). Fix: fix that, run npm run product-map and commit $PRODUCT_MAP"
   elif ! cmp -s "$tmp" "$PRODUCT_MAP"; then
@@ -248,7 +260,7 @@ if [ "$OPENAPI_CHANGED" = 1 ]; then
   if [ ! -x "$GEN" ]; then
     FAILED+=("Rule B: src/api/openapi.json changed but the type generator is not installed. Fix: npm ci, then npm run api:types and commit src/api/types.ts")
   else
-    TMP_TYPES="$(mktemp)"
+    TMP_TYPES="$(new_temp_file types)"
     if "$GEN" src/api/openapi.json -o "$TMP_TYPES" >/dev/null 2>&1 && cmp -s "$TMP_TYPES" src/api/types.ts; then
       :
     else
