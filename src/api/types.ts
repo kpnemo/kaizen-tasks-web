@@ -348,7 +348,55 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * Update the current user's preferences
+         * @description Saves the theme preference on the account, so it follows the user to another device or browser.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["UpdateMeBody"];
+                };
+            };
+            responses: {
+                /** @description The updated user */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["MeResponse"];
+                            meta: components["schemas"]["Meta"];
+                        };
+                    };
+                };
+                /** @description VALIDATION_ERROR */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description UNAUTHORIZED */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/tags": {
@@ -1581,9 +1629,12 @@ export interface components {
             /** Format: email */
             email: string;
             displayName: string;
+            theme: components["schemas"]["ThemePreference"];
             /** Format: date-time */
             createdAt: string;
         };
+        /** @enum {string} */
+        ThemePreference: "light" | "dark" | "system";
         RegisterBody: {
             /** Format: email */
             email: string;
@@ -1600,6 +1651,9 @@ export interface components {
         };
         MeResponse: {
             user: components["schemas"]["User"];
+        };
+        UpdateMeBody: {
+            theme: components["schemas"]["ThemePreference"];
         };
         Tag: {
             /** Format: uuid */

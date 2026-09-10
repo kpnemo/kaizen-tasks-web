@@ -4,6 +4,10 @@
 @import "@fontsource/atkinson-hyperlegible/400.css";
 @import "@fontsource/atkinson-hyperlegible/700.css";
 
+/* The account's theme choice drives a `dark` class on <html> (features/theme), so `dark:` means
+   "the user asked for dark", not "the OS is dark". `system` resolves to the OS setting first. */
+@custom-variant dark (&:is(.dark *));
+
 /* Kaizen identity: one accent (indigo, the Japanese dye "ai"), one display face (Fraunces),
    one body face (Atkinson Hyperlegible), tuned for a projected laptop screen. */
 :root {
@@ -26,6 +30,31 @@
   --input: oklch(0.86 0.01 95);
   --ring: oklch(0.45 0.19 272);
   --radius: 0.75rem;
+  color-scheme: light;
+}
+
+/* The same identity after dark: the indigo lifts so it still reads as the accent on a dark ground,
+   and the neutrals keep their warm tilt. Only the tokens change; nothing below this knows. */
+.dark {
+  --background: oklch(0.19 0.02 270);
+  --foreground: oklch(0.96 0.005 95);
+  --card: oklch(0.24 0.02 270);
+  --card-foreground: oklch(0.96 0.005 95);
+  --popover: oklch(0.24 0.02 270);
+  --popover-foreground: oklch(0.96 0.005 95);
+  --primary: oklch(0.72 0.15 272);
+  --primary-foreground: oklch(0.17 0.03 272);
+  --secondary: oklch(0.3 0.02 270);
+  --secondary-foreground: oklch(0.96 0.005 95);
+  --muted: oklch(0.3 0.02 270);
+  --muted-foreground: oklch(0.76 0.02 90);
+  --accent: oklch(0.36 0.08 272);
+  --accent-foreground: oklch(0.93 0.04 272);
+  --destructive: oklch(0.68 0.19 27);
+  --border: oklch(0.35 0.02 270);
+  --input: oklch(0.35 0.02 270);
+  --ring: oklch(0.72 0.15 272);
+  color-scheme: dark;
 }
 
 @theme inline {

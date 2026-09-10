@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- A Light / Dark / System control in the header. The choice applies to the page at once, `System` follows the operating system's `prefers-color-scheme` and keeps following it while it is selected, and the preference is saved to the account through `PATCH /auth/me`, so signing in on another device brings it along. A dark token set was added to `src/styles/globals.css` and the `dark:` variant now reads the `dark` class on `<html>` rather than the media query. See ADR 0006.
+
 ## [1.1.1] - 2026-09-10
 
 ### Fixed
