@@ -1,5 +1,13 @@
-import type { Tag, TaskDetail, TaskSummary } from "@/api/models";
-import { ISO } from "./fixtures";
+import type {
+  Conversation,
+  ConversationMessage,
+  FeatureRequestDraft,
+  RubricScore,
+  Tag,
+  TaskDetail,
+  TaskSummary,
+} from "@/api/models";
+import { ISO, makeConversation, makeMessage } from "./fixtures";
 
 /** A stored task row: everything on TaskDetail except the derived children, progress, and suggestionCount. */
 export type Row = Omit<TaskDetail, "children" | "progress" | "suggestionCount">;
@@ -63,6 +71,70 @@ function byPosition(a: Row, b: Row) {
   );
 }
 
+export const C_OPEN = "c-1";
+
+/** The scripted interview the API's fake adapter serves (spec 3.4), so the web tests exercise the
+ *  same four turns staging serves with AI_MODEL_PROVIDER=fake. */
+const TURNS: { reply: string; options: string[]; draft: Partial<FeatureRequestDraft> }[] = [
+  {
+    reply: "Got it. Who has this problem, and when does it come up?",
+    options: [
+      "A team supervisor before a coaching session",
+      "An agent during a call",
+      "A workforce planner on Monday",
+    ],
+    draft: { title: "Snooze a task until a date" },
+  },
+  {
+    reply: "Thanks. What would you see on screen that you cannot see today?",
+    options: [
+      "A snooze control on each task",
+      "A filter that hides snoozed tasks",
+      "A date picker in the row",
+    ],
+    draft: { problem: "Tasks I cannot act on yet clutter the list." },
+  },
+  {
+    reply: "Good. Name one thing you could check to say this works.",
+    options: [
+      "A snoozed task leaves the list",
+      "It reappears on the chosen date",
+      "The header count drops",
+    ],
+    draft: { proposedBehavior: "A snooze button hides the task until a date." },
+  },
+];
+
+const READY_REPLY = "That is enough to file. The request reads as ready.";
+
+const READY_DRAFT: FeatureRequestDraft = {
+  title: "Snooze a task until a date",
+  problem: "Tasks I cannot act on yet clutter the list.",
+  proposedBehavior: "A snooze button hides the task until a date.",
+  acceptanceCriteria:
+    "- A snoozed task leaves the list\n- It reappears on the chosen date\n- The header count drops",
+  outOfScope: "Recurring snoozes.",
+};
+
+const READY_SCORE: RubricScore = {
+  clarity: 4,
+  complexity: 2,
+  risk: 2,
+  archChange: false,
+  readiness: 16,
+  reasons: {
+    clarity: "The user, the moment, and three checkable criteria are named.",
+    complexity: "One list view and one new field.",
+    risk: "No data migration and no new integration.",
+  },
+};
+
+/** Two chunks per reply, so a test can watch the text grow. */
+function splitReply(reply: string): string[] {
+  const cut = reply.indexOf(" ") + 1;
+  return [reply.slice(0, cut), reply.slice(cut)];
+}
+
 function seed(): { rows: Row[]; tags: Tag[] } {
   const work = makeTag({ id: TAG_WORK, name: "work", color: "#3B3FBF" });
   const home = makeTag({ id: TAG_HOME, name: "home", color: "#2F7D4F" });
@@ -124,11 +196,13 @@ function seed(): { rows: Row[]; tags: Tag[] } {
 export const db = {
   rows: [] as Row[],
   tags: [] as Tag[],
+  conversation: null as Conversation | null,
 
   reset() {
     const s = seed();
     this.rows = s.rows;
     this.tags = s.tags;
+    this.conversation = null;
     counter = 100;
   },
   find(id: string): Row | undefined {
@@ -169,5 +243,63 @@ export const db = {
   remove(id: string) {
     const doomed = new Set([id, ...this.children(id).map((c) => c.id)]);
     this.rows = this.rows.filter((r) => !doomed.has(r.id));
+  },
+  /** Seeds the caller's open conversation, as GET returns it after the API created one. */
+  openConversation(overrides: Partial<Conversation> = {}): Conversation {
+    const conversation = makeConversation({ id: C_OPEN, ...overrides });
+    this.conversation = conversation;
+    return conversation;
+  },
+  /** POST /feature-requests/conversation: abandons an open or ready one, then creates a new one. */
+  startConversation(): Conversation {
+    const conversation = makeConversation({ id: nextId("c") });
+    this.conversation = conversation;
+    return conversation;
+  },
+  /** One turn of the scripted interview; returns the deltas to stream and the persisted state. */
+  advanceTurn(content: string, skip: boolean): { deltas: string[]; conversation: Conversation } {
+    const current = this.conversation;
+    if (!current) throw new Error("advanceTurn: no conversation");
+    const asked: ConversationMessage[] = [
+      ...current.messages,
+      makeMessage({
+        id: nextId("m"),
+        role: "user",
+        content: skip ? "(skipped)" : content,
+        skipped: skip,
+      }),
+    ];
+    const step = TURNS[current.questionCount];
+    const now = new Date().toISOString();
+    const conversation: Conversation = step
+      ? {
+          ...current,
+          messages: [
+            ...asked,
+            makeMessage({
+              id: nextId("m"),
+              role: "assistant",
+              content: step.reply,
+              options: step.options,
+            }),
+          ],
+          draft: { ...current.draft, ...step.draft },
+          questionCount: current.questionCount + 1,
+          updatedAt: now,
+        }
+      : {
+          ...current,
+          status: "ready",
+          messages: [
+            ...asked,
+            makeMessage({ id: nextId("m"), role: "assistant", content: READY_REPLY }),
+          ],
+          draft: READY_DRAFT,
+          score: READY_SCORE,
+          stillMissing: [],
+          updatedAt: now,
+        };
+    this.conversation = conversation;
+    return { deltas: splitReply(step ? step.reply : READY_REPLY), conversation };
   },
 };
