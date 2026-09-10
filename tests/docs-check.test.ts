@@ -6,6 +6,7 @@ import {
   mkdtempSync,
   rmSync,
   symlinkSync,
+  unlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -18,6 +19,23 @@ const GIT_ENV = {
   GIT_COMMITTER_NAME: "t",
   GIT_COMMITTER_EMAIL: "t@example.com",
 };
+
+// Rule D always regenerates the product map and compares it with the committed one. The scratch
+// repos stand in a stub generator for scripts/product-map.mjs (the real one has its own tests in
+// tests/product-map.test.ts and would need this repo's sources): it echoes MAP-SOURCE.md, which
+// lets a test make the map stale, make the generator fail, or leave it fresh.
+const MAP_STUB = `import { readFileSync, writeFileSync } from "node:fs";
+if (process.argv.includes("--sources")) {
+  process.stdout.write("src/api/openapi.json\\nCHANGELOG.md\\n");
+  process.exit(0);
+}
+const body = readFileSync("MAP-SOURCE.md", "utf8");
+if (body.startsWith("BOOM")) {
+  process.stderr.write("product-map: src/app/router.tsx:12: a route it cannot read\\n");
+  process.exit(1);
+}
+writeFileSync(process.argv[process.argv.indexOf("--out") + 1], body);
+`;
 
 // Rule B's scratch repo below symlinks this repo's real node_modules into the scratch tree so
 // the openapi-typescript binary resolves there. rmSync(dir, { recursive, force }) removes a
@@ -45,6 +63,9 @@ function makeRepo(options: { withGenerator?: boolean } = {}) {
   write("CHANGELOG.md", "# Changelog\n\n## [Unreleased]\n\n## [0.1.0] - 2026-09-01\n\n- first\n");
   write("docs/architectural-files.txt", "src/api/**\nCaddyfile\n");
   write("docs/adr/0001-first.md", "# ADR 0001\n");
+  write("scripts/product-map.mjs", MAP_STUB);
+  write("MAP-SOURCE.md", "# Product map\n\ngenerated part\n");
+  write("docs/product-map.md", "# Product map\n\ngenerated part\n");
   if (options.withGenerator) {
     // Symlink this repo's node_modules (never copied) so the real openapi-typescript binary
     // resolves inside the scratch repo, and copy package.json so `npm run api:types` works there.
@@ -60,7 +81,15 @@ function makeRepo(options: { withGenerator?: boolean } = {}) {
     run("git", ["commit", "-q", "-m", message]);
     return run("git", ["rev-parse", "HEAD"]).stdout.trim();
   };
-  return { dir, run, write, check, commit, exists: (f: string) => existsSync(join(dir, f)) };
+  return {
+    dir,
+    run,
+    write,
+    check,
+    commit,
+    remove: (file: string) => unlinkSync(join(dir, file)),
+    exists: (f: string) => existsSync(join(dir, f)),
+  };
 }
 
 describe("scripts/docs-check.sh", () => {
@@ -171,6 +200,44 @@ describe("scripts/docs-check.sh", () => {
     expect(repo.check("--hook").status).toBe(0);
     expect(repo.exists(".claude/DOCS-CHECK-FAILED")).toBe(false);
     expect(repo.exists(".claude/.docs-check-blocks")).toBe(false);
+  });
+
+  it("Rule D: blocks a stale product map and names the map source that changed", () => {
+    const repo = makeRepo();
+    repo.write("MAP-SOURCE.md", "# Product map\n\nregenerated part\n");
+    repo.write("CHANGELOG.md", "# Changelog\n\n## [Unreleased]\n\n- Added\n");
+    const blocked = repo.check("--hook");
+    expect(blocked.status).toBe(2);
+    expect(blocked.stdout).toContain("Rule D: CHANGELOG.md changed but docs/product-map.md");
+    expect(blocked.stdout).toContain("npm run product-map");
+    repo.write("docs/product-map.md", "# Product map\n\nregenerated part\n");
+    expect(repo.check("--hook").status).toBe(0);
+  });
+
+  it("Rule D: runs before the early return, so a stale map fails with no code change at all", () => {
+    const repo = makeRepo();
+    repo.write("MAP-SOURCE.md", "# Product map\n\ndrifted\n");
+    repo.commit("stale map, no code change");
+    const ci = repo.check("--ci", {
+      BASE_SHA: repo.run("git", ["rev-parse", "HEAD"]).stdout.trim(),
+    });
+    expect(ci.status).toBe(1);
+    expect(ci.stdout).toContain("Rule D");
+  });
+
+  it("Rule D: a missing map or a failing generator fails the check", () => {
+    const missing = makeRepo();
+    missing.remove("docs/product-map.md");
+    const blocked = missing.check("--hook");
+    expect(blocked.status).toBe(2);
+    expect(blocked.stdout).toContain("Rule D: docs/product-map.md is missing");
+
+    const broken = makeRepo();
+    broken.write("MAP-SOURCE.md", "BOOM\n");
+    const failed = broken.check("--ci", { BASE_SHA: "" });
+    expect(failed.status).toBe(1);
+    expect(failed.stdout).toContain("Rule D: the product map generator failed");
+    expect(failed.stdout).toContain("src/app/router.tsx:12");
   });
 
   it("CI mode falls back to HEAD~1 when BASE_SHA is missing or all zeros", () => {

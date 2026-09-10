@@ -7,6 +7,10 @@
 #      dated version heading also counts)
 #   B  a change to src/api/openapi.json needs src/api/types.ts regenerated with no diff
 #   C  a change to a file matching docs/architectural-files.txt needs an ADR in the change
+#   D  docs/product-map.md must equal what scripts/product-map.mjs generates from this checkout.
+#      Rule D runs on every invocation in both modes, before and independent of the "no code or
+#      architectural changes" early return: the regenerate-and-compare is cheap, so there is no
+#      trigger list to keep in step with the generator's sources.
 # Escape hatch (hook mode only): after MAX_BLOCKS consecutive blocked stops the hook stops blocking
 # so a stuck agent cannot loop forever, but it never reports success: it exits 1, prints a FAILED
 # banner, and writes .claude/DOCS-CHECK-FAILED; CI (same script, --ci) still fails the pull request.
@@ -142,9 +146,49 @@ changelog_adds_release_heading() {
   printf '%s' "$diff" | grep -qE '^\+## \[[0-9]+\.[0-9]+\.[0-9]+\] - [0-9]{4}-[0-9]{2}-[0-9]{2}'
 }
 
+PRODUCT_MAP="docs/product-map.md"
+PRODUCT_MAP_GENERATOR="scripts/product-map.mjs"
+
+# The map sources this change touched, for the Rule D message only: the check itself always runs.
+changed_map_sources() {
+  local sources changed="" source file
+  sources="$(node "$PRODUCT_MAP_GENERATOR" --sources 2>/dev/null)" || return 0
+  while IFS= read -r source; do
+    [ -z "$source" ] && continue
+    while IFS= read -r file; do
+      [ "$file" = "$source" ] && changed="${changed:+$changed, }$file"
+    done <<< "$CHANGED"
+  done <<< "$sources"
+  printf '%s' "$changed"
+}
+
+# Regenerate into a temp file (the hand-written header is kept, the generated part replaced) and
+# compare. A missing map, a generator failure, and a mismatch all fail.
+check_product_map() {
+  local tmp out sources
+  if [ ! -f "$PRODUCT_MAP_GENERATOR" ]; then
+    RULE_D="Rule D: $PRODUCT_MAP_GENERATOR is missing, so $PRODUCT_MAP cannot be checked. Fix: restore $PRODUCT_MAP_GENERATOR"
+    return
+  fi
+  if [ ! -f "$PRODUCT_MAP" ]; then
+    RULE_D="Rule D: $PRODUCT_MAP is missing. Fix: run npm run product-map and commit $PRODUCT_MAP"
+    return
+  fi
+  tmp="$(mktemp)"
+  if ! out="$(node "$PRODUCT_MAP_GENERATOR" --out "$tmp" 2>&1)"; then
+    RULE_D="Rule D: the product map generator failed ($(printf '%s' "$out" | tail -n 1)). Fix: fix that, run npm run product-map and commit $PRODUCT_MAP"
+  elif ! cmp -s "$tmp" "$PRODUCT_MAP"; then
+    sources="$(changed_map_sources)"
+    RULE_D="Rule D: ${sources:-a map source} changed but $PRODUCT_MAP is not regenerated. Fix: run npm run product-map and commit $PRODUCT_MAP"
+  fi
+  rm -f "$tmp"
+}
+
 compute_base
 CHANGED="$(changed_files)"
-if [ -z "$CHANGED" ]; then
+RULE_D=""
+check_product_map
+if [ -z "$CHANGED" ] && [ -z "$RULE_D" ]; then
   reset_counter
   exit 0
 fi
@@ -182,12 +226,16 @@ while IFS= read -r file; do
   done
 done <<< "$CHANGED"
 
-if [ "$CODE_CHANGED" = 0 ] && [ -z "$ARCH_CHANGED" ]; then
+if [ "$CODE_CHANGED" = 0 ] && [ -z "$ARCH_CHANGED" ] && [ -z "$RULE_D" ]; then
   reset_counter
   exit 0
 fi
 
 FAILED=()
+
+if [ -n "$RULE_D" ]; then
+  FAILED+=("$RULE_D")
+fi
 
 if [ "$CODE_CHANGED" = 1 ]; then
   if [ "$CHANGELOG_CHANGED" = 0 ] || { ! unreleased_has_bullet && ! changelog_adds_release_heading; }; then

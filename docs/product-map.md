@@ -93,6 +93,7 @@ Reviewed: 2026-09-10 against docs/PRD.md sections 3, 5.1-5.5, 6.3.
 ### Unreleased
 
 - **Added** — `docs/product-map.md`: what the app is and what it has, for an agent about to interview a product owner. A hand-written header, then a generated inventory of screens, shell controls, feature folders, contract endpoints, recent releases and ADRs. `npm run product-map` (`scripts/product-map.mjs`) rebuilds everything below the marker; `--sources` lists the files it reads.
+- **Added** — Docs-check Rule D: `docs/product-map.md` is regenerated and compared on every run, in both `--hook` and `--ci` mode, before the early return and with no trigger list. A missing map, a generator failure, or a difference fails the check (ADR 0007).
 
 ### 1.2.0 — 2026-09-10
 
@@ -115,3 +116,4 @@ Reviewed: 2026-09-10 against docs/PRD.md sections 3, 5.1-5.5, 6.3.
 - [ADR 0004: The footer prints the web and API versions from a build-time define and the health query](adr/0004-version-in-the-footer.md)
 - [ADR 0005: The interview stream is read through the typed client and parsed by our own SSE reader](adr/0005-streamed-conversation-through-the-typed-client.md)
 - [ADR 0006: The theme comes from the session user, and the `dark` class is the only switch](adr/0006-theme-comes-from-the-session-user.md)
+- [ADR 0007: The product map is generated from this checkout and compared on every docs check](adr/0007-product-map-generated-and-gated.md)
