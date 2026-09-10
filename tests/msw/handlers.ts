@@ -1,5 +1,8 @@
 import { http, HttpResponse } from "msw";
 import type {
+  Conversation,
+  ConversationEvent,
+  ConversationTurnBody,
   CreateTagBody,
   CreateTaskBody,
   ErrorCode,
@@ -242,6 +245,63 @@ export const tagHandlers = [
   }),
 ];
 
+/** A `text/event-stream` body built from the contract's events (spec 3.3): a `: ping` comment
+ *  first, then one `event:`/`data:` frame per entry, each enqueued as its own chunk so a test can
+ *  observe the reply growing. */
+export function sse(events: ConversationEvent[]) {
+  const encoder = new TextEncoder();
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(encoder.encode(": ping\n\n"));
+      for (const event of events) {
+        controller.enqueue(
+          encoder.encode(`event: ${event.event}\ndata: ${JSON.stringify(event.data)}\n\n`),
+        );
+      }
+      controller.close();
+    },
+  });
+  return new HttpResponse(body, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/event-stream; charset=utf-8",
+      "Cache-Control": "no-cache",
+      "x-request-id": REQUEST_ID,
+    },
+  });
+}
+
+export const conversationHandlers = [
+  http.get(`${API}/feature-requests/conversation`, () => {
+    const conversation = db.conversation;
+    if (!conversation || (conversation.status !== "open" && conversation.status !== "ready")) {
+      return err("NOT_FOUND", "No open conversation");
+    }
+    return ok(conversation);
+  }),
+  http.post(`${API}/feature-requests/conversation`, () => ok(db.startConversation(), {}, 201)),
+  http.post<IdParams>(
+    `${API}/feature-requests/conversation/:id/messages`,
+    async ({ params, request }) => {
+      const conversation = db.conversation;
+      if (!conversation || conversation.id !== params.id) {
+        return err("NOT_FOUND", "Conversation not found");
+      }
+      if (conversation.status !== "open") {
+        return err("CONFLICT", "This conversation is already closed");
+      }
+      const body = (await request.json()) as ConversationTurnBody;
+      const turn = db.advanceTurn(body.content, body.skip === true);
+      const events: ConversationEvent[] = [
+        ...turn.deltas.map((text) => ({ event: "delta" as const, data: { text } })),
+        { event: "state", data: { conversation: turn.conversation } },
+        { event: "done", data: {} },
+      ];
+      return sse(events);
+    },
+  ),
+];
+
 export const featureRequestHandlers = [
   http.post(`${API}/feature-requests`, async ({ request }) => {
     const body = (await request.json()) as FeatureRequestBody;
@@ -249,6 +309,18 @@ export const featureRequestHandlers = [
       return err("VALIDATION_ERROR", "Invalid request", [
         { path: "body.title", message: "Title is required" },
       ]);
+    }
+    if (body.conversationId) {
+      const conversation: Conversation | null = db.conversation;
+      if (!conversation || conversation.id !== body.conversationId) {
+        // Not the caller's, or no such conversation (spec 3.2).
+        return err("NOT_FOUND", "Conversation not found");
+      }
+      if (conversation.status !== "open" && conversation.status !== "ready") {
+        // Already filed or abandoned: nothing left to attach (spec 3.2).
+        return err("CONFLICT", "This conversation was already filed");
+      }
+      db.conversation = { ...conversation, status: "filed", issueNumber: 42 };
     }
     return ok(
       {
@@ -280,5 +352,6 @@ export const handlers = [
   ...taskHandlers,
   ...tagHandlers,
   ...featureRequestHandlers,
+  ...conversationHandlers,
   ...healthHandlers,
 ];

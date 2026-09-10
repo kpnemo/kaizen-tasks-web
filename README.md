@@ -82,6 +82,7 @@ browser only ever talks to the web origin, so there is no CORS and the refresh c
 - Tags on a task: add from your tags, remove, and adopt the assistant's tag suggestions (creates the tag when needed)
 - Tags page: create with a fixed palette, rename and recolor inline, delete with confirmation
 - Request a feature: the issue form's five fields, filed as a GitHub issue through the API; the link appears only when the API's health reports `features.featureRequests: true`
+- Request a feature, refined: an assistant interviews you one question at a time, the five fields fill in live beside the chat with a readiness chip, and "Review and file" opens the form prefilled and files it with the transcript and the self-score; "Skip the interview, fill the form" goes straight to the plain form
 - Footer prints the web version and commit and, once health resolves, the API's commit (or its version and commit, in amber, when it differs from the web version)
 
 ## Selector contract (smoke test)
@@ -102,6 +103,9 @@ name only. These names are a cross-repo contract; do not change them without cha
 | Detail    | heading          | the task title (URL `/tasks/<uuid>`)                                                                                                                                                                                                                               |
 | Detail    | accept           | button named exactly "Accept" on each suggested step                                                                                                                                                                                                               |
 | Detail    | progress         | text `done/total`, for example `0/1`                                                                                                                                                                                                                               |
+| Interview | chat             | heading "Kaizen assistant"; list "Conversation"; textbox "Your answer"; button "Send" (URL `/request-feature`)                                                                                                                                                     |
+| Interview | chips            | button "Skip this question", button "Start over", and one button per option named by its own visible text                                                                                                                                                          |
+| Interview | draft            | region "Your request"; button "Review and file"; link "Skip the interview, fill the form" (href `/request-feature?mode=form`)                                                                                                                                      |
 | Anywhere  | log out          | button "Log out"                                                                                                                                                                                                                                                   |
 | Any       | footer           | role `contentinfo` containing "v<version>" and "api <7-char commit>" from `GET /api/v1/health`                                                                                                                                                                     |
 
@@ -119,6 +123,6 @@ override it.
 
 - `docs/ARCHITECTURE.md`: proxy topology, auth flow, contract copy, polling, mock.
 - `docs/adr/`: 0001 same-origin proxy, 0002 contract copied not linked, 0003 access token in memory,
-  0004 version in the footer.
+  0004 version in the footer, 0005 streamed conversation through the typed client.
 - `CHANGELOG.md`: Keep a Changelog; every change adds a bullet under `[Unreleased]`.
 - `CLAUDE.md`: conventions and the harness (skills, agents, hooks).

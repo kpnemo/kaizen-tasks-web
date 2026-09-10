@@ -56,6 +56,11 @@ error envelope into `ApiError`, and `toastApiError()` is the one error presentat
 Docs-check Rule B keeps `types.ts` in step with `openapi.json`; CI warns (never fails) when the copy
 is behind `develop` on the API repo.
 
+One route is not JSON: `POST /feature-requests/conversation/{id}/messages` answers with
+`text/event-stream`. It goes through the same client with `parseAs: "stream"`, and
+`src/api/conversation-stream.ts` decodes the frames into the contract's own `ConversationEvent`
+union (ADR 0005).
+
 ## Server state and polling
 
 TanStack Query owns server state; hooks live in `src/features/<domain>/hooks.ts` (tags in
