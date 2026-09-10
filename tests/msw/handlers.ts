@@ -8,6 +8,7 @@ import type {
   ErrorCode,
   FeatureRequestBody,
   ReplaceTagsBody,
+  UpdateMeBody,
   UpdateTagBody,
   UpdateTaskBody,
 } from "@/api/models";
@@ -80,6 +81,13 @@ export const authHandlers = [
       return err("UNAUTHORIZED", "Missing token");
     }
     return ok({ user: demoUser });
+  }),
+  http.patch(`${API}/auth/me`, async ({ request }) => {
+    if (!request.headers.get("authorization")?.startsWith("Bearer ")) {
+      return err("UNAUTHORIZED", "Missing token");
+    }
+    const body = (await request.json()) as UpdateMeBody;
+    return ok({ user: { ...demoUser, theme: body.theme } });
   }),
 ];
 

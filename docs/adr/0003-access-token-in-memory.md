@@ -20,4 +20,5 @@ through `POST /auth/refresh`; on a 401 the client middleware refreshes once and 
 - A reload costs one refresh round trip, hidden behind a neutral "restoring" screen.
 - Multiple tabs each hold their own token; the refresh cookie rotates on each refresh, which the
   API tolerates because every tab's refresh succeeds against the current cookie.
-- The `reviewer` agent and a unit test assert that web storage stays empty.
+- The `reviewer` agent and a unit test assert that web storage holds nothing but the per-device theme
+  cache (`kaizen.theme`, ADR 0006); the access token never lands there.

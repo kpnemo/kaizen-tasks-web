@@ -5,12 +5,16 @@ import { RequestFeaturePage } from "@/features/feature-request/RequestFeaturePag
 import { TagsPage } from "@/features/tags/TagsPage";
 import { TaskDetailPage } from "@/features/tasks/TaskDetailPage";
 import { TaskListPage } from "@/features/tasks/TaskListPage";
+import { useApplyTheme } from "@/features/theme/hooks";
 import { AppShell } from "./layout";
 import { NotFoundPage } from "./routes/NotFoundPage";
 import { PublicOnly } from "./routes/PublicOnly";
 import { RequireAuth } from "./routes/RequireAuth";
 
 export function AppRoutes() {
+  // Mounted above the routes so the account's theme is on the document on every screen, signed in
+  // or not, and never flashes the wrong one between routes.
+  useApplyTheme();
   return (
     <Routes>
       <Route element={<PublicOnly />}>
