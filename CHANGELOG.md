@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `src/api/conversation-stream.ts`: a `text/event-stream` reader that turns the interview's `delta`, `state`, `error`, and `done` frames into typed callbacks, tolerant of comment lines and chunk splits.
 - Test doubles for the interview: MSW handlers for the three conversation routes, a `sse()` helper that turns contract events into a `text/event-stream` body, and a scripted four-turn conversation in the fake database that mirrors the API's fake adapter; `POST /feature-requests` now enforces the contract's conversation states (404 for an id that is not the caller's, 409 for one already filed or abandoned).
 - Conversation hooks: `useConversation`, `useStartConversation`, and `useSendTurn` (streamed reply text, the assistant's state replacing the cached conversation, the failed-turn path that keeps the PM's message, and an abort on unmount so leaving the page cancels the model).
+- `ConversationPanel`: the interview transcript with the streaming reply, a thinking indicator, wrapping option chips, a "Skip this question" chip, the "Your answer" box (Enter sends, Shift+Enter is a newline), and "Start over".
 
 ## [1.0.0] - 2026-09-09
 
