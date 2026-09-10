@@ -114,4 +114,24 @@ describe("readConversationStream", () => {
     await readConversationStream(streamOf("event: done\ndata: {}"), handlers);
     expect(handlers.onDone).toHaveBeenCalledTimes(1);
   });
+
+  it("resolves when the body closes without ever sending a done frame", async () => {
+    const handlers = spies();
+    // Completion is the end of the body, not the `done` event (spec 3.2), so a stream the server
+    // cut short must still settle. Raced against a timer so a hang fails instead of stalling.
+    const settled = await Promise.race([
+      readConversationStream(
+        streamOf(
+          'event: delta\ndata: {"text":"Got it. "}\n\n',
+          `event: state\ndata: ${JSON.stringify({ conversation: CONVERSATION })}\n\n`,
+        ),
+        handlers,
+      ).then(() => "resolved" as const),
+      new Promise<"hung">((resolve) => setTimeout(() => resolve("hung"), 200)),
+    ]);
+    expect(settled).toBe("resolved");
+    expect(handlers.onDelta.mock.calls).toEqual([["Got it. "]]);
+    expect(handlers.onState).toHaveBeenCalledExactlyOnceWith(CONVERSATION);
+    expect(handlers.onDone).not.toHaveBeenCalled();
+  });
 });
