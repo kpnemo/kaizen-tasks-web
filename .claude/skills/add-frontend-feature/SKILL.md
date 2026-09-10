@@ -63,7 +63,7 @@ Only for a change a user can see. Everything else skips this section.
 2. Pick or write a scenario. `scripts/screenshots/<name>.mjs` exports `{ route, ready, act }`:
    `route` is the path to capture, `ready` waits for something that proves the screen is really
    there (a heading, the control you changed), and the optional `act` drives the screen into the
-   state worth showing. `tasks` and `theme-open` exist; add one named after the screen you changed
+   state worth showing. `tasks` and `theme-focused` exist; add one named after the screen you changed
    rather than widening an existing one.
 3. Run `node scripts/screenshot.mjs <name>`. It registers a throwaway user, logs in through the UI,
    waits for the session to restore, sets the account's theme for each capture, waits for the `dark`

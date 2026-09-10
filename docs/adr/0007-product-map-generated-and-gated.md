@@ -38,7 +38,10 @@ the check. There is no list of trigger paths.
 - A router or layout written in a shape the scanner does not understand blocks the gate until the
   generator learns it. That is deliberate: the alternative is a map that quietly omits a screen.
 - The map must stay small enough to sit in an interview's context: a test holds it under 12 KB and
-  250 lines, so growth means cutting what the map keeps (releases are already cut to the newest
-  three, two bullets each, 120 characters each), not raising the budget.
+  250 lines, so growth means cutting what the map keeps, not raising the budget. Every part fed by
+  the changelog is therefore bounded: released bullets are the newest three releases, two bullets
+  each, cut at 120 characters, and `[Unreleased]` is cut at 200 characters a bullet and 1,600 for
+  the section, with a line counting what did not fit. A busy release cycle cannot push the map over
+  its budget and fail an unrelated feature's test run.
 - `docs/ui-conventions.md` is pointed at from the header, not copied into the map, so the design
   rules have one home.

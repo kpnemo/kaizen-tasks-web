@@ -28,7 +28,13 @@ const ADR_DIR = "docs/adr";
 const FEATURES_DIR = "src/features";
 const RELEASES_KEPT = 3;
 const BULLETS_PER_RELEASE = 2;
-const BULLET_CHARS = 120;
+const RELEASED_BULLET_CHARS = 120;
+const UNRELEASED_BULLET_CHARS = 200; // longer than a released bullet, still bounded (ruling 5)
+// A hard ceiling on the whole [Unreleased] section, so a busy release cycle cannot push the map
+// over its size budget and fail an unrelated feature's test run. What does not fit is counted, not
+// dropped in silence: CHANGELOG.md is one file away.
+const UNRELEASED_SECTION_CHARS = 1600;
+const ICON_PACKAGE = "lucide-react";
 const METHODS = ["get", "post", "put", "patch", "delete"];
 
 class MapError extends Error {}
@@ -275,10 +281,18 @@ function readRoute(scope, node, attributes, path, isIndex) {
 
 // ---------------------------------------------------------------- app shell
 
+/** The words a reader sees inside an element: its own JSX text, and its children's. */
+function visibleText(node) {
+  if (ts.isJsxText(node)) return node.text.replace(/\s+/g, " ").trim();
+  if (!ts.isJsxElement(node) && !ts.isJsxFragment(node)) return "";
+  return node.children.map(visibleText).filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+}
+
 function collectShell(root) {
   const scope = scopeOf(root, LAYOUT_FILE);
   const sf = scope.sf;
   const controls = [];
+  const seen = new Set();
 
   const visit = (node, region) => {
     let childRegion = region;
@@ -287,10 +301,26 @@ function collectShell(root) {
       if (tag === "header") childRegion = "header";
       else if (tag === "footer") childRegion = "footer";
       else if (isComponentTag(node, sf)) {
-        const to = stringAttribute(attributesOf(node, sf).get("to"));
         const resolved = requireTag(scope, node, "the shell's");
-        const name = to === null ? resolved.name : `${resolved.name} to="${to}"`;
-        controls.push({ name, region, source: resolved.source });
+        // An icon is not a control: it is how a control is labelled. The control carrying it is
+        // listed one line up, with its own words.
+        if (resolved.source !== ICON_PACKAGE) {
+          const attributes = attributesOf(node, sf);
+          const to = stringAttribute(attributes.get("to"));
+          const label = visibleText(node) || stringAttribute(attributes.get("aria-label")) || "";
+          const name = [
+            code(resolved.name),
+            label ? `"${label}"` : "",
+            to === null ? "" : `→ ${to}`,
+          ]
+            .filter(Boolean)
+            .join(" ");
+          const key = `${name}|${region}|${resolved.source}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            controls.push({ name, region, source: resolved.source });
+          }
+        }
       }
     }
     node.forEachChild((child) => visit(child, childRegion));
@@ -405,20 +435,41 @@ function collectReleases(root) {
   const unreleased = sections.find((s) => s.title === "Unreleased");
   const released = sections.filter((s) => s.date).slice(0, RELEASES_KEPT);
   return {
-    unreleased: unreleased ? unreleased.bullets : [],
+    unreleased: budgeted(
+      (unreleased ? unreleased.bullets : []).map((item) => ({
+        ...item,
+        text: cut(item.text, UNRELEASED_BULLET_CHARS),
+      })),
+    ),
     released: released.map((release) => ({
       ...release,
       bullets: release.bullets.slice(0, BULLETS_PER_RELEASE).map((item) => ({
         ...item,
-        text: cut(item.text),
+        text: cut(item.text, RELEASED_BULLET_CHARS),
       })),
     })),
   };
 }
 
-function cut(text) {
-  if (text.length <= BULLET_CHARS) return text;
-  return `${text.slice(0, BULLET_CHARS - 1).trimEnd()}…`;
+/** As many bullets as the section's budget holds, then one line saying how many are not here. */
+function budgeted(bullets) {
+  const kept = [];
+  let spent = 0;
+  for (const bullet of bullets) {
+    if (spent + bullet.text.length > UNRELEASED_SECTION_CHARS && kept.length > 0) break;
+    kept.push(bullet);
+    spent += bullet.text.length;
+  }
+  const dropped = bullets.length - kept.length;
+  if (dropped > 0) {
+    kept.push({ kind: "", text: `…and ${dropped} more under [Unreleased] in CHANGELOG.md` });
+  }
+  return kept;
+}
+
+function cut(text, limit) {
+  if (text.length <= limit) return text;
+  return `${text.slice(0, limit - 1).trimEnd()}…`;
 }
 
 function collectAdrs(root) {
@@ -467,7 +518,7 @@ function renderSections(root) {
     `## App shell (${code(LAYOUT_FILE)})`,
     table(
       ["Control", "Where", "Source"],
-      shell.map((control) => [code(control.name), control.region, code(control.source)]),
+      shell.map((control) => [control.name, control.region, code(control.source)]),
     ),
 
     `## Features (${code(`${FEATURES_DIR}/*/`)})`,

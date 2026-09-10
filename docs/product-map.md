@@ -17,7 +17,7 @@ breakdowns are rate-limited and an operator can pause them; the smoke test drive
 accessible role and name, so those names are a cross-repo contract; new or changed controls follow
 `docs/ui-conventions.md`.
 
-Reviewed: 2026-09-10 against docs/PRD.md sections 3, 5.1-5.5, 6.3.
+Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 
 <!-- product-map:generated -->
 
@@ -36,18 +36,17 @@ Reviewed: 2026-09-10 against docs/PRD.md sections 3, 5.1-5.5, 6.3.
 
 ## App shell (`src/app/layout.tsx`)
 
-| Control               | Where  | Source                                                |
-| --------------------- | ------ | ----------------------------------------------------- |
-| `NavLink to="/tasks"` | header | `react-router`                                        |
-| `KaizenMark`          | header | `src/components/kaizen-mark.tsx`                      |
-| `NavLink to="/tasks"` | header | `react-router`                                        |
-| `NavLink to="/tags"`  | header | `react-router`                                        |
-| `FeatureRequestLink`  | header | `src/features/feature-request/FeatureRequestLink.tsx` |
-| `ThemeToggle`         | header | `src/features/theme/ThemeToggle.tsx`                  |
-| `Button`              | header | `src/components/ui/button.tsx`                        |
-| `LogOut`              | header | `lucide-react`                                        |
-| `Outlet`              | shell  | `react-router`                                        |
-| `WorkshopFooter`      | shell  | `src/components/workshop-footer.tsx`                  |
+| Control                           | Where  | Source                                                |
+| --------------------------------- | ------ | ----------------------------------------------------- |
+| `NavLink` "Kaizen Tasks" → /tasks | header | `react-router`                                        |
+| `KaizenMark`                      | header | `src/components/kaizen-mark.tsx`                      |
+| `NavLink` "Tasks" → /tasks        | header | `react-router`                                        |
+| `NavLink` "Tags" → /tags          | header | `react-router`                                        |
+| `FeatureRequestLink`              | header | `src/features/feature-request/FeatureRequestLink.tsx` |
+| `ThemeToggle`                     | header | `src/features/theme/ThemeToggle.tsx`                  |
+| `Button` "Log out"                | header | `src/components/ui/button.tsx`                        |
+| `Outlet`                          | shell  | `react-router`                                        |
+| `WorkshopFooter`                  | shell  | `src/components/workshop-footer.tsx`                  |
 
 ## Features (`src/features/*/`)
 
@@ -92,10 +91,10 @@ Reviewed: 2026-09-10 against docs/PRD.md sections 3, 5.1-5.5, 6.3.
 
 ### Unreleased
 
-- **Added** — `docs/product-map.md`: what this app is and what it has, for an agent about to interview a product owner. A hand-written header, then a generated inventory of screens, shell controls, feature folders, contract endpoints, recent releases and ADRs, rebuilt by `npm run product-map` (`scripts/product-map.mjs`, `--sources` lists what it reads).
-- **Added** — Docs-check Rule D: the product map is regenerated and compared on every run, in both modes, before the early return and with no trigger list. A missing map, a generator failure or a difference fails (ADR 0007).
-- **Added** — `docs/ui-conventions.md`: how a control a change adds or alters should look — the primitives in `src/components/ui/` first, an icon on every mode or action control, header controls matching their neighbours, all four screen states, both themes, projector legibility. A request that names a look wins.
-- **Added** — `scripts/screenshot.mjs <scenario>` (scenarios in `scripts/screenshots/`: `tasks`, `theme-open`) captures the running app in both themes to `docs/screenshots/`, asserting the route and the `dark` class before each shot; failures exit 2 with one line. `add-frontend-feature` now requires the pair on any visible change.
+- **Added** — `docs/product-map.md`: what this app is and what it has, for an agent about to interview a product owner. A hand-written header, then a generated inventory of screens, shell controls, feature folders…
+- **Added** — Docs-check Rule D: the product map is regenerated and compared on every run, in both modes, before the early return and with no trigger list. A missing map, a generator failure or a difference fails…
+- **Added** — `docs/ui-conventions.md`: how a control a change adds or alters should look — the primitives in `src/components/ui/` first, an icon on every mode or action control, header controls matching their nei…
+- **Added** — `scripts/screenshot.mjs <scenario>` (scenarios in `scripts/screenshots/`: `tasks`, `theme-focused`) captures the running app in both themes to `docs/screenshots/`, asserting the route and the `dark`…
 
 ### 1.2.0 — 2026-09-10
 

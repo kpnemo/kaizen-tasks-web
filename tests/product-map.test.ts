@@ -1,5 +1,14 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  copyFileSync,
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -138,7 +147,7 @@ const FIXTURE_CHANGELOG = `# Changelog
 
 ### Added
 
-- An unreleased bullet kept in full ${"y".repeat(140)} to the very end.
+- An unreleased bullet ${"y".repeat(140)} that runs past two hundred characters and is cut like a released one, ${"z".repeat(80)} to the very end.
 
 ## [1.2.0] - 2026-09-10
 
@@ -270,16 +279,35 @@ describe("scripts/product-map.mjs (fixtures)", () => {
     expect(row(text, "`things`")).toBeUndefined();
   });
 
-  it("inventories the shell's header controls with their source paths", () => {
+  it("inventories the shell's header controls with their words and their source paths", () => {
     const { text } = generate(makeRoot(fixtureFiles()));
     expect(row(text, "`ThingToggle`")).toEqual([
       "`ThingToggle`",
       "header",
       "`src/features/thing/ThingToggle.tsx`",
     ]);
-    expect(row(text, "`Button`")).toEqual(["`Button`", "header", "`src/components/ui/button.tsx`"]);
-    expect(row(text, '`NavLink to="/things"`')?.[2]).toBe("`react-router`");
+    expect(row(text, '`Button` "Ring"')).toEqual([
+      '`Button` "Ring"',
+      "header",
+      "`src/components/ui/button.tsx`",
+    ]);
+    expect(row(text, '`NavLink` "Things" → /things')?.[2]).toBe("`react-router`");
     expect(row(text, "`Outlet`")?.[1]).toBe("shell");
+    // The lucide icon inside the button is how the button is labelled, not a control of its own.
+    expect(row(text, "`Bell`")).toBeUndefined();
+    expect(text).not.toContain("lucide-react");
+  });
+
+  it("lists a control once, however often the same one is rendered", () => {
+    const twice = FIXTURE_LAYOUT.replace(
+      "<ThingToggle />",
+      "<ThingToggle />\n        <ThingToggle />",
+    );
+    const { text } = generate(makeRoot(fixtureFiles({ "src/app/layout.tsx": twice })));
+    const rows = text
+      .split("\n")
+      .filter((line) => line.startsWith("|") && line.includes("`ThingToggle`"));
+    expect(rows).toHaveLength(1);
   });
 
   it("tables the contract's endpoints", () => {
@@ -288,10 +316,16 @@ describe("scripts/product-map.mjs (fixtures)", () => {
     expect(row(text, "POST")?.slice(1)).toEqual(["`/things`", "Create a thing", "things"]);
   });
 
-  it("keeps unreleased bullets in full and cuts released ones to two per release at 120 characters", () => {
+  it("cuts unreleased bullets at 200 characters and released ones to two per release at 120", () => {
     const { text } = generate(makeRoot(fixtureFiles()));
     expect(text).toContain("Recent releases (history, not current behavior)");
-    expect(text).toContain(`${"y".repeat(140)} to the very end.`);
+    const unreleased = text.split("\n").find((line) => line.includes("An unreleased bullet"));
+    expect(unreleased).toBeDefined();
+    expect(unreleased).toContain("…");
+    expect(unreleased).not.toContain("to the very end.");
+    // 200 characters of bullet, plus the "- **Added** — " a list item carries.
+    expect(unreleased!.length).toBeLessThan(230);
+    expect(unreleased!.length).toBeGreaterThan(200);
     expect(text).toContain("1.2.0");
     expect(text).toContain("1.0.0");
     expect(text).not.toContain("0.9.0");
@@ -353,7 +387,7 @@ describe("scripts/product-map.mjs (this checkout)", () => {
       "header",
       "`src/features/theme/ThemeToggle.tsx`",
     ]);
-    expect(row(text, "`Button`")?.[2]).toBe("`src/components/ui/button.tsx`");
+    expect(row(text, '`Button` "Log out"')?.[2]).toBe("`src/components/ui/button.tsx`");
     expect(row(text, "`FeatureRequestLink`")?.[2]).toBe(
       "`src/features/feature-request/FeatureRequestLink.tsx`",
     );
@@ -366,7 +400,7 @@ describe("scripts/product-map.mjs (this checkout)", () => {
     expect(lines.length).toBeGreaterThanOrEqual(8);
     expect(lines.length).toBeLessThanOrEqual(15);
     expect(header).toContain("docs/ui-conventions.md");
-    expect(lines.at(-1)).toMatch(/^Reviewed: \d{4}-\d{2}-\d{2} against docs\/PRD\.md sections /);
+    expect(lines.at(-1)).toMatch(/^Reviewed: \d{4}-\d{2}-\d{2} against \S+ sections /);
   });
 
   it("regenerates byte-identically twice, and the committed map is fresh", () => {
@@ -385,6 +419,38 @@ describe("scripts/product-map.mjs (this checkout)", () => {
     const text = committed();
     expect(Buffer.byteLength(text, "utf8")).toBeLessThan(12 * 1024);
     expect(text.split("\n").length).toBeLessThanOrEqual(250);
+  });
+
+  it("stays under budget with a release worth of long unreleased bullets", () => {
+    // The bullets in this repo's changelog run to a thousand characters. Eight of them under
+    // [Unreleased] is more than any single release has carried, and the map must still fit.
+    const changelog = readFileSync("CHANGELOG.md", "utf8");
+    const bullets = Array.from({ length: 8 }, (_, i) => `- Bullet ${i} ${"w".repeat(1200)}`);
+    const fat =
+      `## [Unreleased]\n\n### Added\n\n${bullets.join("\n")}\n\n` +
+      changelog.slice(changelog.indexOf("## [1."));
+    const dir = mkdtempSync(join(tmpdir(), "kaizen-product-map-budget-"));
+    tmpDirs.push(dir);
+    cpSync("src", join(dir, "src"), { recursive: true });
+    cpSync("docs/adr", join(dir, "docs/adr"), { recursive: true });
+    copyFileSync(MAP, join(dir, MAP));
+    writeFileSync(join(dir, "CHANGELOG.md"), fat);
+
+    const { status, text } = generate(dir);
+    expect(status).toBe(0);
+    expect(text).toContain("Bullet 0");
+    expect(Buffer.byteLength(text, "utf8")).toBeLessThan(12 * 1024);
+    expect(text.split("\n").length).toBeLessThanOrEqual(250);
+
+    // Twice as many again cannot push it over: the section has a ceiling, and what does not fit is
+    // counted rather than dropped in silence.
+    writeFileSync(
+      join(dir, "CHANGELOG.md"),
+      fat.replace(bullets.join("\n"), [...bullets, ...bullets].join("\n")),
+    );
+    const bigger = generate(dir);
+    expect(Buffer.byteLength(bigger.text, "utf8")).toBeLessThan(12 * 1024);
+    expect(bigger.text).toMatch(/…and \d+ more under \[Unreleased\] in CHANGELOG\.md/);
   });
 
   it("--sources prints the files it reads, one existing relative path per line", () => {

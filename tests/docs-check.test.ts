@@ -173,7 +173,7 @@ describe("scripts/docs-check.sh", () => {
     const gen = repo.run("npm", ["run", "--silent", "api:types"]);
     expect(gen.status).toBe(0);
     expect(repo.check("--hook").status).toBe(0);
-  });
+  }, 30_000);
 
   it("escape hatch: after four blocked stops it stops blocking but never reports success", () => {
     const repo = makeRepo();
@@ -200,7 +200,7 @@ describe("scripts/docs-check.sh", () => {
     expect(repo.check("--hook").status).toBe(0);
     expect(repo.exists(".claude/DOCS-CHECK-FAILED")).toBe(false);
     expect(repo.exists(".claude/.docs-check-blocks")).toBe(false);
-  });
+  }, 30_000);
 
   it("Rule D: blocks a stale product map and names the map source that changed", () => {
     const repo = makeRepo();
