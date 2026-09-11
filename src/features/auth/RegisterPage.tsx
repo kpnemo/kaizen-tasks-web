@@ -96,10 +96,10 @@ export function RegisterPage() {
                 </Field>
               </FieldGroup>
               {error && error.code !== "VALIDATION_ERROR" && error.code !== "CONFLICT" ? (
-                <Alert variant="destructive" className="text-base">
+                <Alert variant="destructive">
                   <TriangleAlert aria-hidden="true" />
                   <AlertTitle>Could not create your account</AlertTitle>
-                  <AlertDescription className="text-base">{error.message}</AlertDescription>
+                  <AlertDescription>{error.message}</AlertDescription>
                 </Alert>
               ) : null}
               <Button type="submit" className="w-full" disabled={register.isPending}>

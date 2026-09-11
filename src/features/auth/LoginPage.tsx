@@ -77,10 +77,10 @@ export function LoginPage() {
                 </Field>
               </FieldGroup>
               {error && error.code !== "VALIDATION_ERROR" ? (
-                <Alert variant="destructive" className="text-base">
+                <Alert variant="destructive">
                   <TriangleAlert aria-hidden="true" />
                   <AlertTitle>Could not log in</AlertTitle>
-                  <AlertDescription className="text-base">{error.message}</AlertDescription>
+                  <AlertDescription>{error.message}</AlertDescription>
                 </Alert>
               ) : null}
               <Button type="submit" className="w-full" disabled={login.isPending}>
