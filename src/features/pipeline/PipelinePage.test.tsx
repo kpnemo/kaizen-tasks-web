@@ -53,6 +53,31 @@ describe("pipeline page", () => {
     expect(screen.queryByRole("table", { name: "Issues" })).toBeNull();
   });
 
+  it("prints the snapshot's age and warns when the API serves its last-good copy", async () => {
+    server.use(
+      http.get(`${API}/pipeline`, () =>
+        ok(pipelineSnapshot({ stale: true, staleReason: "GitHub rate limit, retrying at 11:00" })),
+      ),
+    );
+    renderApp({ route: "/pipeline" });
+    expect(await screen.findByText(/^as of \d\d:\d\d:\d\d$/)).toBeInTheDocument();
+    expect(screen.getByText("GitHub unreachable")).toHaveAttribute("data-variant", "destructive");
+    expect(screen.getByText("GitHub rate limit, retrying at 11:00")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "How it flows" })).toBeInTheDocument();
+  });
+
+  it("keeps the snapshot on screen and warns when a refresh fails", async () => {
+    const { queryClient } = renderApp({ route: "/pipeline" });
+    expect(await screen.findByRole("table", { name: "Issues" })).toBeInTheDocument();
+    server.use(http.get(`${API}/pipeline`, () => err("UPSTREAM_ERROR", "GitHub did not answer")));
+    await queryClient.invalidateQueries({ queryKey: ["pipeline"] });
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("Could not refresh the pipeline");
+    expect(alert).toHaveTextContent("GitHub did not answer");
+    expect(screen.getByRole("table", { name: "Issues" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Environments", level: 2 })).toBeInTheDocument();
+  });
+
   it("shows the empty state when the snapshot has no issues", async () => {
     server.use(http.get(`${API}/pipeline`, () => ok(pipelineSnapshot({ issues: [] }))));
     renderApp({ route: "/pipeline" });
