@@ -71,8 +71,8 @@ Only for a change a user can see. Everything else skips this section.
 2. Pick or write a scenario. `scripts/screenshots/<name>.mjs` exports `{ route, ready, act }`:
    `route` is the path to capture, `ready` waits for something that proves the screen is really
    there (a heading, the control you changed), and the optional `act` drives the screen into the
-   state worth showing. `tasks` and `theme-focused` exist; add one named after the screen you changed
-   rather than widening an existing one.
+   state worth showing. `tasks`, `theme-open` and `request-feature` exist; add one named after the
+   screen you changed rather than widening an existing one.
 3. Run `node scripts/screenshot.mjs <name>`. It registers a throwaway user, logs in through the UI,
    waits for the session to restore, sets the account's theme for each capture, waits for the `dark`
    class to match and asserts the route and the class again immediately before every shot, and
@@ -117,16 +117,42 @@ Page:
 ```tsx
 export function ThingPage() {
   const things = useThings();
-  if (things.isPending) return <p role="status">Loading things</p>;
-  if (things.isError) return <div role="alert">{toApiError(things.error).message}</div>;
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <h1>Things</h1>
-      {/* content */}
+      {things.isPending ? (
+        <div role="status" className="flex flex-col gap-3">
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+          <span className="sr-only">Loading things</span>
+        </div>
+      ) : things.isError ? (
+        <Alert variant="destructive">
+          <CircleAlert aria-hidden="true" />
+          <AlertTitle>Could not load things</AlertTitle>
+          <AlertDescription>{toApiError(things.error).message}</AlertDescription>
+        </Alert>
+      ) : things.data.length === 0 ? (
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Package />
+            </EmptyMedia>
+            <EmptyTitle>No things</EmptyTitle>
+            <EmptyDescription>No things yet. Add one above to get started.</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      ) : (
+        <ul className="flex flex-col gap-3">{/* one row per thing */}</ul>
+      )}
     </div>
   );
 }
 ```
+
+Loading, empty and error are `Skeleton`, `Empty` and `Alert` from `src/components/ui/`; the
+loading state keeps `role="status"` with the sentence as `sr-only` text, and `Alert` already carries
+`role="alert"`. Stacks are `flex flex-col gap-*`, never `space-y-*`.
 
 Hook:
 

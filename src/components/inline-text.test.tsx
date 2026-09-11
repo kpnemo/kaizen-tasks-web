@@ -42,6 +42,25 @@ describe("InlineText", () => {
     expect(onSave).toHaveBeenCalledTimes(1);
   });
 
+  it("shows a permanent edit mark instead of a hover title, and edits in the shared Input", async () => {
+    const user = userEvent.setup();
+    render(<InlineText label="Title" value="Plan the launch" onSave={() => {}} />);
+    const button = screen.getByRole("button", { name: "Plan the launch" });
+    expect(button).not.toHaveAttribute("title");
+    expect(button.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+    await user.click(button);
+    expect(screen.getByRole("textbox", { name: "Title" })).toHaveAttribute("data-slot", "input");
+  });
+
+  it("edits multiline text in the shared Textarea", async () => {
+    const user = userEvent.setup();
+    render(<InlineText label="Description" value="Some notes" multiline onSave={() => {}} />);
+    await user.click(screen.getByRole("button", { name: "Some notes" }));
+    const editor = screen.getByRole("textbox", { name: "Description" });
+    expect(editor).toHaveAttribute("data-slot", "textarea");
+    expect(editor).toHaveAttribute("rows", "3");
+  });
+
   it("opens in edit mode when controlled", async () => {
     const onSave = vi.fn();
     render(

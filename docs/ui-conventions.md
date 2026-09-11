@@ -29,8 +29,10 @@ hand-written pieces that predate this rule.
 `popover`, `progress`, `radio-group`, `scroll-area`, `separator`, `skeleton`, `sonner`, `spinner`,
 `table`, `textarea`.
 Reach for one of these before a native element or a new dependency. Hand-written shared pieces sit
-one level up in `src/components/` (`field`, `inline-text`, `native-select`, `tag-chip`,
-`kaizen-mark`). Add a primitive only when nothing there composes into what the request asks for, and
+one level up in `src/components/`: `field` (a thin wrapper over the shadcn Field that keeps the hint
+beside the error and owns `aria-describedby`), `nav-button` (a `NavLink` in Button clothes, for the
+primary nav), `inline-text`, `native-select`, `tag-chip` (with `TagSwatch`, the one place a tag's
+colour is painted) and `kaizen-mark`. Add a primitive only when nothing there composes into what the request asks for, and
 say so in the pull request.
 
 ## Compositions

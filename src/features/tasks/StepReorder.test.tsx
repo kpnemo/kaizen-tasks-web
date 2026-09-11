@@ -8,10 +8,11 @@ import { renderApp } from "../../../tests/render";
 
 const route = `/tasks/${T_SUGGESTED}`;
 
+/** Each step row is labelled by its title cell, so the row's name is the step title. */
 function stepTitles() {
   return within(screen.getByRole("list", { name: "Steps" }))
     .getAllByRole("listitem")
-    .map((li) => within(li).getByTitle("Click to edit").textContent);
+    .map((li) => document.getElementById(li.getAttribute("aria-labelledby")!)!.textContent);
 }
 
 describe("step reorder and add step", () => {

@@ -1,4 +1,7 @@
+import { Pencil } from "lucide-react";
 import { useRef, useState, type FocusEvent, type KeyboardEvent } from "react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/cn";
 
 type Props = {
@@ -17,7 +20,8 @@ type Props = {
 };
 
 /** Text that edits in place. The static view is a button whose text is the value, so a wrapping
- *  heading keeps the value as its accessible name. Saves on Enter or blur, cancels on Escape.
+ *  heading keeps the value as its accessible name; a pencil after the text says it is editable
+ *  without waiting for a hover. Saves on Enter or blur, cancels on Escape.
  *  The editor is a child component mounted only while editing; it owns the draft, so no state
  *  setter runs inside an effect (react-hooks/set-state-in-effect). */
 export function InlineText({
@@ -60,14 +64,15 @@ export function InlineText({
     <Tag className={cn("min-w-0", className)}>
       <button
         type="button"
-        title="Click to edit"
         onClick={() => setEditing(true)}
         className={cn(
           "w-full rounded-md text-left hover:bg-accent/60 focus-visible:bg-accent/60",
+          "[&>svg]:ml-2 [&>svg]:inline-block [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:align-[-0.125em] [&>svg]:text-muted-foreground",
           !value && "text-muted-foreground",
         )}
       >
         {value || placeholder}
+        <Pencil aria-hidden="true" />
       </button>
     </Tag>
   );
@@ -115,6 +120,8 @@ function InlineEditor({
     }
   }
 
+  // The editor takes the size of the text it replaces, at every breakpoint, so a title does not
+  // shrink to the form-control size the moment it becomes editable.
   const shared = {
     "aria-label": label,
     value: draft,
@@ -123,14 +130,11 @@ function InlineEditor({
       event.currentTarget.select(),
     onBlur: commit,
     onKeyDown,
-    className: cn(
-      "w-full rounded-md border border-input bg-card px-3 py-2 font-[inherit] text-[inherit]",
-      className,
-    ),
+    className: cn("font-[inherit] text-[length:inherit] md:text-[length:inherit]", className),
   };
   return multiline ? (
-    <textarea rows={3} {...shared} onChange={(e) => setDraft(e.target.value)} />
+    <Textarea rows={3} {...shared} onChange={(e) => setDraft(e.target.value)} />
   ) : (
-    <input {...shared} onChange={(e) => setDraft(e.target.value)} />
+    <Input {...shared} onChange={(e) => setDraft(e.target.value)} />
   );
 }

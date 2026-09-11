@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - The shadcn primitives the UI rework composes from, added with the CLI (`npx shadcn@latest add`): `alert`, `empty`, `spinner`, `skeleton`, `progress`, `table`, `collapsible`, `radio-group`, `scroll-area` and `field` under `src/components/ui/`, listed in `docs/ui-conventions.md`. `Badge` moves its base scale to `text-base` with `size-4` icons, so every chip in the app clears the projector's 18px floor with no call-site size props.
 
+### Changed
+
+- The app shell on shadcn (ui-rework, shell): the primary nav links are `NavButton`s (`src/components/nav-button.tsx`), a `NavLink` in Button clothes with an icon and the current screen as the secondary variant; the theme control is a `dropdown-menu` whose trigger shows the current choice as its icon (with its word from `xl` up, where the header has room) and keeps the accessible name "Theme"; the display name truncates at twelve characters; the footer's API segment is a `Badge`, outline when the versions match and destructive with a visible "web and API versions differ" note when they do not; the 404 is an `Empty` with a "Go to your tasks" button, shown inside the shell for a signed-in user and in a bare frame with the footer otherwise, decided by one catch-all route (ADR 0009). Shared pieces: `Field` wraps the shadcn Field, keeps the hint beside the error and owns `aria-describedby`; `InlineText` shows a pencil instead of a hover title and edits in `Input`/`Textarea` at the size of the text it replaces; `TagChip` is an outline `Badge` around the exported `TagSwatch`, its remove control a square `Button`. Screenshot scenario `theme-open` replaces `theme-focused`, and the `add-frontend-feature` page template starts from `Skeleton`, `Alert`, `Empty` and `flex gap`.
+
 ## [1.4.0] - 2026-09-11
 
 ### Added

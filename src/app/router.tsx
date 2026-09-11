@@ -7,7 +7,7 @@ import { TaskDetailPage } from "@/features/tasks/TaskDetailPage";
 import { TaskListPage } from "@/features/tasks/TaskListPage";
 import { useApplyTheme } from "@/features/theme/hooks";
 import { AppShell } from "./layout";
-import { NotFoundPage } from "./routes/NotFoundPage";
+import { NotFoundRoute } from "./routes/NotFoundRoute";
 import { PublicOnly } from "./routes/PublicOnly";
 import { RequireAuth } from "./routes/RequireAuth";
 
@@ -30,7 +30,8 @@ export function AppRoutes() {
         </Route>
       </Route>
       <Route path="/" element={<Navigate to="/tasks" replace />} />
-      <Route path="*" element={<NotFoundPage />} />
+      {/* One catch-all for both audiences: it picks the shell or a bare frame by session (ADR 0009). */}
+      <Route path="*" element={<NotFoundRoute />} />
     </Routes>
   );
 }

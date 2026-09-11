@@ -83,11 +83,11 @@ describe("accent tokens", () => {
     expect(button).toMatch(/link: "text-primary/);
     expect(read("src/components/ui/checkbox.tsx")).toContain("data-[state=checked]:bg-primary");
     expect(css).toMatch(/:focus-visible \{\s*outline: 3px solid var\(--ring\);/);
+    // The 404's way back is a default Button (bg-primary through button.tsx above), not a text link.
     for (const page of [
       "src/features/auth/LoginPage.tsx",
       "src/features/auth/RegisterPage.tsx",
       "src/features/tasks/TaskDetailPage.tsx",
-      "src/app/routes/NotFoundPage.tsx",
     ]) {
       expect(read(page), page).toContain("text-primary underline");
     }
