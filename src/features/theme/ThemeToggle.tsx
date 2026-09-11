@@ -1,57 +1,35 @@
 import { Monitor, Moon, Sun, type LucideIcon } from "lucide-react";
 import type { ThemePreference } from "@/api/models";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Spinner } from "@/components/ui/spinner";
 import { useThemePreference, useUpdateTheme } from "./hooks";
 import { THEME_OPTIONS } from "./theme";
 
 const ICONS: Record<ThemePreference, LucideIcon> = { light: Sun, dark: Moon, system: Monitor };
 
-/** Light, dark, or system, saved to the account so the choice follows the user to another device.
- *  A menu rather than a native select: the trigger shows the current choice as its icon (and its
- *  word from `xl` up, where the header has room beside the three nav labels and the display name;
- *  at the projector's 1024px the word would wrap the wordmark), each item carries an icon and its
- *  word, and the open menu is part of the page, so it reads on a projector and lands in a
- *  screenshot. The trigger keeps the accessible name "Theme". */
+/** Cycles light, dark, then system on each click, in `THEME_OPTIONS`'s order, and saves the
+ *  choice to the account (ADR 0006). Icon-only: the accessible name states the current mode and
+ *  what one more click switches to, so the state is available without a visible word. */
 export function ThemeToggle() {
   const preference = useThemePreference();
   const update = useUpdateTheme();
-  const current = THEME_OPTIONS.find((option) => option.value === preference) ?? THEME_OPTIONS[0];
+  const currentIndex = Math.max(
+    0,
+    THEME_OPTIONS.findIndex((option) => option.value === preference),
+  );
+  const current = THEME_OPTIONS[currentIndex];
+  const next = THEME_OPTIONS[(currentIndex + 1) % THEME_OPTIONS.length];
   const CurrentIcon = ICONS[current.value];
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" aria-label="Theme" disabled={update.isPending}>
-          <CurrentIcon data-icon="inline-start" aria-hidden="true" />
-          <span className="hidden xl:inline">{current.label}</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuRadioGroup
-          value={preference}
-          onValueChange={(value) => update.mutate(value as ThemePreference)}
-        >
-          {THEME_OPTIONS.map((option) => {
-            const Icon = ICONS[option.value];
-            return (
-              <DropdownMenuRadioItem
-                key={option.value}
-                value={option.value}
-                className="min-h-11 text-base"
-              >
-                <Icon aria-hidden="true" />
-                {option.label}
-              </DropdownMenuRadioItem>
-            );
-          })}
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Button
+      variant="outline"
+      size="icon-lg"
+      className="size-11"
+      aria-label={`Theme: ${current.label}, switch to ${next.label}`}
+      disabled={update.isPending}
+      onClick={() => update.mutate(next.value)}
+    >
+      {update.isPending ? <Spinner aria-hidden="true" /> : <CurrentIcon aria-hidden="true" />}
+    </Button>
   );
 }

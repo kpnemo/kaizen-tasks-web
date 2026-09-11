@@ -37,24 +37,22 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 
 ## App shell (`src/app/layout.tsx`)
 
-| Control                           | Where  | Source                                                |
-| --------------------------------- | ------ | ----------------------------------------------------- |
-| `NavLink` "Kaizen Tasks" → /tasks | header | `react-router`                                        |
-| `KaizenMark`                      | header | `src/components/kaizen-mark.tsx`                      |
-| `NavButton` "Tasks" → /tasks      | header | `src/components/nav-button.tsx`                       |
-| `NavButton` "Tags" → /tags        | header | `src/components/nav-button.tsx`                       |
-| `FeatureRequestLink`              | header | `src/features/feature-request/FeatureRequestLink.tsx` |
-| `PipelineLink`                    | header | `src/features/pipeline/PipelineLink.tsx`              |
-| `ThemeToggle`                     | header | `src/features/theme/ThemeToggle.tsx`                  |
-| `Button` "Log out"                | header | `src/components/ui/button.tsx`                        |
-| `Outlet`                          | shell  | `react-router`                                        |
-| `WorkshopFooter`                  | shell  | `src/components/workshop-footer.tsx`                  |
+| Control                           | Where  | Source                               |
+| --------------------------------- | ------ | ------------------------------------ |
+| `NavLink` "Kaizen Tasks" → /tasks | header | `react-router`                       |
+| `KaizenMark`                      | header | `src/components/kaizen-mark.tsx`     |
+| `NavButton` "Tasks" → /tasks      | header | `src/components/nav-button.tsx`      |
+| `NavButton` "Tags" → /tags        | header | `src/components/nav-button.tsx`      |
+| `ThemeToggle`                     | header | `src/features/theme/ThemeToggle.tsx` |
+| `AccountMenu`                     | header | `src/features/auth/AccountMenu.tsx`  |
+| `Outlet`                          | shell  | `react-router`                       |
+| `WorkshopFooter`                  | shell  | `src/components/workshop-footer.tsx` |
 
 ## Features (`src/features/*/`)
 
-- **auth** (`src/features/auth/`) — pages `LoginPage`, `RegisterPage`; components `AuthProvider`, `RestoringScreen`; hooks `hooks.ts`
-- **feature-request** (`src/features/feature-request/`) — pages `RequestFeaturePage`; components `FeatureRequestLink`, `ConversationPanel`, `DraftPanel`, `FeatureRequestForm`, `RequestsSoFar`; hooks `hooks.ts`
-- **pipeline** (`src/features/pipeline/`) — pages `PipelinePage`; components `PipelineLink`, `DeployDialog`, `EnvironmentCard`, `FlowDiagram`, `IssueAction`, `IssuesTable`, `SnapshotAge`; hooks `hooks.ts`
+- **auth** (`src/features/auth/`) — pages `LoginPage`, `RegisterPage`; components `AccountMenu`, `AuthProvider`, `RestoringScreen`; hooks `hooks.ts`
+- **feature-request** (`src/features/feature-request/`) — pages `RequestFeaturePage`; components `ConversationPanel`, `DraftPanel`, `FeatureRequestForm`, `RequestsSoFar`; hooks `hooks.ts`
+- **pipeline** (`src/features/pipeline/`) — pages `PipelinePage`; components `DeployDialog`, `EnvironmentCard`, `FlowDiagram`, `IssueAction`, `IssuesTable`, `SnapshotAge`; hooks `hooks.ts`
 - **tags** (`src/features/tags/`) — pages `TagsPage`; components `ColorPicker`, `TagRow`; hooks `hooks.ts`
 - **tasks** (`src/features/tasks/`) — pages `TaskDetailPage`, `TaskListPage`; components `AddStepForm`, `AddTagPopover`, `AiBanner`, `AiChip`, `AiTagSuggestions`, `BulkBar`, `CreateTaskBar`, `DismissedSteps`, `FilterBar`, `ProgressBar`, `RationalePopover`, `StepList`, `StepRow`, `TaskHeader`, `TaskRow`; hooks `hooks.ts`
 - **theme** (`src/features/theme/`) — components `ThemeToggle`; hooks `hooks.ts`
@@ -99,7 +97,7 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 
 ### Unreleased
 
-- nothing yet
+- **Changed** — The header's theme control is a single icon-only button that cycles light, dark, then system on each click (was a three-item menu); Feature Request, Pipeline, and Log out move into a new account menu…
 
 ### 1.5.0 — 2026-09-11
 

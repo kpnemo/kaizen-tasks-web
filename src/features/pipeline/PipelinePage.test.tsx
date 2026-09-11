@@ -30,7 +30,8 @@ describe("pipeline page", () => {
 
   it("shows the link when health reports pipeline true and renders the page", async () => {
     const { user } = renderApp({ route: "/tasks" });
-    const link = await screen.findByRole("link", { name: "Pipeline" });
+    await user.click(await screen.findByRole("button", { name: "Demo" }));
+    const link = await screen.findByRole("menuitem", { name: "Pipeline" });
     expect(link).toHaveAttribute("href", "/pipeline");
     expect(link.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
     await user.click(link);

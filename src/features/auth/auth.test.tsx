@@ -183,7 +183,8 @@ describe("logout", () => {
       }),
     );
     const { user, queryClient } = renderApp({ route: "/tags" });
-    await user.click(await screen.findByRole("button", { name: "Log out" }));
+    await user.click(await screen.findByRole("button", { name: "Demo" }));
+    await user.click(await screen.findByRole("menuitem", { name: "Log out" }));
     expect(await screen.findByRole("heading", { name: "Log in" })).toBeInTheDocument();
     await waitFor(() => expect(logouts).toBe(1));
     expect(authStore.getState()).toEqual({ status: "anonymous", token: null, user: null });

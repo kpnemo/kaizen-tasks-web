@@ -1,24 +1,24 @@
-import { ListTodo, LogOut, Tag } from "lucide-react";
+import { ListTodo, Tag } from "lucide-react";
 import type { ReactNode } from "react";
 import { NavLink, Outlet } from "react-router";
 import { KaizenMark } from "@/components/kaizen-mark";
 import { NavButton } from "@/components/nav-button";
-import { Button } from "@/components/ui/button";
 import { WorkshopFooter } from "@/components/workshop-footer";
-import { useLogout } from "@/features/auth/hooks";
+import { AccountMenu } from "@/features/auth/AccountMenu";
 import { useSession } from "@/features/auth/useSession";
-import { FeatureRequestLink } from "@/features/feature-request/FeatureRequestLink";
-import { PipelineLink } from "@/features/pipeline/PipelineLink";
+import { useFeatureRequestAvailable } from "@/features/feature-request/hooks";
+import { usePipelineAvailable } from "@/features/pipeline/hooks";
 import { ThemeToggle } from "@/features/theme/ThemeToggle";
 
-/** The signed-in frame: brand, primary nav, theme control, who is signed in, log out, and the
- *  footer. Renders the matched route in `main`, or `children` when a route mounts the shell itself
- *  (the catch-all, ADR 0009). The header is one row at the projector's 1024px with four nav
- *  labels: the wordmark never wraps, and the display name (like the theme's word) shows from `xl`
- *  up, where there is room for it beside "Log out". */
+/** The signed-in frame: brand, primary nav, the theme control, and the account menu (Feature
+ *  Request, Pipeline, and Log out, behind the display name). Renders the matched route in `main`,
+ *  or `children` when a route mounts the shell itself (the catch-all, ADR 0009). `src/app/` may
+ *  import any feature, so the two availability flags are read here and passed down —
+ *  `AccountMenu` itself stays inside `features/auth/` and never imports another feature. */
 export function AppShell({ children }: { children?: ReactNode }) {
   const { user } = useSession();
-  const logout = useLogout();
+  const { available: featureRequestAvailable } = useFeatureRequestAvailable();
+  const { available: pipelineAvailable } = usePipelineAvailable();
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-10 border-b bg-card">
@@ -34,18 +34,14 @@ export function AppShell({ children }: { children?: ReactNode }) {
             <NavButton to="/tags" icon={Tag}>
               Tags
             </NavButton>
-            <FeatureRequestLink />
-            <PipelineLink />
           </nav>
           <div className="ml-auto flex items-center gap-3">
             <ThemeToggle />
-            <span className="hidden max-w-[12ch] truncate text-base text-muted-foreground xl:inline">
-              {user?.displayName}
-            </span>
-            <Button variant="outline" onClick={() => logout.mutate()} disabled={logout.isPending}>
-              <LogOut aria-hidden="true" />
-              Log out
-            </Button>
+            <AccountMenu
+              displayName={user?.displayName ?? ""}
+              featureRequestAvailable={featureRequestAvailable}
+              pipelineAvailable={pipelineAvailable}
+            />
           </div>
         </div>
       </header>
