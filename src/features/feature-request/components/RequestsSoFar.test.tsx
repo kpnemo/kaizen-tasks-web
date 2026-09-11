@@ -1,10 +1,11 @@
 import { screen, within } from "@testing-library/react";
-import { http } from "msw";
+import { delay, http } from "msw";
 import { describe, expect, it } from "vitest";
 import {
   API,
   err,
   featureRequestSummary,
+  ok,
   setFeatureRequestList,
 } from "../../../../tests/msw/handlers";
 import { server } from "../../../../tests/msw/server";
@@ -59,6 +60,13 @@ describe("Requests so far", () => {
   });
 
   it("shows the loading, empty and error states without breaking the page", async () => {
+    // Hold the first answer so the loading state is observable rather than raced (review note).
+    server.use(
+      http.get(`${API}/feature-requests`, async () => {
+        await delay(150);
+        return ok([]);
+      }),
+    );
     renderApp({ route: ROUTE });
     expect(await screen.findByText("Loading requests")).toHaveAttribute("role", "status");
     expect(await screen.findByText("No requests yet. Yours can be the first.")).toBeInTheDocument();
