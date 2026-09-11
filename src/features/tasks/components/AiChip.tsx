@@ -26,8 +26,11 @@ export function AiChip({ task }: { task: TaskSummary }) {
       );
     case "done":
       if (task.suggestionCount === 0) return null;
+      // The one chip that is a link, and the demo's click target: the 2.75rem hit area every button
+      // has (globals.css sizes `button` and `a[data-nav]`, not a Badge rendered as a link) and the
+      // Button's horizontal padding, so the taller pill does not crowd its text.
       return (
-        <Badge asChild>
+        <Badge asChild className="min-h-11 px-4">
           <Link to={`/tasks/${task.id}`}>
             <Sparkles aria-hidden="true" />
             {pluralize(task.suggestionCount, "suggestion")}

@@ -54,6 +54,9 @@ describe("task list", () => {
       },
     );
     expect(suggestions).toHaveAttribute("href", `/tasks/${T_SUGGESTED}`);
+    // The one chip that is a link is the demo's click target: it gets the 2.75rem hit area every
+    // button has (globals.css covers `button` and `a[data-nav]`, not a Badge rendered as a link).
+    expect(suggestions).toHaveClass("min-h-11");
     expect(
       within(row("Fully done task")).queryByText(/thinking|suggestion|failed|skipped/i),
     ).toBeNull();
@@ -244,6 +247,69 @@ describe("task list", () => {
     expect(
       await within(row("Plan the team offsite agenda")).findByText("Thinking"),
     ).toBeInTheDocument();
+  });
+
+  // The pending pattern swaps the icon for a Spinner and disables the button. `ui/spinner.tsx`
+  // ships `role="status" aria-label="Loading"`, which the button's name-from-content would fold in
+  // as "Loading Add task" / "Loading Retry" unless the Spinner is aria-hidden; the smoke test finds
+  // both buttons by their exact names, so the two tests below pin the name while the request runs.
+  it("keeps the button named Add task while it saves", async () => {
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    server.use(
+      http.post(`${API}/tasks`, async ({ request }) => {
+        const body = (await request.json()) as { title: string };
+        await gate;
+        db.rows.push(makeTask({ id: "t-slow", title: body.title, aiStatus: "pending" }));
+        return ok(db.detail("t-slow"), {}, 201);
+      }),
+    );
+    const { user } = renderApp({ route: "/tasks" });
+    await screen.findByText("Buy milk");
+    await user.type(
+      screen.getByRole("textbox", { name: "Task title" }),
+      "Write the workshop runbook{Enter}",
+    );
+    await waitFor(() => expect(screen.getByRole("button", { name: "Add task" })).toBeDisabled());
+    // Still saving: the title is not cleared yet, and no button picked up the Spinner's label.
+    expect(screen.getByRole("textbox", { name: "Task title" })).toHaveValue(
+      "Write the workshop runbook",
+    );
+    expect(screen.queryByRole("button", { name: /loading/i })).toBeNull();
+    release();
+    expect(
+      await screen.findByRole("listitem", { name: "Write the workshop runbook" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Task title" })).toHaveValue("");
+  });
+
+  it("keeps the button named Retry while the breakdown is requested again", async () => {
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    server.use(
+      http.post(`${API}/tasks/${T_FAILED}/breakdown`, async () => {
+        await gate;
+        db.find(T_FAILED)!.aiStatus = "pending";
+        return ok(db.detail(T_FAILED), {}, 202);
+      }),
+    );
+    const { user } = renderApp({ route: "/tasks" });
+    await user.click(await screen.findByRole("button", { name: "Retry" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Retry" })).toBeDisabled());
+    expect(screen.queryByRole("button", { name: /loading/i })).toBeNull();
+    // The failure stays on screen, unclipped, until the API answers.
+    expect(within(row("Plan the team offsite agenda")).getByRole("alert")).toHaveTextContent(
+      "The assistant is unavailable, try again",
+    );
+    release();
+    expect(
+      await within(row("Plan the team offsite agenda")).findByText("Thinking"),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Retry" })).toBeNull();
   });
 
   it("shows the error state with a retry when the list fails", async () => {
