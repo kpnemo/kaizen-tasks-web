@@ -64,6 +64,31 @@ describe("tags page", () => {
     expect(screen.getByLabelText("Name")).toHaveValue("");
   });
 
+  it("keeps the button named Create tag while it saves", async () => {
+    let release!: () => void;
+    const saved = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    server.use(
+      http.post(`${API}/tags`, async ({ request }) => {
+        const body = (await request.json()) as { name: string; color: string };
+        await saved;
+        const tag = { id: "tag-new", createdAt: "2026-09-09T00:00:00.000Z", ...body };
+        db.tags.push(tag);
+        return ok(tag, {}, 201);
+      }),
+    );
+    const { user } = renderApp({ route: "/tags" });
+    await screen.findByRole("table", { name: "Your tags" });
+    await user.type(screen.getByLabelText("Name"), "reading");
+    await user.click(screen.getByRole("button", { name: "Create tag" }));
+    // Spinner ships role="status" aria-label="Loading"; hidden from the tree it must not rename the button.
+    await waitFor(() => expect(screen.getByRole("button", { name: "Create tag" })).toBeDisabled());
+    expect(screen.queryByRole("button", { name: /loading/i })).toBeNull();
+    release();
+    expect(await screen.findByRole("row", { name: "reading" })).toBeInTheDocument();
+  });
+
   it("shows a duplicate name as a field error", async () => {
     const { user } = renderApp({ route: "/tags" });
     await screen.findByRole("table", { name: "Your tags" });
