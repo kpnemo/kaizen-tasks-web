@@ -17,6 +17,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - The accent is oxblood instead of indigo, and it is one variable: `--brand` in `src/styles/globals.css` (`oklch(0.42 0.13 30)`), from which `--primary`, `--ring`, `--accent` and `--accent-foreground` derive in both themes with relative colour syntax. Primary buttons, links, the checked checkbox, the focus ring, the AI badges and chips, the progress bar and the brand mark follow it; neutrals, backgrounds, the destructive red and the tag palette do not change. The browser theme-color and the favicon tile carry its hex, `#86281d`, and `tests/accent-tokens.test.ts` keeps them in step with the variable. (#19)
 
+### Fixed
+
+- `staging-label` workflow: runs on Railway's `deployment_status` for `kaizen-tasks / staging` turning `success` (plus a manual `workflow_dispatch` with a `from`/`to` range) instead of on every push to develop, and no longer polls staging. The push-triggered run was itself a check suite that Railway's wait-for-CI waited on while the run waited for Railway to serve the same commit, so the first merge that referenced a harness issue (181077b, issue 19) deadlocked for 15 minutes and its staging deploy was skipped. The run now reads every feat/ or fix/ pull request merged since the previous successful staging deploy, so a superseded deploy loses no issue comment.
+
 ## [1.2.0] - 2026-09-10
 
 ### Added
