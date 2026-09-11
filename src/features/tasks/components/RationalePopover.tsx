@@ -1,14 +1,15 @@
 import { Sparkles } from "lucide-react";
 import { useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 
-/** "Suggested by AI" badge. The rationale shows while hovering and pins on tap or click, so
+/** "Suggested by AI" pill. The rationale shows while hovering and pins on tap or click, so
  *  nothing the demo depends on is hover-only. Once a click sets `pinned`, it wins over hover:
  *  hovering or leaving has no effect on visibility until the next click (a user who hovers,
  *  clicks to pin, then clicks again to close is still hovering the whole time, so `open` must
  *  be driven by the click rather than derived from `hover || pinned`).
  *
- *  The badge is a plain `PopoverAnchor`, not a `PopoverTrigger`, because visibility is driven by
+ *  The pill is a plain `PopoverAnchor`, not a `PopoverTrigger`, because visibility is driven by
  *  our own state rather than Radix's built-in toggle. Radix's non-modal content only exempts its
  *  own registered *trigger* ref from "click outside" dismissal, so a plain anchor's own click
  *  would otherwise read as an outside interaction and close the content on the same click that
@@ -28,10 +29,12 @@ export function RationalePopover({ rationale }: { rationale: string | null }) {
       }}
     >
       <PopoverAnchor asChild>
-        <button
+        <Button
           ref={anchorRef}
-          type="button"
+          variant="secondary"
+          className="rounded-full"
           aria-expanded={open}
+          aria-haspopup="dialog"
           onClick={() =>
             setPinned((was) => {
               const next = !was;
@@ -45,11 +48,10 @@ export function RationalePopover({ rationale }: { rationale: string | null }) {
           onPointerLeave={() => {
             if (!pinned) setOpen(false);
           }}
-          className="inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-sm font-semibold text-accent-foreground"
         >
-          <Sparkles className="size-4" aria-hidden="true" />
+          <Sparkles data-icon="inline-start" aria-hidden="true" />
           Suggested by AI
-        </button>
+        </Button>
       </PopoverAnchor>
       <PopoverContent
         className="w-80 text-base"
