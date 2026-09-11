@@ -136,6 +136,14 @@ const FIXTURE_SPEC = JSON.stringify({
       post: { summary: "Create a thing", tags: ["things"], operationId: "createThing" },
     },
     "/health": { get: { summary: "Health check", tags: ["system"], operationId: "health" } },
+    // A tag that sorts first with a path that sorts last, and a summary past the column's cut.
+    "/zebras": {
+      get: {
+        summary: "List every zebra on the savannah with its stripes counted",
+        tags: ["alpha"],
+        operationId: "listZebras",
+      },
+    },
   },
 });
 
@@ -310,14 +318,23 @@ describe("scripts/product-map.mjs (fixtures)", () => {
     expect(rows).toHaveLength(1);
   });
 
-  it("tables the contract's endpoints", () => {
+  it("tables the contract's endpoints by path, summaries cut at 40 characters", () => {
     const { text } = generate(makeRoot(fixtureFiles()));
     // Three cells: the tag is the path's first segment, so it earns no column of its own.
     expect(row(text, "GET")?.slice(1)).toEqual(["`/health`", "Health check"]);
     expect(row(text, "POST")?.slice(1)).toEqual(["`/things`", "Create a thing"]);
+    // Sorted by path, not by tag: "alpha" would otherwise put /zebras first.
+    const paths = text
+      .split("\n")
+      .filter((line) => /^\| (GET|POST|PUT|PATCH|DELETE) /.test(line))
+      .map((line) => line.split("|")[2].trim());
+    expect(paths).toEqual(["`/health`", "`/things`", "`/things`", "`/zebras`"]);
+    const zebras = text.split("\n").find((line) => line.includes("`/zebras`"));
+    expect(zebras).toContain("List every zebra on the savannah with i…");
+    expect(zebras).not.toContain("stripes");
   });
 
-  it("cuts unreleased bullets at 200 characters and released ones to two per release at 120", () => {
+  it("cuts unreleased bullets at 200 characters and released ones to one per release at 100", () => {
     const { text } = generate(makeRoot(fixtureFiles()));
     expect(text).toContain("Recent releases (history, not current behavior)");
     const unreleased = text.split("\n").find((line) => line.includes("An unreleased bullet"));
@@ -330,6 +347,8 @@ describe("scripts/product-map.mjs (fixtures)", () => {
     expect(text).toContain("1.2.0");
     expect(text).toContain("1.0.0");
     expect(text).not.toContain("0.9.0");
+    // One bullet per release: the second and third are history the changelog keeps, not the map.
+    expect(text).not.toContain("Second released bullet");
     expect(text).not.toContain("Third released bullet");
     const cut = text.split("\n").find((line) => line.includes("A released bullet that runs"));
     expect(cut).toBeDefined();

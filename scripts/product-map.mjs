@@ -27,7 +27,7 @@ const CHANGELOG_FILE = "CHANGELOG.md";
 const ADR_DIR = "docs/adr";
 const FEATURES_DIR = "src/features";
 const RELEASES_KEPT = 3;
-const BULLETS_PER_RELEASE = 2;
+const BULLETS_PER_RELEASE = 1; // one per released version: the map is an inventory, CHANGELOG.md the history
 const RELEASED_BULLET_CHARS = 100;
 const UNRELEASED_BULLET_CHARS = 200; // longer than a released bullet, still bounded (ruling 5)
 // A hard ceiling on the whole [Unreleased] section, so a busy release cycle cannot push the map
@@ -36,8 +36,8 @@ const UNRELEASED_BULLET_CHARS = 200; // longer than a released bullet, still bou
 const UNRELEASED_SECTION_CHARS = 1000; // 12 KB budget with headroom for a growing inventory (2026-09-11, pipeline page)
 // The endpoints table pads every row to its widest cell, so one long operation summary costs its
 // extra width on every route; the column is cut so a new route cannot widen thirty rows. The tag
-// is not a column: it repeats the path's first segment.
-const ENDPOINT_SUMMARY_CHARS = 50;
+// is not a column: it repeats the path's first segment, so the rows are sorted by path too.
+const ENDPOINT_SUMMARY_CHARS = 40;
 const ICON_PACKAGE = "lucide-react";
 const METHODS = ["get", "post", "put", "patch", "delete"];
 
@@ -383,13 +383,11 @@ function collectEndpoints(root) {
         method: method.toUpperCase(),
         path,
         summary: operation.summary ?? operation.operationId ?? "",
-        tag: (operation.tags ?? [])[0] ?? "",
       });
     }
   }
   return endpoints.sort(
     (a, b) =>
-      a.tag.localeCompare(b.tag) ||
       a.path.localeCompare(b.path) ||
       METHODS.indexOf(a.method.toLowerCase()) - METHODS.indexOf(b.method.toLowerCase()),
   );
