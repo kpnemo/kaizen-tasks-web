@@ -73,7 +73,7 @@ export function TagsPage() {
         <Card>
           <CardHeader>
             <CardTitle>New tag</CardTitle>
-            <CardDescription className="text-base">
+            <CardDescription>
               A name and a palette color. Tags connect related tasks.
             </CardDescription>
           </CardHeader>
@@ -118,12 +118,10 @@ export function TagsPage() {
         <TagsLoading />
       ) : tags.isError ? (
         <div className="flex flex-col items-start gap-3">
-          <Alert variant="destructive" className="text-base">
+          <Alert variant="destructive">
             <CircleAlert aria-hidden="true" />
             <AlertTitle>Could not load tags</AlertTitle>
-            <AlertDescription className="text-base">
-              {toApiError(tags.error).message}
-            </AlertDescription>
+            <AlertDescription>{toApiError(tags.error).message}</AlertDescription>
           </Alert>
           <Button variant="outline" onClick={() => void tags.refetch()} disabled={tags.isFetching}>
             {tags.isFetching ? (
@@ -141,13 +139,11 @@ export function TagsPage() {
               <TagIcon />
             </EmptyMedia>
             <EmptyTitle>No tags</EmptyTitle>
-            <EmptyDescription className="text-base">
-              No tags yet. Tags connect related tasks.
-            </EmptyDescription>
+            <EmptyDescription>No tags yet. Tags connect related tasks.</EmptyDescription>
           </EmptyHeader>
         </Empty>
       ) : (
-        <Table aria-label="Your tags" className="text-base">
+        <Table aria-label="Your tags">
           <TagsTableHeader />
           <TableBody>
             {tags.data.map((tag) => (
@@ -181,7 +177,7 @@ function TagsLoading() {
   return (
     <div role="status">
       <span className="sr-only">Loading tags</span>
-      <Table aria-hidden="true" className="text-base">
+      <Table aria-hidden="true">
         <TagsTableHeader />
         <TableBody>
           {[0, 1, 2].map((row) => (
