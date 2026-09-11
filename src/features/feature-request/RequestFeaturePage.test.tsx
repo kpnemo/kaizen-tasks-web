@@ -66,7 +66,8 @@ describe("request a feature", () => {
       }),
     );
     const { user } = renderApp({ route: "/tasks" });
-    await user.click(await screen.findByRole("link", { name: "Request a feature" }));
+    await user.click(await screen.findByRole("button", { name: "Demo" }));
+    await user.click(await screen.findByRole("menuitem", { name: "Request a feature" }));
     expect(await screen.findByRole("heading", { name: "Request a feature" })).toBeInTheDocument();
     await user.click(screen.getByRole("link", { name: "Skip the interview, fill the form" }));
     await screen.findByRole("form", { name: "Request a feature" });
@@ -201,7 +202,10 @@ describe("request a feature", () => {
       }),
     );
     const { user } = renderApp({ route: "/tasks" });
-    await screen.findByRole("link", { name: "Request a feature" });
+    await user.click(await screen.findByRole("button", { name: "Demo" }));
+    await screen.findByRole("menuitem", { name: "Request a feature" });
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
     await user.click(screen.getByRole("link", { name: "Tags" }));
     await screen.findByRole("heading", { name: "Tags" });
     await user.click(screen.getByRole("link", { name: "Tasks" }));

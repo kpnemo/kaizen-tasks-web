@@ -41,14 +41,15 @@ describe("routing shell", () => {
     expect(tasks.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
     expect(tags.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
     expect(screen.queryByRole("link", { name: "Request a feature" })).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Log out" }));
+    await user.click(screen.getByRole("button", { name: "Demo" }));
+    await user.click(await screen.findByRole("menuitem", { name: "Log out" }));
     expect(await screen.findByRole("heading", { name: "Log in" })).toBeInTheDocument();
   });
 
   it("renders a not-found page inside the shell for a signed-in user", async () => {
     renderApp({ route: "/nowhere" });
     expect(await screen.findByRole("heading", { name: "Page not found" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Log out" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Demo" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Go to your tasks" })).toHaveAttribute(
       "href",
       "/tasks",
@@ -59,7 +60,7 @@ describe("routing shell", () => {
   it("renders the not-found page without the shell for an anonymous visitor", async () => {
     renderApp({ route: "/nowhere", session: "anonymous" });
     expect(await screen.findByRole("heading", { name: "Page not found" })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Log out" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Demo" })).toBeNull();
     expect(screen.getByRole("link", { name: "Go to your tasks" })).toHaveAttribute(
       "href",
       "/tasks",
