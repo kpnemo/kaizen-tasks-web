@@ -20,9 +20,9 @@ import { Spinner } from "@/components/ui/spinner";
 import { useLogin } from "./hooks";
 
 /** The sign-in screen: one Card centred in the viewport, so the whole form sits inside the
- *  projector's fold. The heading keeps its h1 through `CardTitle asChild` (the selector contract
- *  pins heading "Log in"), field errors come from the API through `Field`, and an error that
- *  belongs to no field is one destructive Alert; the two never mount together. */
+ *  projector's fold. The heading is a real h1 inside `CardTitle` (the selector contract pins
+ *  heading "Log in"; card.tsx has no asChild), field errors come from the API through `Field`, and
+ *  an error that belongs to no field is one destructive Alert; the two never mount together. */
 export function LoginPage() {
   const login = useLogin();
   const [email, setEmail] = useState("");
@@ -39,10 +39,11 @@ export function LoginPage() {
               <KaizenMark />
               <span className="font-display text-2xl font-bold">Kaizen Tasks</span>
             </div>
-            <CardTitle asChild className="text-3xl">
-              <h1>Log in</h1>
+            {/* Sized on the h1 itself, as on the register card, so the two headings match. */}
+            <CardTitle>
+              <h1 className="text-3xl">Log in</h1>
             </CardTitle>
-            <CardDescription className="text-base">Pick up where you left off.</CardDescription>
+            <CardDescription>Pick up where you left off.</CardDescription>
           </CardHeader>
           <CardContent>
             <form

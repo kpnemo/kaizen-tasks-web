@@ -70,7 +70,10 @@ When a card must be a form, a list item or a named region, wrap it in that eleme
 `<section aria-label="Your request"><Card>…</Card></section>`. The accessibility tree is the one
 `asChild` would give. A contract heading inside a card is a real heading inside `CardTitle`:
 `<CardTitle><h1>Log in</h1></CardTitle>`. It keeps the `h1`/`h2` type `globals.css` gives every page
-heading and gains the role and name the selector contract pins; `CardTitle` only places it.
+heading and gains the role and name the selector contract pins; `CardTitle` only places it. A
+narrow card may size that heading on the `h1` itself (`<h1 className="text-3xl">` keeps "Create
+your account" on one line and the register submit inside the 1024x640 fold); the face, weight and
+tracking still come from `globals.css`, and `CardTitle` takes no className for it.
 
 New header controls match the ones beside them: the same `Button` variants and sizes as
 `src/app/layout.tsx` uses today (`variant="outline"` for an action such as "Log out"), the same gap,

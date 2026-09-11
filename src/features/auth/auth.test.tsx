@@ -46,7 +46,11 @@ describe("login", () => {
 
   it("opens with the email field focused, an iconed submit, and a link to registration", () => {
     renderApp({ route: "/login", session: "anonymous" });
-    expect(screen.getByRole("heading", { name: "Log in", level: 1 })).toBeInTheDocument();
+    // A real h1 inside CardTitle, not CardTitle rendered as the h1: card.tsx has no asChild (the
+    // Surfaces rule in docs/ui-conventions.md), so the heading keeps the page-heading type
+    // globals.css gives every h1 and CardTitle only places it.
+    const heading = screen.getByRole("heading", { name: "Log in", level: 1 });
+    expect(heading.parentElement).toHaveAttribute("data-slot", "card-title");
     expect(screen.getByLabelText("Email")).toHaveFocus();
     expect(screen.getByRole("button", { name: "Log in" }).querySelector("svg")).toHaveAttribute(
       "aria-hidden",
@@ -126,9 +130,8 @@ describe("register", () => {
 
   it("opens with the email field focused and links back to login", () => {
     renderApp({ route: "/register", session: "anonymous" });
-    expect(
-      screen.getByRole("heading", { name: "Create your account", level: 1 }),
-    ).toBeInTheDocument();
+    const heading = screen.getByRole("heading", { name: "Create your account", level: 1 });
+    expect(heading.parentElement).toHaveAttribute("data-slot", "card-title");
     expect(screen.getByLabelText("Email")).toHaveFocus();
     expect(
       screen.getByRole("button", { name: "Create account" }).querySelector("svg"),

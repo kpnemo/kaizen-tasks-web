@@ -2,10 +2,11 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-// Two projector rules from docs/ui-conventions.md that live in shared files rather than in any one
-// screen: copy a user must read is 18px (`text-base` against the 18px root) and every control has a
-// 44px hit area. Vitest runs with `css: false`, so, like tests/accent-tokens.test.ts, these read the
-// sources as text: a shadcn primitive re-added with `--overwrite` would silently bring `text-sm` back.
+// Rules from docs/ui-conventions.md that live in shared files rather than in any one screen: copy a
+// user must read is 18px (`text-base` against the 18px root), every control has a 44px hit area, and
+// card.tsx stays the CLI's (the Surfaces rule). Vitest runs with `css: false`, so, like
+// tests/accent-tokens.test.ts, these read the sources as text: a shadcn primitive re-added with
+// `--overwrite` would silently bring `text-sm` back, and a local `asChild` would be lost the same way.
 
 const ROOT = process.cwd();
 const read = (path: string) => readFileSync(join(ROOT, path), "utf8");
@@ -21,7 +22,9 @@ describe("projector rules", () => {
       expect(source, file).not.toMatch(/\btext-sm\b/);
     }
     for (const page of ["src/features/auth/LoginPage.tsx", "src/features/auth/RegisterPage.tsx"]) {
-      expect(read(page), page).not.toMatch(/<Alert(Description)?[^>]*className="[^"]*text-base/);
+      expect(read(page), page).not.toMatch(
+        /<(Alert|Card)(Description)?[^>]*className="[^"]*text-base/,
+      );
     }
   });
 
@@ -35,5 +38,19 @@ describe("projector rules", () => {
     const selectors = rule![0].split("{")[0];
     expect(selectors).toContain("a[data-nav]");
     expect(selectors).toContain('a[data-slot="button"]');
+  });
+
+  it("keeps card.tsx the CLI's, with a contract heading as a real h1 inside CardTitle", () => {
+    // The Surfaces rule: card.tsx has no asChild and gets none, because a local Slot would be lost
+    // to the next `npx shadcn@latest add card --overwrite`. A heading the selector contract pins
+    // is `<CardTitle><h1>…</h1></CardTitle>`, with no className on CardTitle: the h1 takes the
+    // page-heading face and weight globals.css gives every h1 (a narrow card may size it on the
+    // h1 itself), and CardTitle only places it.
+    const card = read("src/components/ui/card.tsx");
+    expect(card).not.toContain("asChild");
+    expect(card).not.toContain("Slot");
+    for (const page of ["src/features/auth/LoginPage.tsx", "src/features/auth/RegisterPage.tsx"]) {
+      expect(read(page), page).toMatch(/<CardTitle>\s*<h1[\s>]/);
+    }
   });
 });
