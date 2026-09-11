@@ -43,7 +43,7 @@ export function TaskDetailPage() {
           )}
         </Alert>
         <Button asChild variant="outline" className="self-start">
-          <Link to="/tasks">
+          <Link to="/tasks" data-nav>
             <ArrowLeft data-icon="inline-start" aria-hidden="true" />
             Back to tasks
           </Link>

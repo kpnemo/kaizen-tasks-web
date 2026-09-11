@@ -221,5 +221,7 @@ describe("task detail", () => {
     const back = screen.getByRole("link", { name: "Back to tasks" });
     expect(back).toHaveAttribute("href", "/tasks");
     expect(back).toHaveAttribute("data-slot", "button");
+    // A Button-styled anchor gets the 44px hit area only through the globals.css `a[data-nav]` rule.
+    expect(back).toHaveAttribute("data-nav");
   });
 });
