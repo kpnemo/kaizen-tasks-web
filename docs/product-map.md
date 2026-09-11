@@ -97,7 +97,11 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 
 ### Unreleased
 
-- **Changed** — The header's theme control is a single icon-only button that cycles light, dark, then system on each click (was a three-item menu); Feature Request, Pipeline, and Log out move into a new account menu…
+- nothing yet
+
+### 1.6.0 — 2026-09-11
+
+- **Changed** — The header's theme control is a single icon-only button that cycles light, dark, then system on eac…
 
 ### 1.5.0 — 2026-09-11
 
@@ -106,10 +110,6 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 ### 1.4.0 — 2026-09-11
 
 - **Added** — The shadcn skill (`.claude/skills/shadcn/`, installed from shadcn/ui, tracked by `skills-lock.json`…
-
-### 1.3.0 — 2026-09-11
-
-- **Added** — `docs/product-map.md`: what this app is and what it has, for an agent about to interview a product…
 
 ## Decisions (`docs/adr/*.md`)
 
