@@ -8,33 +8,37 @@
    "the user asked for dark", not "the OS is dark". `system` resolves to the OS setting first. */
 @custom-variant dark (&:is(.dark *));
 
-/* Kaizen identity: one accent (indigo, the Japanese dye "ai"), one display face (Fraunces),
-   one body face (Atkinson Hyperlegible), tuned for a projected laptop screen. */
+/* Kaizen identity: one accent, one display face (Fraunces), one body face (Atkinson Hyperlegible),
+   tuned for a projected laptop screen. The accent is `--brand` (oxblood); every accent token in both
+   themes derives from it, so a refresh changes that one line. Two files cannot read a CSS variable
+   and carry its hex by hand: the theme-color meta in index.html and the tile in public/favicon.svg.
+   tests/accent-tokens.test.ts names the hex they must carry. */
 :root {
+  --brand: oklch(0.42 0.13 30);
   --background: oklch(0.985 0.005 95);
   --foreground: oklch(0.2 0.02 270);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.2 0.02 270);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.2 0.02 270);
-  --primary: oklch(0.45 0.19 272);
+  --primary: var(--brand);
   --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.94 0.01 95);
   --secondary-foreground: oklch(0.2 0.02 270);
   --muted: oklch(0.94 0.01 95);
   --muted-foreground: oklch(0.5 0.02 80);
-  --accent: oklch(0.93 0.04 272);
-  --accent-foreground: oklch(0.3 0.15 272);
+  --accent: oklch(from var(--brand) 0.93 calc(c * 0.25) h);
+  --accent-foreground: oklch(from var(--brand) 0.32 calc(c * 0.8) h);
   --destructive: oklch(0.55 0.2 27);
   --border: oklch(0.86 0.01 95);
   --input: oklch(0.86 0.01 95);
-  --ring: oklch(0.45 0.19 272);
+  --ring: var(--brand);
   --radius: 0.75rem;
   color-scheme: light;
 }
 
-/* The same identity after dark: the indigo lifts so it still reads as the accent on a dark ground,
-   and the neutrals keep their warm tilt. Only the tokens change; nothing below this knows. */
+/* The same identity after dark: the accent lifts so it still reads on a dark ground, and the
+   neutrals keep their warm tilt. Only the tokens change; nothing below this knows. */
 .dark {
   --background: oklch(0.19 0.02 270);
   --foreground: oklch(0.96 0.005 95);
@@ -42,18 +46,18 @@
   --card-foreground: oklch(0.96 0.005 95);
   --popover: oklch(0.24 0.02 270);
   --popover-foreground: oklch(0.96 0.005 95);
-  --primary: oklch(0.72 0.15 272);
-  --primary-foreground: oklch(0.17 0.03 272);
+  --primary: oklch(from var(--brand) 0.72 calc(c * 0.85) h);
+  --primary-foreground: oklch(from var(--brand) 0.17 calc(c * 0.25) h);
   --secondary: oklch(0.3 0.02 270);
   --secondary-foreground: oklch(0.96 0.005 95);
   --muted: oklch(0.3 0.02 270);
   --muted-foreground: oklch(0.76 0.02 90);
-  --accent: oklch(0.36 0.08 272);
-  --accent-foreground: oklch(0.93 0.04 272);
+  --accent: oklch(from var(--brand) 0.36 calc(c * 0.45) h);
+  --accent-foreground: oklch(from var(--brand) 0.93 calc(c * 0.25) h);
   --destructive: oklch(0.68 0.19 27);
   --border: oklch(0.35 0.02 270);
   --input: oklch(0.35 0.02 270);
-  --ring: oklch(0.72 0.15 272);
+  --ring: oklch(from var(--brand) 0.72 calc(c * 0.85) h);
   color-scheme: dark;
 }
 

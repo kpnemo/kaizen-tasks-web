@@ -6,12 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-09-11
+
 ### Added
 
 - `docs/product-map.md`: what this app is and what it has, for an agent about to interview a product owner. A hand-written header, then a generated inventory of screens, shell controls, feature folders, contract endpoints, recent releases and ADRs, rebuilt by `npm run product-map` (`scripts/product-map.mjs`, `--sources` lists what it reads).
 - Docs-check Rule D: the product map is regenerated and compared on every run, in both modes, before the early return and with no trigger list. A missing map, a generator failure or a difference fails (ADR 0007).
 - `docs/ui-conventions.md`: how a control a change adds or alters should look — the primitives in `src/components/ui/` first, an icon on every mode or action control, header controls matching their neighbours, all four screen states, both themes, projector legibility. A request that names a look wins.
 - `scripts/screenshot.mjs <scenario>` (scenarios in `scripts/screenshots/`: `tasks`, `theme-focused`) captures the running app in both themes to `docs/screenshots/`, asserting the route and the `dark` class before each shot; failures exit 2 with one line. `add-frontend-feature` now requires the pair on any visible change.
+
+### Changed
+
+- The accent is oxblood instead of indigo, and it is one variable: `--brand` in `src/styles/globals.css` (`oklch(0.42 0.13 30)`), from which `--primary`, `--ring`, `--accent` and `--accent-foreground` derive in both themes with relative colour syntax. Primary buttons, links, the checked checkbox, the focus ring, the AI badges and chips, the progress bar and the brand mark follow it; neutrals, backgrounds, the destructive red and the tag palette do not change. The browser theme-color and the favicon tile carry its hex, `#86281d`, and `tests/accent-tokens.test.ts` keeps them in step with the variable. (#19)
+
+### Fixed
+
+- `staging-label` workflow: runs on Railway's `deployment_status` for `kaizen-tasks / staging` turning `success` (plus a manual `workflow_dispatch` with a `from`/`to` range) instead of on every push to develop, and no longer polls staging. The push-triggered run was itself a check suite that Railway's wait-for-CI waited on while the run waited for Railway to serve the same commit, so the first merge that referenced a harness issue (181077b, issue 19) deadlocked for 15 minutes and its staging deploy was skipped. The run now reads every feat/ or fix/ pull request merged since the previous successful staging deploy, so a superseded deploy loses no issue comment.
 
 ## [1.2.0] - 2026-09-10
 
