@@ -6,10 +6,11 @@ import { Badge } from "@/components/ui/badge";
 
 /** One quiet line at the bottom of every page: who this app was made for, plus a second line
  *  printing the web and API versions so the room can see which release each environment runs
- *  (ADR 0004). The API segment is a Badge: outline when the API's version matches this build,
- *  destructive with the API's own version and a visible note when it does not, so a mismatch
- *  reads by shape and words rather than by colour alone. The text stays `api v{version} {commit}`
- *  or `api {commit}` in one node, which the smoke test reads. */
+ *  (ADR 0004). When the API's version matches this build, the two commits are plain text of the
+ *  same weight, one for each half. Only a mismatch changes shape: a destructive Badge with the
+ *  API's own version, a warning icon and a visible note, so it reads by shape and words rather
+ *  than by colour alone. The text stays `api v{version} {commit}` or `api {commit}` in one node,
+ *  which the smoke test reads. */
 export function WorkshopFooter() {
   const { data: health } = useQuery(healthQueryOptions);
   const apiMatches = health ? health.version === __APP_VERSION__ : undefined;
@@ -30,7 +31,7 @@ export function WorkshopFooter() {
           <>
             <span aria-hidden="true">·</span>
             {apiMatches ? (
-              <Badge variant="outline">{`api ${health.commit.slice(0, 7)}`}</Badge>
+              <span>{`api ${health.commit.slice(0, 7)}`}</span>
             ) : (
               <>
                 <Badge variant="destructive">
