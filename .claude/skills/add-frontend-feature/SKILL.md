@@ -22,13 +22,21 @@ hook (`scripts/docs-check.sh --hook`) blocks the session until they are done.
    accessible name. Every
    feature needs a happy-path test and an error-state test (the API error rendered through
    `toastApiError` or a field error). Run it and watch it fail for the right reason.
-4. **Add or extend the feature folder.** `src/features/<domain>/` holds the page, `components/`, and
-   `hooks.ts`. Shared primitives go in `src/components/` (shadcn under `ui/`), pure helpers in
-   `src/lib/`. A feature never imports another feature; share through `api/`, `components/`, or `lib/`. Anything a user sees follows `docs/ui-conventions.md`: the primitives in
-   `src/components/ui/` before anything native, a lucide icon on every mode, state or action control,
-   new header controls matching the ones beside them, all four screen states, and both themes. The
-   rules apply to what you add or alter, never to controls you leave alone; a request that names a
-   specific look wins, inside the accessibility rules.
+4. **Add or extend the feature folder, composed from shadcn.** Before writing anything a user
+   sees, load two skills and follow them: `.claude/skills/shadcn/SKILL.md` (the shadcn skill: its
+   Critical Rules are enforced here, its `npx shadcn@latest` CLI is how a component is added and
+   how its docs are read) and the `frontend-design` skill (the look: hierarchy, spacing, restraint).
+   `src/features/<domain>/` holds the page, `components/`, and `hooks.ts`. Shared primitives go in
+   `src/components/` (shadcn under `ui/`), pure helpers in `src/lib/`. A feature never imports
+   another feature; share through `api/`, `components/`, or `lib/`. Anything a user sees follows
+   `docs/ui-conventions.md`, and in particular: tabular data is a shadcn `Table`, never a
+   flex-wrapped list; a status is a `Badge` with a visible variant, never `ghost`; a row's actions sit
+   in one non-wrapping column; loading is `Skeleton`, empty is `Empty`, an error is `Alert`; a missing
+   primitive is added with `npx shadcn@latest add <name>` (and its docs read with
+   `npx shadcn@latest docs <name>`), never hand-rolled. A lucide icon on every mode, state or action
+   control, new header controls matching the ones beside them, all four screen states, and both
+   themes. The rules apply to what you add or alter, never to controls you leave alone; a request
+   that names a specific look wins, inside the accessibility rules.
 5. **Add the hook.** Queries and mutations in `hooks.ts` use `client` and `unwrap` from
    `src/api/client.ts`; keys follow `["tasks", filters]`, `["tasks", id]`, `["tags"]`; every mutation
    invalidates the affected keys on success and calls `toastApiError` on error unless the page maps

@@ -6,3 +6,5 @@ src/api/openapi.json
 src/components/ui
 CHANGELOG.md
 .superpowers/
+# vendored skill, tracked by skills-lock.json (its hash covers the files as installed)
+.claude/skills/shadcn/
