@@ -312,8 +312,9 @@ describe("scripts/product-map.mjs (fixtures)", () => {
 
   it("tables the contract's endpoints", () => {
     const { text } = generate(makeRoot(fixtureFiles()));
-    expect(row(text, "GET")?.slice(1)).toEqual(["`/health`", "Health check", "system"]);
-    expect(row(text, "POST")?.slice(1)).toEqual(["`/things`", "Create a thing", "things"]);
+    // Three cells: the tag is the path's first segment, so it earns no column of its own.
+    expect(row(text, "GET")?.slice(1)).toEqual(["`/health`", "Health check"]);
+    expect(row(text, "POST")?.slice(1)).toEqual(["`/things`", "Create a thing"]);
   });
 
   it("cuts unreleased bullets at 200 characters and released ones to two per release at 120", () => {

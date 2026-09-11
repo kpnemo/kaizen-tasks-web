@@ -1564,6 +1564,405 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/pipeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One snapshot of the delivery pipeline
+         * @description Mounted only when PIPELINE_GITHUB_TOKEN, FACILITATOR_EMAILS, DEPLOY_PASSPHRASE, STAGING_WEB_URL and PRODUCTION_WEB_URL are all set (`features.pipeline` in /health). Environments, branch heads, the open feature-request and bug issues plus those shipped in the last 14 days with their pull requests across the api, web and harness repositories, `onStaging` by comparing merge commits with what staging serves, the next release version from both changelogs, and the ship workflow's state. The shared part is cached for 30 seconds and rebuilt by one request at a time; while a refresh runs for someone else a last-good copy younger than 60 seconds is served as fresh. A failed refresh starts a cooldown (60 seconds, or until GitHub's rate-limit reset) during which the last-good snapshot (up to an hour old) is served with `stale: true` and `staleReason` and nothing reaches GitHub. `canDeploy` is computed per caller.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The snapshot */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["PipelineSnapshot"];
+                            meta: components["schemas"]["Meta"];
+                        };
+                    };
+                };
+                /** @description UNAUTHORIZED */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description UPSTREAM_ERROR */
+                502: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description UNAVAILABLE */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pipeline/issues/{number}/deploy-staging": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Merge an issue's green pull requests into develop
+         * @description Facilitators only. Guards in order: the session email is on FACILITATOR_EMAILS (else FORBIDDEN), the caller is not locked out (five wrong passphrases in ten minutes: RATE_LIMITED with `details.resetAt`, checked before the comparison), the passphrase matches in constant time (else FORBIDDEN with `details.reason: "passphrase"`); Redis down is UNAVAILABLE. Then the action lock (CONFLICT while another action or a ship run is in progress), a fresh read of the issue's open pull requests across the api, web and harness repositories, and CONFLICT naming the first that is not green (open, not draft, base develop, no conflicts, `ci` completed successfully on the current head). Merges in order api, web, harness, squash, passing the inspected head SHA. A failure mid-list stops the list and answers 200 with `remaining` filled, so the next press finishes it; a moved head on the first merge is CONFLICT. Labels are the staging-label workflow's job.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Harness issue number */
+                    number: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DeployBody"];
+                };
+            };
+            responses: {
+                /** @description What merged and what did not */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["DeployStagingResponse"];
+                            meta: components["schemas"]["Meta"];
+                        };
+                    };
+                };
+                /** @description VALIDATION_ERROR */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description UNAUTHORIZED */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description FORBIDDEN */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description CONFLICT */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description RATE_LIMITED */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description UPSTREAM_ERROR */
+                502: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description UNAVAILABLE */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pipeline/ship": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Dispatch the ship workflow for everything that is production-ready
+         * @description Facilitators only; the same guards and action lock as deploy-staging. Recomputes the production-ready issues and the next version fresh from GitHub: CONFLICT "the release changed, reload" when either differs from the body, CONFLICT "retry the earlier ship first" when an issue carries an unfinished ship marker for another version, CONFLICT while a ship run is queued or running. Then a UUID request id is recorded in Redis (`pipeline:ship:<requestId>`, 10 minutes), `ship.yml` in the harness repository is dispatched on `develop` with `{ request_id, version, issues }`, and the runs list is polled for up to 20 seconds for the run named `ship <requestId> <version>`. A second press for the same version and issue set while that record exists and its run has not concluded answers the same request id without dispatching again.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ShipBody"];
+                };
+            };
+            responses: {
+                /** @description Dispatched */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["ShipResponse"];
+                            meta: components["schemas"]["Meta"];
+                        };
+                    };
+                };
+                /** @description VALIDATION_ERROR */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description UNAUTHORIZED */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description FORBIDDEN */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description CONFLICT */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description RATE_LIMITED */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description UPSTREAM_ERROR */
+                502: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description UNAVAILABLE */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pipeline/ship/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Re-dispatch a failed or cancelled ship with its recorded version and issue set
+         * @description Facilitators only; the same guards and action lock. Reads the issue's newest ship marker: CONFLICT when there is none, when it is done, or when its run (or any ship run) is still queued or running. Dispatches `ship.yml` again with `request_id = <marker request id>-r<attempt>`, the marker's version and the marker's issue set, unchanged; the workflow's steps are idempotent, so the rerun resumes. Each attempt is recorded once (`SET NX`), so a second press before the new run or marker is visible answers the same request id without dispatching.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ShipRetryBody"];
+                };
+            };
+            responses: {
+                /** @description Dispatched */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["ShipResponse"];
+                            meta: components["schemas"]["Meta"];
+                        };
+                    };
+                };
+                /** @description VALIDATION_ERROR */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description UNAUTHORIZED */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description FORBIDDEN */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description CONFLICT */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description RATE_LIMITED */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description UPSTREAM_ERROR */
+                502: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description UNAVAILABLE */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/seed-reset": {
         parameters: {
             query?: never;
@@ -1638,6 +2037,7 @@ export interface components {
             };
             features: {
                 featureRequests: boolean;
+                pipeline: boolean;
             };
         };
         Meta: {
@@ -1648,7 +2048,7 @@ export interface components {
                 /** @enum {string} */
                 code: "VALIDATION_ERROR" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "RATE_LIMITED" | "UPSTREAM_ERROR" | "UNAVAILABLE" | "INTERNAL";
                 message: string;
-                details?: components["schemas"]["ValidationDetail"][] | components["schemas"]["RateLimitDetails"];
+                details?: components["schemas"]["ValidationDetail"][] | components["schemas"]["RateLimitDetails"] | components["schemas"]["ForbiddenDetails"];
                 requestId: string;
             };
         };
@@ -1662,6 +2062,13 @@ export interface components {
             limit: number;
             /** Format: date-time */
             resetAt: string;
+        };
+        ForbiddenDetails: {
+            /**
+             * @description Why a FORBIDDEN was answered when a reason is safe to show: a wrong deploy passphrase
+             * @enum {string}
+             */
+            reason: "passphrase";
         };
         AuthResponse: {
             user: components["schemas"]["User"];
@@ -1900,6 +2307,146 @@ export interface components {
         ConversationTurnBody: {
             content: string;
             skip?: boolean;
+        };
+        PipelineSnapshot: {
+            /** Format: date-time */
+            generatedAt: string;
+            stale: boolean;
+            staleReason?: string;
+            canDeploy: boolean;
+            nextVersion: string | null;
+            nextVersionError?: string;
+            ship: {
+                active: boolean;
+                run: components["schemas"]["PipelineShipRun"];
+            };
+            environments: {
+                staging: components["schemas"]["PipelineEnvironment"];
+                production: components["schemas"]["PipelineEnvironment"];
+            };
+            branches: {
+                api: {
+                    develop: string;
+                    main: string;
+                };
+                web: {
+                    develop: string;
+                    main: string;
+                };
+            };
+            issues: components["schemas"]["PipelineIssue"][];
+        };
+        PipelineShipRun: {
+            id: number;
+            /** Format: uri */
+            url: string;
+            requestId: string;
+            version: string;
+            /** @enum {string} */
+            status: "queued" | "in_progress" | "completed";
+            /** @enum {string|null} */
+            conclusion: "success" | "failure" | "cancelled" | "timed_out" | null;
+            step: string | null;
+            issues: number[];
+            createdAt: string;
+        } | null;
+        PipelineEnvironment: {
+            api: {
+                version: string;
+                commit: string;
+                /** @enum {string} */
+                db: "ok" | "failed";
+                /** @enum {string} */
+                redis: "ok" | "failed";
+            } | null;
+            web: {
+                version: string;
+                commit: string;
+            } | null;
+            /** @enum {string} */
+            state: "current" | "deploying" | "unreachable";
+        };
+        PipelineIssue: {
+            number: number;
+            title: string;
+            /** @enum {string} */
+            kind: "feature-request" | "bug";
+            /** @enum {string} */
+            state: "open" | "closed";
+            /** @enum {string} */
+            stage: "new" | "triaged" | "implementing" | "staging" | "shipped" | "closed";
+            readiness: number | null;
+            /** Format: uri */
+            url: string;
+            labels: string[];
+            createdAt: string;
+            closedAt: string | null;
+            pullRequests: components["schemas"]["PipelinePullRequest"][];
+            onStaging: boolean;
+            productionReady: boolean;
+            ship: components["schemas"]["PipelineIssueShip"];
+        };
+        PipelinePullRequest: {
+            /** @enum {string} */
+            repo: "api" | "web" | "harness";
+            number: number;
+            /** Format: uri */
+            url: string;
+            /** @enum {string} */
+            state: "open" | "merged" | "closed";
+            /** @enum {string|null} */
+            checks: "pending" | "green" | "red" | null;
+            mergeSha: string | null;
+            headSha: string;
+            draft: boolean;
+        };
+        PipelineIssueShip: {
+            requestId: string;
+            version: string;
+            /** Format: uri */
+            runUrl: string | null;
+            done: boolean;
+            /** @enum {string} */
+            status: "queued" | "in_progress" | "completed" | "unknown";
+            /** @enum {string|null} */
+            conclusion: "success" | "failure" | "cancelled" | "timed_out" | null;
+            step: string | null;
+        } | null;
+        DeployStagingResponse: {
+            merged: {
+                /** @enum {string} */
+                repo: "api" | "web" | "harness";
+                number: number;
+                sha: string;
+            }[];
+            remaining: {
+                /** @enum {string} */
+                repo: "api" | "web" | "harness";
+                number: number;
+                reason: string;
+            }[];
+        };
+        DeployBody: {
+            passphrase: string;
+        };
+        ShipResponse: {
+            requestId: string;
+            version: string;
+            issues: number[];
+            run: {
+                id: number;
+                /** Format: uri */
+                url: string;
+            } | null;
+        };
+        ShipBody: {
+            passphrase: string;
+            version: string;
+            issues: number[];
+        };
+        ShipRetryBody: {
+            passphrase: string;
+            issue: number;
         };
         SeedResetResponse: {
             /** Format: uuid */

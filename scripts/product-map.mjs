@@ -33,7 +33,11 @@ const UNRELEASED_BULLET_CHARS = 200; // longer than a released bullet, still bou
 // A hard ceiling on the whole [Unreleased] section, so a busy release cycle cannot push the map
 // over its size budget and fail an unrelated feature's test run. What does not fit is counted, not
 // dropped in silence: CHANGELOG.md is one file away.
-const UNRELEASED_SECTION_CHARS = 1200; // 12 KB budget with ~1 KB of headroom for a growing inventory (2026-09-11)
+const UNRELEASED_SECTION_CHARS = 1000; // 12 KB budget with headroom for a growing inventory (2026-09-11, pipeline page)
+// The endpoints table pads every row to its widest cell, so one long operation summary costs its
+// extra width on every route; the column is cut so a new route cannot widen thirty rows. The tag
+// is not a column: it repeats the path's first segment.
+const ENDPOINT_SUMMARY_CHARS = 50;
 const ICON_PACKAGE = "lucide-react";
 const METHODS = ["get", "post", "put", "patch", "delete"];
 
@@ -535,12 +539,11 @@ function renderSections(root) {
 
     `## Endpoints the app may call (${code(SPEC_FILE)})`,
     table(
-      ["Method", "Path", "Summary", "Tag"],
+      ["Method", "Path", "Summary"],
       endpoints.map((endpoint) => [
         endpoint.method,
         code(endpoint.path),
-        endpoint.summary,
-        endpoint.tag,
+        cut(endpoint.summary, ENDPOINT_SUMMARY_CHARS),
       ]),
     ),
 

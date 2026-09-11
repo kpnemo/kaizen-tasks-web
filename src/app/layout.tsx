@@ -8,6 +8,7 @@ import { WorkshopFooter } from "@/components/workshop-footer";
 import { useLogout } from "@/features/auth/hooks";
 import { useSession } from "@/features/auth/useSession";
 import { FeatureRequestLink } from "@/features/feature-request/FeatureRequestLink";
+import { PipelineLink } from "@/features/pipeline/PipelineLink";
 import { ThemeToggle } from "@/features/theme/ThemeToggle";
 
 /** The signed-in frame: brand, primary nav, theme control, who is signed in, log out, and the
@@ -32,6 +33,7 @@ export function AppShell({ children }: { children?: ReactNode }) {
               Tags
             </NavButton>
             <FeatureRequestLink />
+            <PipelineLink />
           </nav>
           <div className="ml-auto flex items-center gap-3">
             <ThemeToggle />
