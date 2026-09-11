@@ -39,8 +39,9 @@ export function LoginPage() {
               <KaizenMark />
               <span className="font-display text-2xl font-bold">Kaizen Tasks</span>
             </div>
+            {/* Sized on the h1 itself, as on the register card, so the two headings match. */}
             <CardTitle>
-              <h1>Log in</h1>
+              <h1 className="text-3xl">Log in</h1>
             </CardTitle>
             <CardDescription>Pick up where you left off.</CardDescription>
           </CardHeader>

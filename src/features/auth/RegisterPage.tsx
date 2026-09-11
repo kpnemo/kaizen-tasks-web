@@ -42,8 +42,10 @@ export function RegisterPage() {
               <KaizenMark />
               <span className="font-display text-2xl font-bold">Kaizen Tasks</span>
             </div>
+            {/* text-3xl on the h1 (face, weight and tracking still come from globals.css) keeps
+                the heading on one line and the submit inside the 1024x640 fold. */}
             <CardTitle>
-              <h1>Create your account</h1>
+              <h1 className="text-3xl">Create your account</h1>
             </CardTitle>
             <CardDescription>Big tasks, broken into steps you choose.</CardDescription>
           </CardHeader>

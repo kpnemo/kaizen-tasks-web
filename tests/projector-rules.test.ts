@@ -43,13 +43,14 @@ describe("projector rules", () => {
   it("keeps card.tsx the CLI's, with a contract heading as a real h1 inside CardTitle", () => {
     // The Surfaces rule: card.tsx has no asChild and gets none, because a local Slot would be lost
     // to the next `npx shadcn@latest add card --overwrite`. A heading the selector contract pins
-    // is `<CardTitle><h1>…</h1></CardTitle>`, with no className on either: the h1 takes the
-    // page-heading type globals.css gives every h1, and CardTitle only places it.
+    // is `<CardTitle><h1>…</h1></CardTitle>`, with no className on CardTitle: the h1 takes the
+    // page-heading face and weight globals.css gives every h1 (a narrow card may size it on the
+    // h1 itself), and CardTitle only places it.
     const card = read("src/components/ui/card.tsx");
     expect(card).not.toContain("asChild");
     expect(card).not.toContain("Slot");
     for (const page of ["src/features/auth/LoginPage.tsx", "src/features/auth/RegisterPage.tsx"]) {
-      expect(read(page), page).toMatch(/<CardTitle>\s*<h1>/);
+      expect(read(page), page).toMatch(/<CardTitle>\s*<h1[\s>]/);
     }
   });
 });
