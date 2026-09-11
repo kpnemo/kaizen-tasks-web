@@ -92,9 +92,12 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 
 ### Unreleased
 
-- **Added** — The shadcn skill (`.claude/skills/shadcn/`, installed from shadcn/ui, tracked by `skills-lock.json`) and a "shadcn first" section in `docs/ui-conventions.md`: every visible change loads it and the `f…
-- **Added** — "Requests so far" at the bottom of the Request page: every feature request filed to GitHub through `GET /feature-requests`, open first then closed and newest first, each with a stage chip derived fro…
-- **Fixed** — `scripts/product-map.mjs`: released bullets are cut at 100 characters (was 120) and the `[Unreleased]` section at 1,200 (was 1,600), leaving about 1 KB of headroom under the map's 12 KB budget. The b…
+- nothing yet
+
+### 1.4.0 — 2026-09-11
+
+- **Added** — The shadcn skill (`.claude/skills/shadcn/`, installed from shadcn/ui, tracked by `skills-lock.json`…
+- **Added** — "Requests so far" at the bottom of the Request page: every feature request filed to GitHub through…
 
 ### 1.3.0 — 2026-09-11
 
@@ -104,10 +107,6 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 ### 1.2.0 — 2026-09-10
 
 - **Added** — A Light / Dark / System control in the header. The choice applies to the page at once, `System` fol…
-
-### 1.1.1 — 2026-09-10
-
-- **Fixed** — `ConversationPanel` no longer shows the "Skip this question" chip while the assistant's greeting is…
 
 ## Decisions (`docs/adr/*.md`)
 
