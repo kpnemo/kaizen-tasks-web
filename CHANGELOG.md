@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-09-11
+
 ### Changed
 
 - The header's theme control is a single icon-only button that cycles light, dark, then system on
