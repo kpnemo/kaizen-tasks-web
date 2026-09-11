@@ -1,17 +1,19 @@
+import { Progress } from "@/components/ui/progress";
+
+/** Steps done over steps counted: a Progress that says it in words for the screen reader, beside
+ *  the `done/total` text the detail contract pins (for example `0/1`). A task with no counted
+ *  steps yet, the fresh one the demo creates live, shows nothing rather than an empty bar and 0/0. */
 export function ProgressBar({ done, total }: { done: number; total: number }) {
-  const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+  if (total === 0) return null;
+  const percent = Math.round((done / total) * 100);
   return (
     <div className="flex items-center gap-3">
-      <div
-        role="progressbar"
+      <Progress
+        value={percent}
+        className="h-3 w-32"
         aria-label="Steps done"
-        aria-valuemin={0}
-        aria-valuemax={total}
-        aria-valuenow={done}
-        className="h-2.5 w-28 overflow-hidden rounded-full bg-muted"
-      >
-        <div className="h-full bg-primary" style={{ width: `${percent}%` }} />
-      </div>
+        aria-valuetext={`${done} of ${total} steps done`}
+      />
       <span className="text-base font-semibold tabular-nums text-muted-foreground">
         {done}/{total}
       </span>
