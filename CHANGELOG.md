@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-09-11
+
 ### Added
 
 - `docs/product-map.md`: what this app is and what it has, for an agent about to interview a product owner. A hand-written header, then a generated inventory of screens, shell controls, feature folders, contract endpoints, recent releases and ADRs, rebuilt by `npm run product-map` (`scripts/product-map.mjs`, `--sources` lists what it reads).
