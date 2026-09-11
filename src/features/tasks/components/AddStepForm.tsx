@@ -1,6 +1,8 @@
+import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { useCreateTask } from "../hooks";
 
 export function AddStepForm({ parentId }: { parentId: string }) {
@@ -24,6 +26,11 @@ export function AddStepForm({ parentId }: { parentId: string }) {
         maxLength={200}
       />
       <Button type="submit" variant="outline" disabled={!title.trim() || create.isPending}>
+        {create.isPending ? (
+          <Spinner data-icon="inline-start" aria-hidden="true" />
+        ) : (
+          <Plus data-icon="inline-start" aria-hidden="true" />
+        )}
         Add step
       </Button>
     </form>

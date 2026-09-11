@@ -29,6 +29,7 @@ const step = (name: string) => screen.getByRole("listitem", { name });
 describe("task detail", () => {
   it("renders the title as the heading and the suggested steps with rationale on tap and hover", async () => {
     const { user } = renderApp({ route });
+    expect(screen.getByRole("status", { name: "Loading task" })).toBeInTheDocument();
     expect(
       await screen.findByRole("heading", { name: "Prepare the quarterly business review deck" }),
     ).toBeInTheDocument();
@@ -41,6 +42,11 @@ describe("task detail", () => {
     const first = step("List the three decisions the deck must drive");
     expect(within(first).getByRole("button", { name: "Suggested by AI" })).toBeInTheDocument();
     expect(within(first).getByRole("button", { name: "Accept" })).toBeInTheDocument();
+    expect(
+      within(first).getByRole("button", {
+        name: "More actions for List the three decisions the deck must drive",
+      }),
+    ).toBeInTheDocument();
     expect(
       screen.queryByText("Everything else follows from what the room must decide."),
     ).toBeNull();
@@ -62,6 +68,7 @@ describe("task detail", () => {
     const userStep = step("Book the rehearsal slot");
     expect(within(userStep).queryByRole("button", { name: "Suggested by AI" })).toBeNull();
     expect(within(userStep).queryByRole("button", { name: "Accept" })).toBeNull();
+    expect(within(userStep).queryByRole("button", { name: /More actions/ })).toBeNull();
     expect(screen.getByText("0/1")).toBeInTheDocument();
   });
 
@@ -84,22 +91,22 @@ describe("task detail", () => {
         name: "Accept",
       }),
     ).toBeNull();
+    // The accepted marker is a visible chip, not a lone icon.
     expect(
       within(step("List the three decisions the deck must drive")).getByLabelText(
         "Suggested by AI, accepted",
       ),
-    ).toBeInTheDocument();
+    ).toHaveTextContent("AI");
   });
 
   it("dismiss collapses the step into the dismissed disclosure and undo brings it back as accepted", async () => {
     const patches = recordPatches();
     const { user } = renderApp({ route });
+    const row = await screen.findByRole("listitem", { name: "Draft the outline" });
     await user.click(
-      within(await screen.findByRole("listitem", { name: "Draft the outline" })).getByRole(
-        "button",
-        { name: "Dismiss" },
-      ),
+      within(row).getByRole("button", { name: "More actions for Draft the outline" }),
     );
+    await user.click(await screen.findByRole("menuitem", { name: "Dismiss" }));
     await waitFor(() =>
       expect(patches.at(-1)).toEqual({ id: "s-3", body: { suggestionState: "dismissed" } }),
     );
@@ -109,6 +116,7 @@ describe("task detail", () => {
     const disclosure = screen.getByRole("button", { name: "1 dismissed", expanded: false });
     await user.click(disclosure);
     const dismissed = screen.getByRole("list", { name: "Dismissed steps" });
+    expect(within(dismissed).getByText("Dismissed")).toBeInTheDocument();
     await user.click(within(dismissed).getByRole("button", { name: "Undo" }));
     await waitFor(() =>
       expect(patches.at(-1)).toEqual({ id: "s-3", body: { suggestionState: "accepted" } }),
@@ -121,8 +129,11 @@ describe("task detail", () => {
     const patches = recordPatches();
     const { user } = renderApp({ route });
     const row = await screen.findByRole("listitem", { name: "Draft the outline" });
-    await user.click(within(row).getByRole("button", { name: "Edit" }));
-    const input = screen.getByRole("textbox", { name: "Step title" });
+    await user.click(
+      within(row).getByRole("button", { name: "More actions for Draft the outline" }),
+    );
+    await user.click(await screen.findByRole("menuitem", { name: "Edit wording, then accept" }));
+    const input = await screen.findByRole("textbox", { name: "Step title" });
     expect(input).toHaveValue("Draft the outline");
     await user.clear(input);
     await user.type(input, "Draft a one-page outline{Enter}");
@@ -151,10 +162,17 @@ describe("task detail", () => {
       await screen.findByRole("heading", { name: "Prepare the QBR deck" }),
     ).toBeInTheDocument();
 
-    await user.selectOptions(screen.getByRole("combobox", { name: "Status" }), "done");
+    const status = screen.getByRole("group", { name: "Status" });
+    expect(
+      within(status).getByRole("button", { name: "To do", pressed: true }),
+    ).toBeInTheDocument();
+    await user.click(within(status).getByRole("button", { name: "Done", pressed: false }));
     await waitFor(() =>
       expect(patches.at(-1)).toEqual({ id: T_SUGGESTED, body: { status: "done" } }),
     );
+    expect(
+      await within(status).findByRole("button", { name: "Done", pressed: true }),
+    ).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "For the leadership team on the 30th." }));
     await user.clear(screen.getByRole("textbox", { name: "Description" }));
@@ -200,6 +218,10 @@ describe("task detail", () => {
     server.use(http.get(`${API}/tasks/nope`, () => err("NOT_FOUND", "Task not found")));
     renderApp({ route: "/tasks/nope" });
     expect(await screen.findByRole("alert")).toHaveTextContent("This task does not exist.");
-    expect(screen.getByRole("link", { name: "Back to tasks" })).toHaveAttribute("href", "/tasks");
+    const back = screen.getByRole("link", { name: "Back to tasks" });
+    expect(back).toHaveAttribute("href", "/tasks");
+    expect(back).toHaveAttribute("data-slot", "button");
+    // A Button-styled anchor gets the 44px hit area only through the globals.css `a[data-nav]` rule.
+    expect(back).toHaveAttribute("data-nav");
   });
 });
