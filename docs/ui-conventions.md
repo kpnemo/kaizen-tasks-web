@@ -87,7 +87,7 @@ Copy them from `TaskListPage` rather than inventing new wording.
 
 ## Accessibility and the projector
 
-- Keep the accessible name a user reads out loud: "Log out", "Accept", "Theme". Names listed in
+- Keep the accessible name a user reads out loud: "Log out", "Accept", "Theme: Light". Names listed in
   `README.md`, "Selector contract", are a cross-repo contract with the smoke test; do not change one
   without changing the smoke test.
 - Keyboard: every control is reachable by Tab, acts on Enter and Space, and shows the focus ring the
