@@ -99,12 +99,11 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 
 ### Unreleased
 
-- **Added** — `/pipeline`, the workshop's control room, linked from the header as "Pipeline" while the API's health reports `features.pipeline: true`: the flow diagram, the two environment cards, the issues table…
-- **Added** — The shadcn primitives the UI rework composes from, added with the CLI (`npx shadcn@latest add`): `alert`, `empty`, `spinner`, `skeleton`, `progress`, `table`, `collapsible`, `radio-group`, `scroll-ar…
-- **Changed** — `scripts/product-map.mjs` keeps `docs/product-map.md` under its 12 KB budget with four more routes: the endpoints table drops its Tag column (the tag repeats the path's first segment), sorts by path…
-- **Changed** — The header stays one row at the projector's 1024px with four nav links: the "Kaizen Tasks" wordmark never wraps, and the display name shows from `xl` up, the breakpoint the theme control's word alrea…
-- **Changed** — The app shell on shadcn (ui-rework, shell): the primary nav links are `NavButton`s (`src/components/nav-button.tsx`), a `NavLink` in Button clothes with an icon and the current screen as the secondar…
-- …and 7 more under [Unreleased] in CHANGELOG.md
+- nothing yet
+
+### 1.5.0 — 2026-09-11
+
+- **Added** — `/pipeline`, the workshop's control room, linked from the header as "Pipeline" while the API's heal…
 
 ### 1.4.0 — 2026-09-11
 
@@ -113,10 +112,6 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 ### 1.3.0 — 2026-09-11
 
 - **Added** — `docs/product-map.md`: what this app is and what it has, for an agent about to interview a product…
-
-### 1.2.0 — 2026-09-10
-
-- **Added** — A Light / Dark / System control in the header. The choice applies to the page at once, `System` fol…
 
 ## Decisions (`docs/adr/*.md`)
 
