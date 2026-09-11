@@ -7,7 +7,7 @@ import { cn } from "@/lib/cn";
 import { skipReasonLabel } from "@/lib/format";
 import { isAiActive } from "@/lib/polling";
 import { useBreakdown } from "../hooks";
-import { BANNER_ACTIONS, BANNER_ROW } from "./banner";
+import { BANNER_ACTIONS, BANNER_ACTIONS_TWO_ROWS, BANNER_ROW } from "./banner";
 
 /** AI state under the header: thinking, failed with retry, skipped with reason, or nothing when
  *  done — once done and settled, Regenerate lives next to the status group in `TaskHeader`
@@ -48,7 +48,7 @@ export function AiBanner({ task }: { task: TaskDetail }) {
         <CircleAlert aria-hidden="true" />
         <AlertTitle>Breakdown failed</AlertTitle>
         <AlertDescription className="text-base">{task.aiError ?? "Try again"}</AlertDescription>
-        <div className={BANNER_ACTIONS}>{rerun("Retry")}</div>
+        <div className={BANNER_ACTIONS_TWO_ROWS}>{rerun("Retry")}</div>
       </Alert>
     );
   }
@@ -60,7 +60,7 @@ export function AiBanner({ task }: { task: TaskDetail }) {
         <AlertDescription className="text-base">
           {skipReasonLabel(task.aiSkipReason)}
         </AlertDescription>
-        <div className={BANNER_ACTIONS}>{rerun("Regenerate")}</div>
+        <div className={BANNER_ACTIONS_TWO_ROWS}>{rerun("Regenerate")}</div>
       </Alert>
     );
   }

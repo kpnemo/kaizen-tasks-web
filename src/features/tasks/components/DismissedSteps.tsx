@@ -14,7 +14,7 @@ export function DismissedSteps({ steps }: { steps: TaskSummary[] }) {
   return (
     <Collapsible open={open} onOpenChange={setOpen} className="flex flex-col gap-3">
       <CollapsibleTrigger asChild>
-        <Button variant="ghost" className="group self-start">
+        <Button variant="ghost" className="group -ml-3 self-start">
           <ChevronRight
             aria-hidden="true"
             className="transition-transform group-data-[state=open]:rotate-90"
