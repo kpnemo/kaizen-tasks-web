@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from "@testing-library/react";
+import { act, screen, waitFor, within } from "@testing-library/react";
 import { http } from "msw";
 import { describe, expect, it } from "vitest";
 import { nextPaletteColor, TAG_PALETTE } from "@/lib/tag-palette";
@@ -10,14 +10,35 @@ import { renderApp } from "../../../tests/render";
 const tagRow = (name: string) => screen.getByRole("row", { name });
 
 describe("tags page", () => {
-  it("lists the tags with a swatch and a name", async () => {
+  it("lists the tags in a table: swatch, palette name, tag name and the row actions", async () => {
     renderApp({ route: "/tags" });
     expect(await screen.findByRole("heading", { name: "Tags" })).toBeInTheDocument();
     const table = await screen.findByRole("table", { name: "Your tags" });
     expect(within(table).getAllByRole("row")).toHaveLength(3);
-    expect(
-      within(tagRow("work")).getByRole("button", { name: "Change color of work" }),
-    ).toBeInTheDocument();
+    expect(within(table).getByRole("columnheader", { name: "Color" })).toBeInTheDocument();
+    expect(within(table).getByRole("columnheader", { name: "Name" })).toBeInTheDocument();
+    const work = tagRow("work");
+    expect(within(work).getByRole("button", { name: "Change color of work" })).toBeInTheDocument();
+    expect(within(work).getByText("Indigo")).toBeInTheDocument();
+    expect(within(work).getByRole("button", { name: "work" })).toBeInTheDocument();
+    expect(within(work).getByRole("button", { name: "Delete work" })).toBeInTheDocument();
+    expect(within(tagRow("home")).getByText("Forest")).toBeInTheDocument();
+  });
+
+  it("announces loading, then shows the table", async () => {
+    renderApp({ route: "/tags" });
+    const loading = await screen.findByText("Loading tags");
+    expect(loading.closest('[role="status"]')).not.toBeNull();
+    expect(await screen.findByRole("table", { name: "Your tags" })).toBeInTheDocument();
+    expect(screen.queryByText("Loading tags")).toBeNull();
+  });
+
+  it("shows the empty state when there are no tags", async () => {
+    db.tags = [];
+    renderApp({ route: "/tags" });
+    expect(await screen.findByText("No tags yet. Tags connect related tasks.")).toBeInTheDocument();
+    expect(screen.getByText("No tags")).toBeInTheDocument();
+    expect(screen.queryByRole("table", { name: "Your tags" })).toBeNull();
   });
 
   it("creates a tag with a palette color", async () => {
@@ -33,6 +54,8 @@ describe("tags page", () => {
     );
     const { user } = renderApp({ route: "/tags" });
     await screen.findByRole("table", { name: "Your tags" });
+    const form = screen.getByRole("form", { name: "Create tag" });
+    expect(within(form).getByText("New tag")).toBeInTheDocument();
     await user.type(screen.getByLabelText("Name"), "reading");
     await user.click(screen.getByRole("radio", { name: "Forest" }));
     await user.click(screen.getByRole("button", { name: "Create tag" }));
@@ -79,6 +102,7 @@ describe("tags page", () => {
     await waitFor(() =>
       expect(patches.at(-1)).toEqual({ id: TAG_WORK, body: { color: "#C77D1A" } }),
     );
+    expect(await within(tagRow("office")).findByText("Amber")).toBeInTheDocument();
   });
 
   it("deletes after a confirmation that explains links are removed", async () => {
@@ -100,10 +124,17 @@ describe("tags page", () => {
     await waitFor(() => expect(screen.queryByRole("row", { name: "home" })).toBeNull());
   });
 
-  it("shows the error state when tags fail to load", async () => {
+  it("shows the error state with a way to try again when tags fail to load", async () => {
     server.use(http.get(`${API}/tags`, () => err("INTERNAL", "Tag store unavailable")));
-    renderApp({ route: "/tags" });
-    expect(await screen.findByRole("alert")).toHaveTextContent("Tag store unavailable");
+    const { user } = renderApp({ route: "/tags" });
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("Could not load tags");
+    expect(alert).toHaveTextContent("Tag store unavailable");
+
+    server.use(http.get(`${API}/tags`, () => ok(db.tags)));
+    await user.click(screen.getByRole("button", { name: "Try again" }));
+    expect(await screen.findByRole("table", { name: "Your tags" })).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).toBeNull();
   });
 
   it("defaults the create form's color to the first palette color not already used", async () => {
@@ -120,24 +151,30 @@ describe("tags page", () => {
     );
   });
 
-  it("navigates the create form's color picker with arrow keys and Home/End", async () => {
+  it("navigates the create form's color picker with arrow keys, End and Space", async () => {
     const { user } = renderApp({ route: "/tags" });
     await screen.findByRole("table", { name: "Your tags" });
     const group = screen.getByRole("radiogroup", { name: "Color" });
     const radios = within(group).getAllByRole("radio");
     const startIndex = radios.findIndex((r) => r.getAttribute("aria-checked") === "true");
 
-    radios[startIndex].focus();
-    await user.keyboard("{ArrowRight}");
+    act(() => radios[startIndex].focus());
+    // An arrow key moves focus and checks the radio it lands on, as a native radio group does.
+    // The key stays held across the move because the focus lands on the next tick.
+    await user.keyboard("{ArrowRight>}");
     const nextIndex = (startIndex + 1) % TAG_PALETTE.length;
-    expect(radios[nextIndex]).toHaveAttribute("aria-checked", "true");
+    await waitFor(() => expect(radios[nextIndex]).toHaveAttribute("aria-checked", "true"));
     expect(radios[nextIndex]).toHaveFocus();
     expect(radios.filter((r) => r.tabIndex === 0)).toHaveLength(1);
     expect(radios[nextIndex].tabIndex).toBe(0);
+    await user.keyboard("{/ArrowRight}");
 
+    // End moves focus to the last swatch without checking it; Space checks the focused one.
     await user.keyboard("{End}");
     const lastIndex = TAG_PALETTE.length - 1;
-    expect(radios[lastIndex]).toHaveAttribute("aria-checked", "true");
-    expect(radios[lastIndex]).toHaveFocus();
+    await waitFor(() => expect(radios[lastIndex]).toHaveFocus());
+    expect(radios[nextIndex]).toHaveAttribute("aria-checked", "true");
+    await user.keyboard(" ");
+    await waitFor(() => expect(radios[lastIndex]).toHaveAttribute("aria-checked", "true"));
   });
 });

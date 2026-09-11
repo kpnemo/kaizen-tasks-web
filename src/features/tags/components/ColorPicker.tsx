@@ -1,83 +1,43 @@
 import { Check } from "lucide-react";
-import { useRef, type KeyboardEvent } from "react";
-import { cn } from "@/lib/cn";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { TAG_PALETTE } from "@/lib/tag-palette";
 
+/** The palette as a radio group: one round swatch per colour, the chosen one wearing a check mark
+ *  and a foreground border so the choice never rests on hue alone. Radix owns the roving focus and
+ *  the arrow keys. The group is named either directly (`aria-label`, inside a row's popover) or by
+ *  the create form's legend (`aria-labelledby`). */
 export function ColorPicker({
   value,
   onChange,
-  label = "Color",
+  ...labelling
 }: {
   value: string;
   onChange: (color: string) => void;
-  label?: string;
+  "aria-label"?: string;
+  "aria-labelledby"?: string;
 }) {
-  const radioRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const selectedIndex = TAG_PALETTE.findIndex(
-    (color) => color.value.toUpperCase() === value.toUpperCase(),
-  );
-  // The roving tab stop: the checked radio, or the first when none is checked.
-  const activeIndex = selectedIndex === -1 ? 0 : selectedIndex;
-
-  /** Selects the palette color at `index` (wrapping) and moves focus to its radio. */
-  function moveTo(index: number) {
-    const wrapped = (index + TAG_PALETTE.length) % TAG_PALETTE.length;
-    onChange(TAG_PALETTE[wrapped].value);
-    radioRefs.current[wrapped]?.focus();
-  }
-
-  function onKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
-    switch (event.key) {
-      case "ArrowRight":
-      case "ArrowDown":
-        event.preventDefault();
-        moveTo(index + 1);
-        break;
-      case "ArrowLeft":
-      case "ArrowUp":
-        event.preventDefault();
-        moveTo(index - 1);
-        break;
-      case "Home":
-        event.preventDefault();
-        moveTo(0);
-        break;
-      case "End":
-        event.preventDefault();
-        moveTo(TAG_PALETTE.length - 1);
-        break;
-      default:
-        break;
-    }
-  }
-
+  // Colours reach here from the API as well as the palette, so match them case-insensitively and
+  // hand Radix the palette's own spelling.
+  const selected =
+    TAG_PALETTE.find((color) => color.value.toUpperCase() === value.toUpperCase())?.value ?? "";
   return (
-    <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-2">
-      {TAG_PALETTE.map((color, index) => {
-        const selected = color.value.toUpperCase() === value.toUpperCase();
-        return (
-          <button
-            key={color.value}
-            ref={(el) => {
-              radioRefs.current[index] = el;
-            }}
-            type="button"
-            role="radio"
-            aria-checked={selected}
-            aria-label={color.name}
-            tabIndex={index === activeIndex ? 0 : -1}
-            onClick={() => onChange(color.value)}
-            onKeyDown={(event) => onKeyDown(event, index)}
-            className={cn(
-              "grid size-11 place-items-center rounded-full border-4 text-white",
-              selected ? "border-foreground" : "border-transparent",
-            )}
-            style={{ backgroundColor: color.value }}
-          >
-            {selected ? <Check className="size-5" aria-hidden="true" /> : null}
-          </button>
-        );
-      })}
-    </div>
+    <RadioGroup
+      value={selected}
+      onValueChange={onChange}
+      className="flex flex-wrap gap-2"
+      {...labelling}
+    >
+      {TAG_PALETTE.map((color) => (
+        <RadioGroupItem
+          key={color.value}
+          value={color.value}
+          aria-label={color.name}
+          className="grid size-11 place-items-center border-border text-white data-[state=checked]:border-2 data-[state=checked]:border-foreground"
+          style={{ backgroundColor: color.value }}
+        >
+          <Check aria-hidden="true" />
+        </RadioGroupItem>
+      ))}
+    </RadioGroup>
   );
 }

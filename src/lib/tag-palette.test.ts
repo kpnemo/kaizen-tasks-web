@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { nextPaletteColor, TAG_PALETTE } from "./tag-palette";
+import { nextPaletteColor, paletteName, TAG_PALETTE } from "./tag-palette";
 
 describe("tag palette", () => {
   it("has eight distinct hex colors", () => {
@@ -14,5 +14,11 @@ describe("tag palette", () => {
     expect(nextPaletteColor(TAG_PALETTE.map((c) => ({ color: c.value })))).toBe(
       TAG_PALETTE[0].value,
     );
+  });
+
+  it("names a palette color whatever its case, and shows the hex for one outside the palette", () => {
+    expect(paletteName("#2F7D4F")).toBe("Forest");
+    expect(paletteName("#2f7d4f")).toBe("Forest");
+    expect(paletteName("#123456")).toBe("#123456");
   });
 });

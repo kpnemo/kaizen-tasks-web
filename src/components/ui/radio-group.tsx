@@ -18,8 +18,12 @@ function RadioGroup({
   )
 }
 
+// Local edit: `children` replace the default dot inside the indicator (a check mark on a colour
+// swatch, say). Radix mounts the indicator only while the item is checked, so a caller's children
+// show on the chosen item alone.
 function RadioGroupItem({
   className,
+  children,
   ...props
 }: React.ComponentProps<typeof RadioGroupPrimitive.Item>) {
   return (
@@ -35,7 +39,9 @@ function RadioGroupItem({
         data-slot="radio-group-indicator"
         className="relative flex items-center justify-center"
       >
-        <CircleIcon className="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 fill-primary" />
+        {children ?? (
+          <CircleIcon className="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 fill-primary" />
+        )}
       </RadioGroupPrimitive.Indicator>
     </RadioGroupPrimitive.Item>
   )

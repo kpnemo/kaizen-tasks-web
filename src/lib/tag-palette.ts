@@ -15,3 +15,10 @@ export function nextPaletteColor(existing: { color: string }[]): string {
   const free = TAG_PALETTE.find((c) => !used.has(c.value));
   return (free ?? TAG_PALETTE[existing.length % TAG_PALETTE.length]).value;
 }
+
+/** The palette entry's name for a colour ("Forest"), whatever the case it arrives in; a colour
+ *  outside the palette shows as its own hex, so a row never says less than it knows. */
+export function paletteName(color: string): string {
+  const upper = color.toUpperCase();
+  return TAG_PALETTE.find((c) => c.value === upper)?.name ?? upper;
+}
