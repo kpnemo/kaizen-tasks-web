@@ -6,11 +6,24 @@ import { Button } from "@/components/ui/button";
 import { ConversationPanel } from "./components/ConversationPanel";
 import { DraftPanel } from "./components/DraftPanel";
 import { FeatureRequestForm } from "./components/FeatureRequestForm";
+import { RequestsSoFar } from "./components/RequestsSoFar";
 import { useConversation, useFeatureRequestAvailable, useStartConversation } from "./hooks";
+
+/** The page: one of the three modes above the "Requests so far" list (issue #22), which is
+ *  rendered only once health has confirmed the feature, so it never fires on an API without it. */
+export function RequestFeaturePage() {
+  const { available } = useFeatureRequestAvailable();
+  return (
+    <div className="space-y-10">
+      <RequestFeatureBody />
+      {available === true && <RequestsSoFar />}
+    </div>
+  );
+}
 
 /** The three modes of /request-feature (spec 4.1): the interview by default, the prefilled form
  *  after "Review and file", and the plain form when the URL carries ?mode=form. */
-export function RequestFeaturePage() {
+function RequestFeatureBody() {
   const { available } = useFeatureRequestAvailable();
   const [searchParams] = useSearchParams();
   const [reviewing, setReviewing] = useState(false);

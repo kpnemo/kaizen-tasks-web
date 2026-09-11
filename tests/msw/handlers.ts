@@ -7,6 +7,7 @@ import type {
   CreateTaskBody,
   ErrorCode,
   FeatureRequestBody,
+  FeatureRequestSummary,
   ReplaceTagsBody,
   UpdateMeBody,
   UpdateTagBody,
@@ -310,7 +311,31 @@ export const conversationHandlers = [
   ),
 ];
 
+/** One row of GET /feature-requests as the API shapes it; override what a test cares about. */
+export function featureRequestSummary(
+  over: Partial<FeatureRequestSummary> & { number: number },
+): FeatureRequestSummary {
+  return {
+    title: `Request ${over.number}`,
+    state: "open",
+    stage: "triaged",
+    readiness: 16,
+    labels: ["feature-request", "clarity:5", "complexity:3", "risk:3", "triaged"],
+    url: `https://github.com/kpnemo/kaizen-tasks-assembly-line/issues/${over.number}`,
+    createdAt: "2026-09-09T13:09:53Z",
+    closedAt: null,
+    ...over,
+  };
+}
+
+let featureRequestList: FeatureRequestSummary[] = [];
+/** What GET /feature-requests answers by default; reset to empty before every test. */
+export function setFeatureRequestList(items: FeatureRequestSummary[]): void {
+  featureRequestList = items;
+}
+
 export const featureRequestHandlers = [
+  http.get(`${API}/feature-requests`, () => ok(featureRequestList)),
   http.post(`${API}/feature-requests`, async ({ request }) => {
     const body = (await request.json()) as FeatureRequestBody;
     if (!body.title?.trim()) {

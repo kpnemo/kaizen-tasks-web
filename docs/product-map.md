@@ -51,7 +51,7 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 ## Features (`src/features/*/`)
 
 - **auth** (`src/features/auth/`) — pages `LoginPage`, `RegisterPage`; components `AuthProvider`, `RestoringScreen`; hooks `hooks.ts`
-- **feature-request** (`src/features/feature-request/`) — pages `RequestFeaturePage`; components `FeatureRequestLink`, `ConversationPanel`, `DraftPanel`, `FeatureRequestForm`; hooks `hooks.ts`
+- **feature-request** (`src/features/feature-request/`) — pages `RequestFeaturePage`; components `FeatureRequestLink`, `ConversationPanel`, `DraftPanel`, `FeatureRequestForm`, `RequestsSoFar`; hooks `hooks.ts`
 - **tags** (`src/features/tags/`) — pages `TagsPage`; components `ColorPicker`, `TagRow`; hooks `hooks.ts`
 - **tasks** (`src/features/tasks/`) — pages `TaskDetailPage`, `TaskListPage`; components `AddStepForm`, `AddTagPopover`, `AiBanner`, `AiChip`, `AiTagSuggestions`, `BulkBar`, `CreateTaskBar`, `DismissedSteps`, `FilterBar`, `ProgressBar`, `RationalePopover`, `StepList`, `StepRow`, `TaskHeader`, `TaskRow`; hooks `hooks.ts`
 - **theme** (`src/features/theme/`) — components `ThemeToggle`; hooks `hooks.ts`
@@ -67,6 +67,7 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 | PATCH  | `/auth/me`                                     | Update the current user's preferences                      | auth             |
 | POST   | `/auth/refresh`                                | Rotate the refresh cookie and issue a new access token     | auth             |
 | POST   | `/auth/register`                               | Register a new user                                        | auth             |
+| GET    | `/feature-requests`                            | List the feature requests filed to GitHub                  | feature-requests |
 | POST   | `/feature-requests`                            | File a feature request as a GitHub issue                   | feature-requests |
 | GET    | `/feature-requests/conversation`               | Get the caller's open interview conversation               | feature-requests |
 | POST   | `/feature-requests/conversation`               | Start a new interview conversation                         | feature-requests |
@@ -91,7 +92,7 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 
 ### Unreleased
 
-- nothing yet
+- **Added** — "Requests so far" at the bottom of the Request page: every feature request filed to GitHub through `GET /feature-requests`, open first then closed and newest first, each with a stage chip derived fro…
 
 ### 1.3.0 — 2026-09-11
 
@@ -115,3 +116,4 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 - [ADR 0005: The interview stream is read through the typed client and parsed by our own SSE reader](adr/0005-streamed-conversation-through-the-typed-client.md)
 - [ADR 0006: The theme comes from the session user, and the `dark` class is the only switch](adr/0006-theme-comes-from-the-session-user.md)
 - [ADR 0007: The product map is generated from this checkout and compared on every docs check](adr/0007-product-map-generated-and-gated.md)
+- [ADR 0008: The requests list is read through the typed client, never from GitHub in the browser](adr/0008-feature-request-list-read-through-the-typed-client.md)
