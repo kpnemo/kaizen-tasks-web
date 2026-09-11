@@ -87,7 +87,17 @@ describe("the feature-request interview", () => {
     );
     const { user } = renderApp({ route: "/request-feature" });
     expect(await screen.findByText("Could not start the interview")).toBeInTheDocument();
-    await user.click(await screen.findByRole("button", { name: "Try again" }));
+    // The way back is framed as an Alert with both exits side by side, not a grey paragraph.
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "The interview could not be started",
+    );
+    expect(screen.getByRole("link", { name: "Skip the interview, fill the form" })).toHaveAttribute(
+      "href",
+      "/request-feature?mode=form",
+    );
+    const retry = screen.getByRole("button", { name: "Try again" });
+    expect(retry.querySelector("svg")).not.toBeNull();
+    await user.click(retry);
     expect(await screen.findByText(GREETING)).toBeInTheDocument();
     expect(db.conversation?.status).toBe("open");
   });
@@ -197,7 +207,9 @@ describe("the feature-request interview", () => {
     await user.click(screen.getByRole("button", { name: "Review and file" }));
 
     expect(await screen.findByRole("form", { name: "Request a feature" })).toBeInTheDocument();
-    expect(screen.getByText("Refined with the assistant · readiness 15 of 20")).toBeInTheDocument();
+    // Two chips: the provenance and the score, not one bold sentence.
+    expect(screen.getByText("Refined with the assistant")).toHaveAttribute("data-slot", "badge");
+    expect(screen.getByText("Readiness 15 of 20")).toHaveAttribute("data-slot", "badge");
     expect(screen.getByLabelText("Title")).toHaveValue("Snooze a task until a date");
     expect(screen.getByLabelText("Acceptance criteria")).toHaveValue(
       "It reappears on the chosen date.",
@@ -251,7 +263,8 @@ describe("the feature-request interview", () => {
 
     await user.click(screen.getByRole("button", { name: "Review and file" }));
     expect(await screen.findByRole("form", { name: "Request a feature" })).toBeInTheDocument();
-    expect(screen.getByText("Refined with the assistant · readiness 16 of 20")).toBeInTheDocument();
+    expect(screen.getByText("Refined with the assistant")).toBeInTheDocument();
+    expect(screen.getByText("Readiness 16 of 20")).toHaveAttribute("data-slot", "badge");
     await user.click(screen.getByRole("button", { name: "Send request" }));
 
     expect(await screen.findByRole("heading", { name: "Request #42 filed" })).toBeInTheDocument();
