@@ -36,7 +36,7 @@ export function AccountMenu({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {featureRequestAvailable && (
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem asChild className="min-h-11 text-base">
             <NavLink to="/request-feature">
               <Sparkles aria-hidden="true" />
               Request a feature
@@ -44,7 +44,7 @@ export function AccountMenu({
           </DropdownMenuItem>
         )}
         {pipelineAvailable && (
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem asChild className="min-h-11 text-base">
             <NavLink to="/pipeline">
               <Workflow aria-hidden="true" />
               Pipeline
@@ -52,7 +52,11 @@ export function AccountMenu({
           </DropdownMenuItem>
         )}
         {(featureRequestAvailable || pipelineAvailable) && <DropdownMenuSeparator />}
-        <DropdownMenuItem onSelect={() => logout.mutate()} disabled={logout.isPending}>
+        <DropdownMenuItem
+          className="min-h-11 text-base"
+          onSelect={() => logout.mutate()}
+          disabled={logout.isPending}
+        >
           <LogOut aria-hidden="true" />
           Log out
         </DropdownMenuItem>

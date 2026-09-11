@@ -23,7 +23,8 @@ export function ThemeToggle() {
   return (
     <Button
       variant="outline"
-      size="icon"
+      size="icon-lg"
+      className="size-11"
       aria-label={`Theme: ${current.label}, switch to ${next.label}`}
       disabled={update.isPending}
       onClick={() => update.mutate(next.value)}
