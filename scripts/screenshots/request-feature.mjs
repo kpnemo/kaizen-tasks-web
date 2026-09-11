@@ -32,7 +32,9 @@ export async function answerGreeting(page) {
 }
 
 /** Frames the two cards the way a presenter does: the chat card's top just under the sticky
- *  header, so the transcript box, the chips, the answer box and the draft are all in the shot. */
+ *  header, so the transcript box, the chips and the scored draft are in the shot. With a row of
+ *  option chips showing, the answer Field sits just below the fold at 1024x640; the presenter
+ *  clicks a chip or scrolls one notch to type instead. */
 export async function frameInterview(page) {
   await page.evaluate(() => {
     document.querySelector("[data-slot=card]")?.scrollIntoView({ block: "start" });

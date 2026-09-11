@@ -69,7 +69,15 @@ describe("ConversationPanel", () => {
     expect(heading.closest("[data-slot=card]")).not.toBeNull();
     // The transcript scrolls inside the card, so the chips and the answer box never leave the fold.
     const list = screen.getByRole("list", { name: "Conversation" });
-    expect(list.closest("[data-slot=scroll-area]")).not.toBeNull();
+    const area = list.closest("[data-slot=scroll-area]");
+    expect(area).not.toBeNull();
+    // The room can see that the transcript scrolls: the scrollbar is rendered whether or not the
+    // pointer is over it (Radix `type="hover"` would keep it out of the DOM until then). Keyboard
+    // reach is the browser's: Chrome and Firefox make a scroller with no focusable children a Tab
+    // stop on their own, and the primitive's viewport already carries the focus ring for it.
+    const scrollbar = area?.querySelector("[data-slot=scroll-area-scrollbar]");
+    expect(scrollbar).not.toBeNull();
+    expect(scrollbar).toHaveAttribute("data-state", "visible");
     // A visible label and the keyboard contract as a hint, not a placeholder that disappears.
     const box = screen.getByLabelText("Your answer");
     expect(box).toHaveAttribute("data-slot", "textarea");

@@ -104,8 +104,10 @@ export function ConversationPanel({ conversation }: { conversation: Conversation
       <CardContent className="min-w-0">
         {/* A fixed height, not a cap: the chips and the answer box below stay put from the first
             turn, and the transcript scrolls once it outgrows the box. 40vh is 256px at the
-            projector's 640px, which keeps the answer box on screen under the sticky header. */}
-        <ScrollArea className="h-[40vh]">
+            projector's 640px, which keeps the answer box on screen under the sticky header.
+            The scrollbar is always drawn (Radix hides it until the pointer is over the box), so
+            the room can see that the older turns are one scroll away. */}
+        <ScrollArea type="always" className="h-[40vh]">
           <ol ref={listRef} aria-label="Conversation" className="flex min-w-0 flex-col gap-3 pr-3">
             {conversation.messages.map((message) => (
               <Bubble key={message.id} who={message.role} text={message.content} />
