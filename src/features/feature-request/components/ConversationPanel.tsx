@@ -66,7 +66,7 @@ export function ConversationPanel({ conversation }: { conversation: Conversation
   useEffect(() => {
     const viewport = listRef.current?.closest("[data-slot=scroll-area-viewport]");
     if (viewport) viewport.scrollTop = viewport.scrollHeight;
-  }, [conversation.messages.length, turn.pendingMessage, turn.streamingText]);
+  }, [conversation.messages.length, turn.pendingMessage, turn.streamingText, turn.isStreaming]);
 
   function send(content: string, skip = false) {
     const text = content.trim();
@@ -101,8 +101,11 @@ export function ConversationPanel({ conversation }: { conversation: Conversation
         </CardAction>
       </CardHeader>
 
-      <CardContent className="flex min-w-0 flex-col gap-4">
-        <ScrollArea className="flex max-h-[60vh] flex-col">
+      <CardContent className="min-w-0">
+        {/* A fixed height, not a cap: the chips and the answer box below stay put from the first
+            turn, and the transcript scrolls once it outgrows the box. 40vh is 256px at the
+            projector's 640px, which keeps the answer box on screen under the sticky header. */}
+        <ScrollArea className="h-[40vh]">
           <ol ref={listRef} aria-label="Conversation" className="flex min-w-0 flex-col gap-3 pr-3">
             {conversation.messages.map((message) => (
               <Bubble key={message.id} who={message.role} text={message.content} />
@@ -111,15 +114,16 @@ export function ConversationPanel({ conversation }: { conversation: Conversation
             {turn.isStreaming && turn.streamingText !== "" ? (
               <Bubble who="assistant" text={turn.streamingText} live />
             ) : null}
+            {turn.isStreaming && turn.streamingText === "" ? (
+              <li className="flex">
+                <Badge variant="secondary" role="status" className="animate-thinking">
+                  <Sparkles aria-hidden="true" />
+                  Thinking
+                </Badge>
+              </li>
+            ) : null}
           </ol>
         </ScrollArea>
-
-        {turn.isStreaming && turn.streamingText === "" ? (
-          <Badge variant="secondary" role="status" className="animate-thinking self-start">
-            <Sparkles aria-hidden="true" />
-            Thinking
-          </Badge>
-        ) : null}
       </CardContent>
 
       <CardFooter className="flex-col items-stretch gap-4">

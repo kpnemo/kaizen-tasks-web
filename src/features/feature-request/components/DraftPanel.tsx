@@ -14,7 +14,6 @@ import {
 import {
   Popover,
   PopoverContent,
-  PopoverDescription,
   PopoverHeader,
   PopoverTitle,
   PopoverTrigger,
@@ -56,12 +55,9 @@ function Readiness({ score }: { score: RubricScore | null }) {
           Readiness {score.readiness} of 20
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="flex w-80 flex-col gap-4 text-base">
+      <PopoverContent align="start" className="flex w-80 flex-col gap-3 text-base">
         <PopoverHeader className="text-base">
           <PopoverTitle>How the request scores</PopoverTitle>
-          <PopoverDescription>
-            Clarity, complexity and risk, as the assistant reads the answers so far.
-          </PopoverDescription>
         </PopoverHeader>
         <dl className="flex flex-col gap-3">
           {SUB_SCORES.map((sub) => (

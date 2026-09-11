@@ -48,7 +48,7 @@ describe("Requests so far", () => {
       within(table)
         .getAllByRole("columnheader")
         .map((head) => head.textContent),
-    ).toEqual(["#", "Request", "Stage", "Readiness", "Triage", "Actions"]);
+    ).toEqual(["#", "Request", "Stage", "Readiness", "Actions"]);
 
     const rows = recordRows(table);
     expect(rows.map((row) => row.textContent)).toEqual([
@@ -75,8 +75,11 @@ describe("Requests so far", () => {
     expect(
       within(rows[1]).getAllByRole("cell")[READINESS].querySelector("[data-slot=badge] svg"),
     ).not.toBeNull();
+    // The triage scores are chips under the title, in the Request cell.
+    const request = within(rows[1]).getAllByRole("cell")[1];
+    expect(request).toHaveTextContent("Regenerate suggestions with a hint");
     for (const score of ["clarity 5", "complexity 3", "risk 3"]) {
-      expect(within(rows[1]).getByText(score)).toHaveAttribute("data-variant", "outline");
+      expect(within(request).getByText(score)).toHaveAttribute("data-variant", "outline");
     }
 
     const link = within(rows[0]).getByRole("link", { name: "Open #22 on GitHub" });

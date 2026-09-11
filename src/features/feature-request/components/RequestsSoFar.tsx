@@ -51,12 +51,14 @@ const STAGE: Record<
 };
 
 const SCORE_LABELS = ["clarity", "complexity", "risk"] as const;
-const COLUMNS = 6;
+const COLUMNS = 5;
 
 function Row({ item }: { item: FeatureRequestSummary }) {
   const stage = STAGE[item.stage];
   const StageIcon = stage.icon;
-  // The triage labels as the room sees them on GitHub: "clarity 5", "complexity 3", "risk 2".
+  // The triage labels as the room sees them on GitHub: "clarity 5", "complexity 3", "risk 2". They
+  // sit under the title rather than in a column of their own: at the projector's 1024px a sixth
+  // column left the title 200px and wrapped it onto five lines.
   const scores = SCORE_LABELS.flatMap((name) => {
     const label = item.labels.find((l) => l.startsWith(`${name}:`));
     return label ? [`${name} ${label.slice(name.length + 1)}`] : [];
@@ -64,7 +66,20 @@ function Row({ item }: { item: FeatureRequestSummary }) {
   return (
     <TableRow>
       <TableCell className="text-muted-foreground tabular-nums">#{item.number}</TableCell>
-      <TableCell className="font-medium whitespace-normal">{item.title}</TableCell>
+      <TableCell className="whitespace-normal">
+        <div className="flex flex-col gap-1.5">
+          <span className="font-medium">{item.title}</span>
+          {scores.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {scores.map((score) => (
+                <Badge key={score} variant="outline">
+                  {score}
+                </Badge>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </TableCell>
       <TableCell>
         <Badge variant={stage.variant}>
           <StageIcon aria-hidden="true" />
@@ -78,19 +93,6 @@ function Row({ item }: { item: FeatureRequestSummary }) {
             <span className="sr-only">Readiness </span>
             {item.readiness}
           </Badge>
-        ) : (
-          <span className="text-muted-foreground">—</span>
-        )}
-      </TableCell>
-      <TableCell>
-        {scores.length > 0 ? (
-          <div className="flex gap-2">
-            {scores.map((score) => (
-              <Badge key={score} variant="outline">
-                {score}
-              </Badge>
-            ))}
-          </div>
         ) : (
           <span className="text-muted-foreground">—</span>
         )}
@@ -179,7 +181,6 @@ export function RequestsSoFar() {
               <TableHead>Request</TableHead>
               <TableHead className="w-32">Stage</TableHead>
               <TableHead className="w-28">Readiness</TableHead>
-              <TableHead>Triage</TableHead>
               <TableHead className="w-[1%]">
                 <span className="sr-only">Actions</span>
               </TableHead>
