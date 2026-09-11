@@ -87,7 +87,7 @@ browser only ever talks to the web origin, so there is no CORS and the refresh c
 - Requests so far: the Request page lists every request filed to GitHub, open first then closed, with its stage (New, Triaged, Implementing, Staging, Shipped), its readiness and score labels, and a link to the issue; filing one adds it to the top
 - Theme: a Light / Dark / System control in the header; System follows the operating system's `prefers-color-scheme` and the choice is saved to the account, so it applies on another device
 - Brand accent: oxblood, declared once as `--brand` in `src/styles/globals.css`; every accent-coloured element in both themes derives from it, so changing that line refreshes the app (the theme-color meta and the favicon then take the hex the accent test prints)
-- Footer prints the web version and commit and, once health resolves, the API's commit (or its version and commit, in amber, when it differs from the web version)
+- Footer prints the web version and commit and, once health resolves, the API's commit (or its version and commit as a destructive badge, with a visible note, when it differs from the web version)
 
 ## Selector contract (smoke test)
 

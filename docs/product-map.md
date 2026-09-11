@@ -32,7 +32,7 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 | `/tags`            | `TagsPage`           | `src/features/tags/TagsPage.tsx`                      |
 | `/request-feature` | `RequestFeaturePage` | `src/features/feature-request/RequestFeaturePage.tsx` |
 | `/`                | redirect to `/tasks` | —                                                     |
-| `*`                | `NotFoundPage`       | `src/app/routes/NotFoundPage.tsx`                     |
+| `*`                | `NotFoundRoute`      | `src/app/routes/NotFoundRoute.tsx`                    |
 
 ## App shell (`src/app/layout.tsx`)
 
@@ -40,8 +40,8 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 | --------------------------------- | ------ | ----------------------------------------------------- |
 | `NavLink` "Kaizen Tasks" → /tasks | header | `react-router`                                        |
 | `KaizenMark`                      | header | `src/components/kaizen-mark.tsx`                      |
-| `NavLink` "Tasks" → /tasks        | header | `react-router`                                        |
-| `NavLink` "Tags" → /tags          | header | `react-router`                                        |
+| `NavButton` "Tasks" → /tasks      | header | `src/components/nav-button.tsx`                       |
+| `NavButton` "Tags" → /tags        | header | `src/components/nav-button.tsx`                       |
 | `FeatureRequestLink`              | header | `src/features/feature-request/FeatureRequestLink.tsx` |
 | `ThemeToggle`                     | header | `src/features/theme/ThemeToggle.tsx`                  |
 | `Button` "Log out"                | header | `src/components/ui/button.tsx`                        |
@@ -92,7 +92,8 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 
 ### Unreleased
 
-- nothing yet
+- **Added** — The shadcn primitives the UI rework composes from, added with the CLI (`npx shadcn@latest add`): `alert`, `empty`, `spinner`, `skeleton`, `progress`, `table`, `collapsible`, `radio-group`, `scroll-ar…
+- **Changed** — The app shell on shadcn (ui-rework, shell): the primary nav links are `NavButton`s (`src/components/nav-button.tsx`), a `NavLink` in Button clothes with an icon and the current screen as the secondar…
 
 ### 1.4.0 — 2026-09-11
 
@@ -118,3 +119,4 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 - [ADR 0006: The theme comes from the session user, and the `dark` class is the only switch](adr/0006-theme-comes-from-the-session-user.md)
 - [ADR 0007: The product map is generated from this checkout and compared on every docs check](adr/0007-product-map-generated-and-gated.md)
 - [ADR 0008: The requests list is read through the typed client, never from GitHub in the browser](adr/0008-feature-request-list-read-through-the-typed-client.md)
+- [ADR 0009: One catch-all route picks the 404's frame by session](adr/0009-not-found-frame-by-session.md)
