@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-09-11
+
+### Changed
+
+- The header's theme control is a single icon-only button that cycles light, dark, then system on
+  each click (was a three-item menu); Feature Request, Pipeline, and Log out move into a new
+  account menu opened from the display name, which is now always visible (was hidden below `xl`).
+  `FeatureRequestLink` and `PipelineLink` are retired. Screenshot scenario `account-menu` replaces
+  `theme-open`. #29
+
 ## [1.5.0] - 2026-09-11
 
 ### Added

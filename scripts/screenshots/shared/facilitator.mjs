@@ -32,7 +32,8 @@ export async function signInAsFacilitator(page) {
   // The runner reuses one page for both themes: the second pass finds the facilitator signed in.
   const signedIn = await page.evaluate(headerNames, FACILITATOR.displayName).catch(() => false);
   if (!signedIn) {
-    await page.getByRole("button", { name: "Log out" }).click();
+    await page.getByRole("button", { name: "Screenshot" }).click();
+    await page.getByRole("menuitem", { name: "Log out" }).click();
     await page.waitForURL(`${origin}/login`, { timeout: 15_000 });
     await page.getByLabel("Email").fill(FACILITATOR.email);
     await page.getByLabel("Password").fill(FACILITATOR.password);
@@ -45,8 +46,11 @@ export async function signInAsFacilitator(page) {
   // The account preference wins over the device (ADR 0006), and the runner drives the theme by
   // emulating prefers-color-scheme for the account it registered. Keeping the facilitator on
   // "System" hands that emulation the decision, in this pass and in the next one.
-  await page.getByRole("button", { name: "Theme" }).click();
-  await page.getByRole("menuitemradio", { name: "System" }).click();
+  for (let clicks = 0; clicks < 3; clicks += 1) {
+    const label = await page.getByRole("button", { name: /^Theme:/ }).getAttribute("aria-label");
+    if (label?.startsWith("Theme: System")) break;
+    await page.getByRole("button", { name: /^Theme:/ }).click();
+  }
   await page.waitForFunction(
     (want) => document.documentElement.classList.contains("dark") === want,
     dark,

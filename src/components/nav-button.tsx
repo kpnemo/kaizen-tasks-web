@@ -7,7 +7,7 @@ import { cn } from "@/lib/cn";
 /** A primary-nav link dressed as a Button. The current screen is the secondary variant, so the
  *  active state is a shape and a weight rather than a tint, and every link carries an icon.
  *  react-router sets `aria-current="page"` on the active link; `data-nav` keeps the 44px hit area
- *  from globals.css. Used by the header and by FeatureRequestLink, so the two never drift. */
+ *  from globals.css. Used by the header's primary nav (Tasks, Tags). */
 export function NavButton({
   icon: Icon,
   className,

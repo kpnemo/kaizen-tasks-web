@@ -407,10 +407,7 @@ describe("scripts/product-map.mjs (this checkout)", () => {
       "header",
       "`src/features/theme/ThemeToggle.tsx`",
     ]);
-    expect(row(text, '`Button` "Log out"')?.[2]).toBe("`src/components/ui/button.tsx`");
-    expect(row(text, "`FeatureRequestLink`")?.[2]).toBe(
-      "`src/features/feature-request/FeatureRequestLink.tsx`",
-    );
+    expect(row(text, "`AccountMenu`")?.[2]).toBe("`src/features/auth/AccountMenu.tsx`");
     expect(row(text, "`KaizenMark`")?.[2]).toBe("`src/components/kaizen-mark.tsx`");
   });
 
