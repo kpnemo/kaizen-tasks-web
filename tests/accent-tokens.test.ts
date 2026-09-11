@@ -83,14 +83,12 @@ describe("accent tokens", () => {
     expect(button).toMatch(/link: "text-primary/);
     expect(read("src/components/ui/checkbox.tsx")).toContain("data-[state=checked]:bg-primary");
     expect(css).toMatch(/:focus-visible \{\s*outline: 3px solid var\(--ring\);/);
-    // The 404's way back is a default Button (bg-primary through button.tsx above), not a text link.
-    for (const page of [
-      "src/features/auth/LoginPage.tsx",
-      "src/features/auth/RegisterPage.tsx",
-      "src/features/tasks/TaskDetailPage.tsx",
-    ]) {
-      expect(read(page), page).toContain("text-primary underline");
+    // The 404's way back is a default Button (bg-primary through button.tsx above), not a text link,
+    // and the auth screens' cross links are link Buttons, painted by the link variant above.
+    for (const page of ["src/features/auth/LoginPage.tsx", "src/features/auth/RegisterPage.tsx"]) {
+      expect(read(page), page).toContain('variant="link"');
     }
+    expect(read("src/features/tasks/TaskDetailPage.tsx")).toContain("text-primary underline");
   });
 
   it("hard-codes no blue anywhere under src", () => {
