@@ -85,6 +85,7 @@ browser only ever talks to the web origin, so there is no CORS and the refresh c
 - Request a feature: the issue form's five fields, filed as a GitHub issue through the API; the link appears only when the API's health reports `features.featureRequests: true`
 - Request a feature, refined: an assistant interviews you one question at a time, the five fields fill in live beside the chat with a readiness chip, and "Review and file" opens the form prefilled and files it with the transcript and the self-score; "Skip the interview, fill the form" goes straight to the plain form
 - Requests so far: the Request page lists every request filed to GitHub, open first then closed, with its stage (New, Triaged, Implementing, Staging, Shipped), its readiness and score labels, and a link to the issue; filing one adds it to the top
+- Pipeline: `/pipeline`, the workshop's control room, linked from the header only when the API's health reports `features.pipeline: true`. A diagram of the flow from a request to production, two cards with what staging and production serve (versions, commits, db and redis, current / deploying / unreachable) and the snapshot's age, and a table of the open feature-request and bug issues plus those shipped in the last 14 days, with stage, readiness, one badge per pull request and one action per row. Facilitators see "Deploy to staging" and "Deploy <version> to production"; both open a passphrase dialog and the row updates on the next ten-second poll
 - Theme: a Light / Dark / System control in the header; System follows the operating system's `prefers-color-scheme` and the choice is saved to the account, so it applies on another device
 - Brand accent: oxblood, declared once as `--brand` in `src/styles/globals.css`; every accent-coloured element in both themes derives from it, so changing that line refreshes the app (the theme-color meta and the favicon then take the hex the accent test prints)
 - Footer prints the web version and commit and, once health resolves, the API's commit (or its version and commit as a destructive badge, with a visible note, when it differs from the web version)
@@ -112,6 +113,10 @@ name only. These names are a cross-repo contract; do not change them without cha
 | Interview | draft            | region "Your request"; button "Review and file"; link "Skip the interview, fill the form" (href `/request-feature?mode=form`)                                                                                                                                                                                                    |
 | Anywhere  | log out          | button "Log out"                                                                                                                                                                                                                                                                                                                 |
 | Any       | footer           | role `contentinfo` containing "v<version>" and "api <7-char commit>" from `GET /api/v1/health`                                                                                                                                                                                                                                   |
+
+Available to the smoke test but not yet required by it: link "Pipeline", heading "Pipeline", table
+"Issues", buttons "Deploy to staging" and "Deploy <version> to production", and the dialog's field
+"Deploy passphrase" (`/pipeline`, shown only when health reports `features.pipeline: true`).
 
 ## Pipeline
 

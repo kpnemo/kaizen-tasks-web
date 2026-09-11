@@ -14,6 +14,8 @@ export const ERROR_CODES = [
 
 export type ValidationDetail = { path: string; message: string };
 export type RateLimitDetails = { scope: "user" | "global"; limit: number; resetAt: string };
+/** FORBIDDEN details when the API says why (a wrong deploy passphrase); absent for "not allowed". */
+export type ForbiddenDetails = { reason: "passphrase" };
 
 function isErrorCode(value: unknown): value is ErrorCode {
   return typeof value === "string" && (ERROR_CODES as readonly string[]).includes(value);
@@ -63,6 +65,16 @@ export class ApiError extends Error {
       limit: Number(d.limit ?? 0),
       resetAt: d.resetAt,
     };
+  }
+
+  /** The documented FORBIDDEN reason, or null: for any other code, and for a FORBIDDEN the API
+   *  left bare (the caller is not a facilitator). `details` is a union, so it is narrowed with an
+   *  `in` check, never by comparing the message text. */
+  forbiddenReason(): ForbiddenDetails["reason"] | null {
+    if (this.code !== "FORBIDDEN") return null;
+    const d: unknown = this.details;
+    if (!d || typeof d !== "object" || !("reason" in d)) return null;
+    return d.reason === "passphrase" ? "passphrase" : null;
   }
 
   static fromResponse(response: Response, body: unknown): ApiError {

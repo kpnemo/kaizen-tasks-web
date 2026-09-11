@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router";
 import { LoginPage } from "@/features/auth/LoginPage";
 import { RegisterPage } from "@/features/auth/RegisterPage";
 import { RequestFeaturePage } from "@/features/feature-request/RequestFeaturePage";
+import { PipelinePage } from "@/features/pipeline/PipelinePage";
 import { TagsPage } from "@/features/tags/TagsPage";
 import { TaskDetailPage } from "@/features/tasks/TaskDetailPage";
 import { TaskListPage } from "@/features/tasks/TaskListPage";
@@ -27,6 +28,7 @@ export function AppRoutes() {
           <Route path="/tasks/:id" element={<TaskDetailPage />} />
           <Route path="/tags" element={<TagsPage />} />
           <Route path="/request-feature" element={<RequestFeaturePage />} />
+          <Route path="/pipeline" element={<PipelinePage />} />
         </Route>
       </Route>
       <Route path="/" element={<Navigate to="/tasks" replace />} />

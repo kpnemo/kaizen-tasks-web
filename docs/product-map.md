@@ -31,6 +31,7 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 | `/tasks/:id`       | `TaskDetailPage`     | `src/features/tasks/TaskDetailPage.tsx`               |
 | `/tags`            | `TagsPage`           | `src/features/tags/TagsPage.tsx`                      |
 | `/request-feature` | `RequestFeaturePage` | `src/features/feature-request/RequestFeaturePage.tsx` |
+| `/pipeline`        | `PipelinePage`       | `src/features/pipeline/PipelinePage.tsx`              |
 | `/`                | redirect to `/tasks` | —                                                     |
 | `*`                | `NotFoundRoute`      | `src/app/routes/NotFoundRoute.tsx`                    |
 
@@ -43,6 +44,7 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 | `NavButton` "Tasks" → /tasks      | header | `src/components/nav-button.tsx`                       |
 | `NavButton` "Tags" → /tags        | header | `src/components/nav-button.tsx`                       |
 | `FeatureRequestLink`              | header | `src/features/feature-request/FeatureRequestLink.tsx` |
+| `PipelineLink`                    | header | `src/features/pipeline/PipelineLink.tsx`              |
 | `ThemeToggle`                     | header | `src/features/theme/ThemeToggle.tsx`                  |
 | `Button` "Log out"                | header | `src/components/ui/button.tsx`                        |
 | `Outlet`                          | shell  | `react-router`                                        |
@@ -52,63 +54,65 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 
 - **auth** (`src/features/auth/`) — pages `LoginPage`, `RegisterPage`; components `AuthProvider`, `RestoringScreen`; hooks `hooks.ts`
 - **feature-request** (`src/features/feature-request/`) — pages `RequestFeaturePage`; components `FeatureRequestLink`, `ConversationPanel`, `DraftPanel`, `FeatureRequestForm`, `RequestsSoFar`; hooks `hooks.ts`
+- **pipeline** (`src/features/pipeline/`) — pages `PipelinePage`; components `PipelineLink`, `DeployDialog`, `EnvironmentCard`, `FlowDiagram`, `IssueAction`, `IssuesTable`, `SnapshotAge`; hooks `hooks.ts`
 - **tags** (`src/features/tags/`) — pages `TagsPage`; components `ColorPicker`, `TagRow`; hooks `hooks.ts`
 - **tasks** (`src/features/tasks/`) — pages `TaskDetailPage`, `TaskListPage`; components `AddStepForm`, `AddTagPopover`, `AiBanner`, `AiChip`, `AiTagSuggestions`, `BulkBar`, `CreateTaskBar`, `DismissedSteps`, `FilterBar`, `ProgressBar`, `RationalePopover`, `StepList`, `StepRow`, `TaskHeader`, `TaskRow`; hooks `hooks.ts`
 - **theme** (`src/features/theme/`) — components `ThemeToggle`; hooks `hooks.ts`
 
 ## Endpoints the app may call (`src/api/openapi.json`)
 
-| Method | Path                                           | Summary                                                    | Tag              |
-| ------ | ---------------------------------------------- | ---------------------------------------------------------- | ---------------- |
-| POST   | `/admin/seed-reset`                            | Delete and recreate the demo user's fixtures               | admin            |
-| POST   | `/auth/login`                                  | Log in with email and password                             | auth             |
-| POST   | `/auth/logout`                                 | Revoke the refresh token and clear the cookie              | auth             |
-| GET    | `/auth/me`                                     | Current user                                               | auth             |
-| PATCH  | `/auth/me`                                     | Update the current user's preferences                      | auth             |
-| POST   | `/auth/refresh`                                | Rotate the refresh cookie and issue a new access token     | auth             |
-| POST   | `/auth/register`                               | Register a new user                                        | auth             |
-| GET    | `/feature-requests`                            | List the feature requests filed to GitHub                  | feature-requests |
-| POST   | `/feature-requests`                            | File a feature request as a GitHub issue                   | feature-requests |
-| GET    | `/feature-requests/conversation`               | Get the caller's open interview conversation               | feature-requests |
-| POST   | `/feature-requests/conversation`               | Start a new interview conversation                         | feature-requests |
-| POST   | `/feature-requests/conversation/{id}/messages` | Send one answer and stream the assistant's reply           | feature-requests |
-| GET    | `/health`                                      | Health check with the running commit SHA                   | system           |
-| GET    | `/openapi.json`                                | This OpenAPI document                                      | system           |
-| GET    | `/tags`                                        | List the user's tags                                       | tags             |
-| POST   | `/tags`                                        | Create a tag                                               | tags             |
-| PATCH  | `/tags/{id}`                                   | Rename or recolor a tag                                    | tags             |
-| DELETE | `/tags/{id}`                                   | Delete a tag and its links                                 | tags             |
-| GET    | `/tasks`                                       | List tasks                                                 | tasks            |
-| POST   | `/tasks`                                       | Create a task or a step                                    | tasks            |
-| GET    | `/tasks/{id}`                                  | Get a task with its children, tags, progress and AI fields | tasks            |
-| PATCH  | `/tasks/{id}`                                  | Update a task                                              | tasks            |
-| DELETE | `/tasks/{id}`                                  | Delete a task and its children                             | tasks            |
-| POST   | `/tasks/{id}/breakdown`                        | Request an AI breakdown                                    | tasks            |
-| POST   | `/tasks/{id}/suggestions/accept-all`           | Accept every suggested step                                | tasks            |
-| POST   | `/tasks/{id}/suggestions/dismiss-all`          | Dismiss every suggested step                               | tasks            |
-| PUT    | `/tasks/{id}/tags`                             | Replace the task's tag set                                 | tasks            |
+| Method | Path                                           | Summary                                  |
+| ------ | ---------------------------------------------- | ---------------------------------------- |
+| POST   | `/admin/seed-reset`                            | Delete and recreate the demo user's fix… |
+| POST   | `/auth/login`                                  | Log in with email and password           |
+| POST   | `/auth/logout`                                 | Revoke the refresh token and clear the…  |
+| GET    | `/auth/me`                                     | Current user                             |
+| PATCH  | `/auth/me`                                     | Update the current user's preferences    |
+| POST   | `/auth/refresh`                                | Rotate the refresh cookie and issue a n… |
+| POST   | `/auth/register`                               | Register a new user                      |
+| GET    | `/feature-requests`                            | List the feature requests filed to GitH… |
+| POST   | `/feature-requests`                            | File a feature request as a GitHub issue |
+| GET    | `/feature-requests/conversation`               | Get the caller's open interview convers… |
+| POST   | `/feature-requests/conversation`               | Start a new interview conversation       |
+| POST   | `/feature-requests/conversation/{id}/messages` | Send one answer and stream the assistan… |
+| GET    | `/health`                                      | Health check with the running commit SHA |
+| GET    | `/openapi.json`                                | This OpenAPI document                    |
+| GET    | `/pipeline`                                    | One snapshot of the delivery pipeline    |
+| POST   | `/pipeline/issues/{number}/deploy-staging`     | Merge an issue's green pull requests in… |
+| POST   | `/pipeline/ship`                               | Dispatch the ship workflow for everythi… |
+| POST   | `/pipeline/ship/retry`                         | Re-dispatch a failed or cancelled ship…  |
+| GET    | `/tags`                                        | List the user's tags                     |
+| POST   | `/tags`                                        | Create a tag                             |
+| PATCH  | `/tags/{id}`                                   | Rename or recolor a tag                  |
+| DELETE | `/tags/{id}`                                   | Delete a tag and its links               |
+| GET    | `/tasks`                                       | List tasks                               |
+| POST   | `/tasks`                                       | Create a task or a step                  |
+| GET    | `/tasks/{id}`                                  | Get a task with its children, tags, pro… |
+| PATCH  | `/tasks/{id}`                                  | Update a task                            |
+| DELETE | `/tasks/{id}`                                  | Delete a task and its children           |
+| POST   | `/tasks/{id}/breakdown`                        | Request an AI breakdown                  |
+| POST   | `/tasks/{id}/suggestions/accept-all`           | Accept every suggested step              |
+| POST   | `/tasks/{id}/suggestions/dismiss-all`          | Dismiss every suggested step             |
+| PUT    | `/tasks/{id}/tags`                             | Replace the task's tag set               |
 
 ## Recent releases (history, not current behavior)
 
 ### Unreleased
 
+- **Added** — `/pipeline`, the workshop's control room, linked from the header as "Pipeline" while the API's health reports `features.pipeline: true`: the flow diagram, the two environment cards, the issues table…
 - **Added** — The shadcn primitives the UI rework composes from, added with the CLI (`npx shadcn@latest add`): `alert`, `empty`, `spinner`, `skeleton`, `progress`, `table`, `collapsible`, `radio-group`, `scroll-ar…
+- **Changed** — `scripts/product-map.mjs` keeps `docs/product-map.md` under its 12 KB budget with four more routes: the endpoints table drops its Tag column (the tag repeats the path's first segment), sorts by path…
+- **Changed** — The header stays one row at the projector's 1024px with four nav links: the "Kaizen Tasks" wordmark never wraps, and the display name shows from `xl` up, the breakpoint the theme control's word alrea…
 - **Changed** — The app shell on shadcn (ui-rework, shell): the primary nav links are `NavButton`s (`src/components/nav-button.tsx`), a `NavLink` in Button clothes with an icon and the current screen as the secondar…
-- **Changed** — The auth screens on shadcn (ui-rework, auth): `/login` and `/register` are one `Card` each, centred in the viewport (`CardHeader` with the wordmark, the h1 as a real heading inside `CardTitle` so "Lo…
-- **Changed** — The task detail on shadcn (ui-rework, tasks-detail): each step is a four-column grid row (drag handle as a ghost icon `Button`, done, title, actions) so the action column never wraps at the projector…
-- **Changed** — The Tags page on shadcn (ui-rework, tags): the list is a `Table` named "Your tags" whose rows are named by the tag, each with a round outline swatch button that opens the palette, the palette colour'…
-- **Changed** — The Request page on shadcn (ui-rework, feature-request): "Requests so far" is a `Table` with five aligned columns (#, the request with its triage scores as chips under the title, stage, readiness, th…
-- …and 2 more under [Unreleased] in CHANGELOG.md
+- …and 6 more under [Unreleased] in CHANGELOG.md
 
 ### 1.4.0 — 2026-09-11
 
 - **Added** — The shadcn skill (`.claude/skills/shadcn/`, installed from shadcn/ui, tracked by `skills-lock.json`…
-- **Added** — "Requests so far" at the bottom of the Request page: every feature request filed to GitHub through…
 
 ### 1.3.0 — 2026-09-11
 
 - **Added** — `docs/product-map.md`: what this app is and what it has, for an agent about to interview a product…
-- **Added** — Docs-check Rule D: the product map is regenerated and compared on every run, in both modes, before…
 
 ### 1.2.0 — 2026-09-10
 
@@ -125,3 +129,4 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 - [ADR 0007: The product map is generated from this checkout and compared on every docs check](adr/0007-product-map-generated-and-gated.md)
 - [ADR 0008: The requests list is read through the typed client, never from GitHub in the browser](adr/0008-feature-request-list-read-through-the-typed-client.md)
 - [ADR 0009: One catch-all route picks the 404's frame by session](adr/0009-not-found-frame-by-session.md)
+- [ADR 0010: The pipeline page reads and drives the pipeline only through the typed client](adr/0010-pipeline-read-and-driven-through-the-typed-client.md)

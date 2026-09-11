@@ -8,7 +8,12 @@ import type {
   ErrorCode,
   FeatureRequestBody,
   FeatureRequestSummary,
+  PipelineIssue,
+  PipelinePullRequest,
+  PipelineSnapshot,
   ReplaceTagsBody,
+  ShipBody,
+  ShipRetryBody,
   UpdateMeBody,
   UpdateTagBody,
   UpdateTaskBody,
@@ -366,19 +371,166 @@ export const featureRequestHandlers = [
   }),
 ];
 
-/** The health payload. `features.featureRequests` is the flag the request-a-feature feature reads (R2). */
-export function healthBody(featureRequests = true) {
+/** The health payload. `features.featureRequests` is the flag the request-a-feature feature reads
+ *  (R2) and `features.pipeline` the one the pipeline page reads (ADR 0010); both default to on. A
+ *  bare boolean still means `featureRequests`, for the tests written before the second flag. */
+export function healthBody(
+  features: boolean | { featureRequests?: boolean; pipeline?: boolean } = true,
+) {
+  const flags = typeof features === "boolean" ? { featureRequests: features } : features;
   return {
     status: "ok" as const,
     commit: "test-sha",
     version: pkg.version,
     env: "test",
     checks: { db: "ok", redis: "ok" },
-    features: { featureRequests },
+    features: { featureRequests: true, pipeline: true, ...flags },
   };
 }
 
 export const healthHandlers = [http.get(`${API}/health`, () => ok(healthBody()))];
+
+const SHA = {
+  apiDevelop: "c4ec3f4e2b9a1d7f0c3e5a6b8d9f0a1b2c3d4e5f",
+  apiMain: "a1774e5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f",
+  webDevelop: "e9b52c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b",
+  webMain: "33272c5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b",
+};
+
+/** One pull request as GET /pipeline lists it; `checks` is null unless the PR is open. */
+export function pipelinePullRequest(
+  over: Partial<PipelinePullRequest> & Pick<PipelinePullRequest, "repo" | "number">,
+): PipelinePullRequest {
+  const repo = over.repo === "harness" ? "kaizen-tasks-assembly-line" : `kaizen-tasks-${over.repo}`;
+  const state = over.state ?? "open";
+  return {
+    url: `https://github.com/kpnemo/${repo}/pull/${over.number}`,
+    state,
+    checks: state === "open" ? "green" : null,
+    mergeSha: state === "merged" ? `${over.repo}${over.number}`.padEnd(40, "0") : null,
+    headSha: `head${over.repo}${over.number}`.padEnd(40, "0"),
+    draft: false,
+    ...over,
+  };
+}
+
+/** One row of GET /pipeline; the stage drives the defaults a test does not override. */
+export function pipelineIssue(
+  over: Partial<PipelineIssue> & Pick<PipelineIssue, "number">,
+): PipelineIssue {
+  const stage = over.stage ?? "triaged";
+  const shipped = stage === "shipped";
+  return {
+    title: `Request ${over.number}`,
+    kind: "feature-request",
+    state: shipped ? "closed" : "open",
+    stage,
+    readiness: 16,
+    url: `https://github.com/kpnemo/kaizen-tasks-assembly-line/issues/${over.number}`,
+    labels: ["feature-request", "clarity:5", "complexity:3", "risk:3", stage],
+    createdAt: "2026-09-09T13:09:53Z",
+    closedAt: shipped ? "2026-09-11T10:10:00Z" : null,
+    pullRequests: [],
+    onStaging: stage === "staging" || shipped,
+    productionReady: stage === "staging",
+    ship: null,
+    ...over,
+  };
+}
+
+/** The default snapshot: both environments serving 1.4.0, three issues at implementing, staging
+ *  and shipped, the next release 1.5.0, the caller a facilitator. Override what a test cares about. */
+export function pipelineSnapshot(over: Partial<PipelineSnapshot> = {}): PipelineSnapshot {
+  return {
+    generatedAt: "2026-09-11T10:42:07.000Z",
+    stale: false,
+    canDeploy: true,
+    nextVersion: "1.5.0",
+    ship: { active: false, run: null },
+    environments: {
+      staging: {
+        api: { version: "1.4.0", commit: SHA.apiDevelop, db: "ok", redis: "ok" },
+        web: { version: "1.4.0", commit: SHA.webDevelop },
+        state: "current",
+      },
+      production: {
+        api: { version: "1.4.0", commit: SHA.apiMain, db: "ok", redis: "ok" },
+        web: { version: "1.4.0", commit: SHA.webMain },
+        state: "current",
+      },
+    },
+    branches: {
+      api: { develop: SHA.apiDevelop, main: SHA.apiMain },
+      web: { develop: SHA.webDevelop, main: SHA.webMain },
+    },
+    issues: [
+      pipelineIssue({
+        number: 24,
+        title: "Snooze a task until Monday",
+        stage: "implementing",
+        readiness: 18,
+        pullRequests: [
+          pipelinePullRequest({ repo: "api", number: 25 }),
+          pipelinePullRequest({ repo: "web", number: 27 }),
+        ],
+      }),
+      pipelineIssue({
+        number: 22,
+        title: "Show existing requests at the bottom of the Request page",
+        stage: "staging",
+        readiness: 17,
+        pullRequests: [
+          pipelinePullRequest({ repo: "api", number: 20, state: "merged" }),
+          pipelinePullRequest({ repo: "web", number: 19, state: "merged" }),
+        ],
+      }),
+      pipelineIssue({
+        number: 19,
+        title: "Change the app accent from blue to dark red",
+        stage: "shipped",
+        readiness: 19,
+        pullRequests: [
+          pipelinePullRequest({ repo: "api", number: 18, state: "merged" }),
+          pipelinePullRequest({ repo: "web", number: 17, state: "merged" }),
+        ],
+      }),
+    ],
+    ...over,
+  };
+}
+
+export const SHIP_RUN_URL = "https://github.com/kpnemo/kaizen-tasks-assembly-line/actions/runs/1";
+
+export const pipelineHandlers = [
+  http.get(`${API}/pipeline`, () => ok(pipelineSnapshot())),
+  http.post(`${API}/pipeline/issues/:number/deploy-staging`, ({ params }) =>
+    ok({
+      merged: [
+        { repo: "api", number: Number(params.number) + 1, sha: SHA.apiDevelop },
+        { repo: "web", number: Number(params.number) + 3, sha: SHA.webDevelop },
+      ],
+      remaining: [],
+    }),
+  ),
+  http.post(`${API}/pipeline/ship`, async ({ request }) => {
+    const body = (await request.json()) as ShipBody;
+    return ok({
+      requestId: "11111111-2222-4333-8444-555555555555",
+      version: body.version,
+      issues: body.issues,
+      run: { id: 1, url: SHIP_RUN_URL },
+    });
+  }),
+  http.post(`${API}/pipeline/ship/retry`, async ({ request }) => {
+    const body = (await request.json()) as ShipRetryBody;
+    return ok({
+      requestId: "11111111-2222-4333-8444-555555555555-r1",
+      version: "1.5.0",
+      issues: [body.issue],
+      run: { id: 2, url: SHIP_RUN_URL.replace(/1$/, "2") },
+    });
+  }),
+];
 
 export const handlers = [
   ...authHandlers,
@@ -386,5 +538,6 @@ export const handlers = [
   ...tagHandlers,
   ...featureRequestHandlers,
   ...conversationHandlers,
+  ...pipelineHandlers,
   ...healthHandlers,
 ];

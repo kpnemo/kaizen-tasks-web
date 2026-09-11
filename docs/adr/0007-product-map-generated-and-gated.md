@@ -39,9 +39,12 @@ the check. There is no list of trigger paths.
   generator learns it. That is deliberate: the alternative is a map that quietly omits a screen.
 - The map must stay small enough to sit in an interview's context: a test holds it under 12 KB and
   250 lines, so growth means cutting what the map keeps, not raising the budget. Every part fed by
-  the changelog is therefore bounded: released bullets are the newest three releases, two bullets
-  each, cut at 120 characters, and `[Unreleased]` is cut at 200 characters a bullet and 1,600 for
-  the section, with a line counting what did not fit. A busy release cycle cannot push the map over
-  its budget and fail an unrelated feature's test run.
+  the changelog is therefore bounded: released bullets are the newest three releases, one bullet
+  each, cut at 100 characters, and `[Unreleased]` is cut at 200 characters a bullet and 1,000 for
+  the section, with a line counting what did not fit. The endpoints table is bounded the same way:
+  sorted by path, no tag column (the tag repeats the path's first segment), summaries cut at 40
+  characters. A busy release cycle or a route with a long summary cannot push the map over its
+  budget and fail an unrelated feature's test run. (The numbers were 120, two and 1,600 when this
+  was written; each cut since has been a growth step, 1.4.0 and the pipeline page.)
 - `docs/ui-conventions.md` is pointed at from the header, not copied into the map, so the design
   rules have one home.
