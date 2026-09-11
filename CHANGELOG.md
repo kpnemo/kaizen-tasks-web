@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-09-11
+
 ### Added
 - The shadcn skill (`.claude/skills/shadcn/`, installed from shadcn/ui, tracked by `skills-lock.json`) and a "shadcn first" section in `docs/ui-conventions.md`: every visible change loads it and the `frontend-design` skill; tabular data is a `Table`, statuses are visible `Badge` variants, loading, empty and error states are `Skeleton`, `Empty` and `Alert`; missing primitives are added with the shadcn CLI, never hand-rolled. `add-frontend-feature` step 4 says the same.
 

@@ -92,8 +92,12 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 
 ### Unreleased
 
-- **Added** — The shadcn skill (`.claude/skills/shadcn/`, installed from shadcn/ui, tracked by `skills-lock.json`) and a "shadcn first" section in `docs/ui-conventions.md`: every visible change loads it and the `f…
-- **Added** — "Requests so far" at the bottom of the Request page: every feature request filed to GitHub through `GET /feature-requests`, open first then closed and newest first, each with a stage chip derived fro…
+- nothing yet
+
+### 1.4.0 — 2026-09-11
+
+- **Added** — The shadcn skill (`.claude/skills/shadcn/`, installed from shadcn/ui, tracked by `skills-lock.json`) and a "shadcn firs…
+- **Added** — "Requests so far" at the bottom of the Request page: every feature request filed to GitHub through `GET /feature-reques…
 
 ### 1.3.0 — 2026-09-11
 
@@ -103,10 +107,6 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 ### 1.2.0 — 2026-09-10
 
 - **Added** — A Light / Dark / System control in the header. The choice applies to the page at once, `System` follows the operating s…
-
-### 1.1.1 — 2026-09-10
-
-- **Fixed** — `ConversationPanel` no longer shows the "Skip this question" chip while the assistant's greeting is the last message, b…
 
 ## Decisions (`docs/adr/*.md`)
 
