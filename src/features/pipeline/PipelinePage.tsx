@@ -13,8 +13,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DeployDialog } from "./components/DeployDialog";
 import { EnvironmentCard } from "./components/EnvironmentCard";
 import { FlowDiagram } from "./components/FlowDiagram";
+import type { PipelineAction } from "./actions";
 import { IssuesTable } from "./components/IssuesTable";
-import type { PipelineAction } from "./components/IssueAction";
 import { SnapshotAge } from "./components/SnapshotAge";
 import { usePipeline, usePipelineAvailable } from "./hooks";
 
@@ -125,7 +125,7 @@ export function PipelinePage() {
         </div>
       )}
 
-      <DeployDialog action={action} onClose={() => setAction(null)} />
+      {data && <DeployDialog action={action} snapshot={data} onClose={() => setAction(null)} />}
     </div>
   );
 }

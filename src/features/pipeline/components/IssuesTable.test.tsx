@@ -205,6 +205,7 @@ describe("IssuesTable", () => {
       kind: "retry",
       issue: expect.objectContaining({ number: 22 }),
       version: "1.4.1",
+      covers: [22],
     });
     expect(screen.queryByRole("button", { name: /to production/ })).toBeNull();
   });

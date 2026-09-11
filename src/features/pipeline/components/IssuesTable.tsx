@@ -10,7 +10,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/cn";
-import { IssueAction, type PipelineAction } from "./IssueAction";
+import type { PipelineAction } from "../actions";
+import { IssueAction } from "./IssueAction";
 
 type BadgeVariant = "default" | "secondary" | "outline" | "destructive";
 

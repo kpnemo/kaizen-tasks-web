@@ -1,8 +1,8 @@
-import { CircleAlert, RotateCcw, Rocket, Ship, type LucideIcon } from "lucide-react";
-import { useRef, useState, type RefObject } from "react";
+import { CircleAlert, RotateCcw, Rocket, Ship, TriangleAlert, type LucideIcon } from "lucide-react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { toast } from "sonner";
 import { toApiError, type ApiError } from "@/api/errors";
-import type { DeployStagingResult, PipelineIssue } from "@/api/models";
+import type { DeployStagingResult, PipelineIssue, PipelineSnapshot } from "@/api/models";
 import { Field } from "@/components/field";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -18,8 +18,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { formatClock } from "@/lib/format";
+import { blockerFor, type PipelineAction } from "../actions";
 import { useDeployStaging, useRetryShip, useShip } from "../hooks";
-import type { PipelineAction } from "./IssueAction";
 
 const LIST = new Intl.ListFormat("en", { type: "conjunction" });
 const numbers = (issues: PipelineIssue[]) => LIST.format(issues.map((i) => `#${i.number}`));
@@ -48,13 +48,16 @@ function copyFor(action: PipelineAction): Copy {
         verb: `Deploy ${action.version} to production`,
         icon: Ship,
       };
-    case "retry":
+    case "retry": {
+      // The API re-dispatches the marker's whole issue set, not the pressed row alone.
+      const covers = LIST.format(action.covers.map((number) => `#${number}`));
       return {
         title: `Retry ship ${action.version}`,
-        description: `Runs the ship workflow again for ${action.version} with #${action.issue.number}. Steps that already finished are skipped.`,
+        description: `Retries the failed ship of ${action.version}, which covers ${covers}. Steps that already finished are skipped.`,
         verb: `Retry ship ${action.version}`,
         icon: RotateCcw,
       };
+    }
   }
 }
 
@@ -93,15 +96,23 @@ const keyOf = (action: PipelineAction) =>
  *  the verb. A wrong passphrase and a lockout are the field's error; a conflict is the API's
  *  sentence inline; success closes the dialog and the snapshot is refetched by the hook. The form
  *  is keyed by the action so every opening starts clean, and the passphrase lives in its state for
- *  the length of one request and nowhere else. */
+ *  the length of one request and nowhere else.
+ *
+ *  `snapshot` is the live one, so the form re-checks the row's eligibility on every poll rather
+ *  than trusting the press that opened it; and the dialog cannot be dismissed while a request is in
+ *  flight, or the API's answer would land in a closed dialog and be lost. */
 export function DeployDialog({
   action,
+  snapshot,
   onClose,
 }: {
   action: PipelineAction | null;
+  snapshot: PipelineSnapshot;
   onClose: () => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  // Whether the form has a request in flight, read by the Escape handler at the moment of the key.
+  const pendingRef = useRef(false);
   return (
     <AlertDialog
       open={action !== null}
@@ -115,9 +126,22 @@ export function DeployDialog({
           event.preventDefault();
           inputRef.current?.focus();
         }}
+        onEscapeKeyDown={(event) => {
+          // Escape while the API is answering would drop a CONFLICT or a wrong-passphrase answer
+          // on the floor; the dialog closes once the answer is on screen or the press succeeded.
+          // Radix's AlertDialog has no outside-pointer dismissal, so there is nothing else to hold.
+          if (pendingRef.current) event.preventDefault();
+        }}
       >
         {action && (
-          <DeployForm key={keyOf(action)} action={action} onClose={onClose} inputRef={inputRef} />
+          <DeployForm
+            key={keyOf(action)}
+            action={action}
+            snapshot={snapshot}
+            onClose={onClose}
+            inputRef={inputRef}
+            pendingRef={pendingRef}
+          />
         )}
       </AlertDialogContent>
     </AlertDialog>
@@ -126,12 +150,16 @@ export function DeployDialog({
 
 function DeployForm({
   action,
+  snapshot,
   onClose,
   inputRef,
+  pendingRef,
 }: {
   action: PipelineAction;
+  snapshot: PipelineSnapshot;
   onClose: () => void;
   inputRef: RefObject<HTMLInputElement | null>;
+  pendingRef: RefObject<boolean>;
 }) {
   const copy = copyFor(action);
   const Icon = copy.icon;
@@ -142,9 +170,19 @@ function DeployForm({
   const pending = deployStaging.isPending || shipRelease.isPending || retryShip.isPending;
   const raw = deployStaging.error ?? shipRelease.error ?? retryShip.error;
   const failure = raw ? describeFailure(toApiError(raw)) : null;
+  // Recomputed from the live snapshot on every render, so a poll that lands while the dialog is
+  // open takes the verb away at once; `submit` reads the same value, so a stale click never sends.
+  const blocked = blockerFor(action, snapshot);
+
+  useEffect(() => {
+    pendingRef.current = pending;
+    return () => {
+      pendingRef.current = false;
+    };
+  }, [pending, pendingRef]);
 
   async function submit() {
-    if (!passphrase || pending) return;
+    if (!passphrase || pending || blocked) return;
     try {
       if (action.kind === "staging") {
         const result = await deployStaging.mutateAsync({
@@ -204,13 +242,20 @@ function DeployForm({
           <AlertDescription className="text-base">{failure.message}</AlertDescription>
         </Alert>
       )}
+      {blocked && (
+        <Alert>
+          <TriangleAlert aria-hidden="true" />
+          <AlertTitle>Cannot continue</AlertTitle>
+          <AlertDescription>{blocked} Cancel and read the row again.</AlertDescription>
+        </Alert>
+      )}
       <AlertDialogFooter>
         <AlertDialogCancel type="button" disabled={pending}>
           Cancel
         </AlertDialogCancel>
         <AlertDialogAction
           type="button"
-          disabled={!passphrase || pending}
+          disabled={!passphrase || pending || blocked !== null}
           onClick={(event) => {
             // Radix closes on Action by default; the dialog closes only once the API has answered.
             event.preventDefault();

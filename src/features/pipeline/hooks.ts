@@ -20,9 +20,13 @@ export const PIPELINE_POLL_MS = 10_000;
 
 /** Whether the running API mounted the pipeline routes: `data.features.pipeline` from GET /health,
  *  read through the shared health query so the footer, the request link and this page share one
- *  request per session. `undefined` while unknown; a failing health check counts as unavailable. */
+ *  request per session. `undefined` only while the answer is still on its way. A failing health
+ *  check counts as unavailable, whichever way it fails: a 503 the query surfaces as `null`, or a
+ *  request that never got an answer and left the query in error. The page must never sit on its
+ *  skeletons waiting for a feature it cannot confirm. */
 export function usePipelineAvailable(): { available: boolean | undefined } {
   const query = useQuery(healthQueryOptions);
+  if (query.isError) return { available: false };
   const available = query.data === undefined ? undefined : query.data?.features.pipeline === true;
   return { available };
 }

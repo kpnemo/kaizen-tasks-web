@@ -1,6 +1,7 @@
-import { screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { delay, http } from "msw";
 import { describe, expect, it } from "vitest";
+import type { PipelineIssueShip, PipelineShipRun, PipelineSnapshot } from "@/api/models";
 import {
   API,
   err,
@@ -12,6 +13,33 @@ import {
 } from "../../../../tests/msw/handlers";
 import { server } from "../../../../tests/msw/server";
 import { renderApp } from "../../../../tests/render";
+import { pipelineKey } from "../hooks";
+
+const REQUEST_ID = "11111111-2222-4333-8444-555555555555";
+
+/** The marker a failed ship of 1.4.1 leaves on an issue. */
+const failedMarker: PipelineIssueShip = {
+  requestId: REQUEST_ID,
+  version: "1.4.1",
+  runUrl: SHIP_RUN_URL,
+  done: false,
+  status: "completed",
+  conclusion: "failure",
+  step: "Merge release PRs",
+};
+
+/** The same ship as the snapshot's newest run, which records the issue set it covers. */
+const failedRun: PipelineShipRun = {
+  id: 1,
+  url: SHIP_RUN_URL,
+  requestId: REQUEST_ID,
+  version: "1.4.1",
+  status: "completed",
+  conclusion: "failure",
+  step: "Merge release PRs",
+  issues: [22, 23],
+  createdAt: "2026-09-11T10:00:00.000Z",
+};
 
 type Captured = { path: string; body: unknown };
 
@@ -184,25 +212,21 @@ describe("DeployDialog", () => {
     expect(await screen.findByText(/Ship 1\.5\.0 started for #22 and #23/)).toBeInTheDocument();
   });
 
-  it("retries a failed ship with the version recorded on the issue", async () => {
+  it("retries a failed ship with the version recorded on the issue, naming the run's whole issue set", async () => {
+    // The marker's issue set is what the API re-dispatches (contract: "the marker's version and the
+    // marker's issue set, unchanged"), so the confirmation names every issue the run covers, read
+    // from the snapshot's run, while the body still names the pressed issue alone.
     server.use(
       http.get(`${API}/pipeline`, () =>
         ok(
           pipelineSnapshot({
+            ship: { active: false, run: failedRun },
             issues: [
               pipelineIssue({
                 number: 22,
                 stage: "staging",
                 pullRequests: [pipelinePullRequest({ repo: "web", number: 19, state: "merged" })],
-                ship: {
-                  requestId: "11111111-2222-4333-8444-555555555555",
-                  version: "1.4.1",
-                  runUrl: SHIP_RUN_URL,
-                  done: false,
-                  status: "completed",
-                  conclusion: "failure",
-                  step: "Merge release PRs",
-                },
+                ship: failedMarker,
               }),
             ],
           }),
@@ -211,15 +235,15 @@ describe("DeployDialog", () => {
     );
     const posts = capturePosts(() =>
       ok({
-        requestId: "11111111-2222-4333-8444-555555555555-r1",
+        requestId: `${REQUEST_ID}-r1`,
         version: "1.4.1",
-        issues: [22],
+        issues: [22, 23],
         run: { id: 2, url: SHIP_RUN_URL },
       }),
     );
     const { user, dialog } = await openDialog("Retry ship 1.4.1");
     expect(within(dialog).getByRole("heading", { name: "Retry ship 1.4.1" })).toBeVisible();
-    expect(dialog).toHaveTextContent("#22");
+    expect(dialog).toHaveTextContent("Retries the failed ship of 1.4.1, which covers #22 and #23.");
     await user.type(within(dialog).getByLabelText("Deploy passphrase"), "workshop-demo-passphrase");
     await user.click(within(dialog).getByRole("button", { name: "Retry ship 1.4.1" }));
     await waitFor(() => expect(screen.queryByRole("alertdialog")).toBeNull());
@@ -231,11 +255,134 @@ describe("DeployDialog", () => {
     ]);
   });
 
+  it("names the issues that share the marker when the snapshot has no run to read the set from", async () => {
+    server.use(
+      http.get(`${API}/pipeline`, () =>
+        ok(
+          pipelineSnapshot({
+            ship: { active: false, run: null },
+            issues: [
+              pipelineIssue({ number: 22, stage: "staging", ship: failedMarker }),
+              pipelineIssue({ number: 23, stage: "staging", ship: failedMarker }),
+              pipelineIssue({ number: 24, stage: "implementing" }),
+            ],
+          }),
+        ),
+      ),
+    );
+    const { dialog } = await openDialog("Retry ship 1.4.1");
+    expect(dialog).toHaveTextContent("Retries the failed ship of 1.4.1, which covers #22 and #23.");
+    expect(dialog).not.toHaveTextContent("#24");
+  });
+
   it("closes on Cancel without posting", async () => {
     const posts = capturePosts();
     const { user, dialog } = await openDialog("Deploy to staging");
     await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
     await waitFor(() => expect(screen.queryByRole("alertdialog")).toBeNull());
     expect(posts).toHaveLength(0);
+  });
+
+  it("closes on Escape while idle, without posting", async () => {
+    const posts = capturePosts();
+    const { user } = await openDialog("Deploy to staging");
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("alertdialog")).toBeNull());
+    expect(posts).toHaveLength(0);
+  });
+
+  it("ignores Escape while the request is in flight, so the API's answer is not lost", async () => {
+    server.use(
+      http.post(`${API}/pipeline/issues/:number/deploy-staging`, async () => {
+        await delay(200);
+        return err("CONFLICT", "web #27 moved since you looked, reload");
+      }),
+    );
+    const { user, dialog } = await openDialog("Deploy to staging");
+    await user.type(
+      within(dialog).getByLabelText("Deploy passphrase"),
+      "workshop-demo-passphrase{Enter}",
+    );
+    expect(within(dialog).getByRole("button", { name: "Deploy to staging" })).toBeDisabled();
+    await user.keyboard("{Escape}");
+    expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+    const alert = await within(dialog).findByRole("alert");
+    expect(alert).toHaveTextContent("web #27 moved since you looked, reload");
+    expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+  });
+
+  describe("when the snapshot moves while the dialog is open", () => {
+    const activeRun: PipelineShipRun = {
+      ...failedRun,
+      version: "1.5.0",
+      status: "in_progress",
+      conclusion: null,
+      step: "Promote api",
+      issues: [22],
+    };
+    const cases: Array<[string, Partial<PipelineSnapshot>, string]> = [
+      ["a ship started", { ship: { active: true, run: activeRun } }, "A ship started."],
+      ["the caller can no longer deploy", { canDeploy: false }, "You can no longer deploy."],
+      [
+        "the snapshot went stale",
+        { stale: true, staleReason: "GitHub rate limit, retrying at 11:00" },
+        "The snapshot is stale",
+      ],
+      [
+        "the row itself moved on",
+        {
+          issues: [
+            pipelineIssue({
+              number: 24,
+              stage: "implementing",
+              pullRequests: [
+                pipelinePullRequest({ repo: "api", number: 25, checks: "red" }),
+                pipelinePullRequest({ repo: "web", number: 27 }),
+              ],
+            }),
+          ],
+        },
+        "The row moved on",
+      ],
+    ];
+
+    it.each(cases)(
+      "disables the verb and says why when %s, and no submit can post",
+      async (_name, over, reason) => {
+        const posts = capturePosts();
+        const { user, dialog, queryClient } = await openDialog("Deploy to staging");
+        const field = within(dialog).getByLabelText("Deploy passphrase");
+        await user.type(field, "workshop-demo-passphrase");
+        const verb = within(dialog).getByRole("button", { name: "Deploy to staging" });
+        expect(verb).toBeEnabled();
+
+        // The ten-second poll lands a snapshot the row is no longer eligible on.
+        queryClient.setQueryData(pipelineKey, pipelineSnapshot(over));
+
+        await waitFor(() => expect(verb).toBeDisabled());
+        expect(within(dialog).getByRole("alert")).toHaveTextContent(reason);
+        // Enter on the field, and a submit forced past the disabled button, both stop at the guard.
+        await user.type(field, "{Enter}");
+        fireEvent.submit(dialog.querySelector("form")!);
+        await delay(50);
+        expect(posts).toHaveLength(0);
+        expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+        expect(within(dialog).getByRole("button", { name: "Cancel" })).toBeEnabled();
+      },
+    );
+
+    it("lets the verb back once a later snapshot makes the row eligible again", async () => {
+      const { user, dialog, queryClient } = await openDialog("Deploy to staging");
+      await user.type(
+        within(dialog).getByLabelText("Deploy passphrase"),
+        "workshop-demo-passphrase",
+      );
+      const verb = () => within(dialog).getByRole("button", { name: "Deploy to staging" });
+      queryClient.setQueryData(pipelineKey, pipelineSnapshot({ stale: true }));
+      await waitFor(() => expect(verb()).toBeDisabled());
+      queryClient.setQueryData(pipelineKey, pipelineSnapshot());
+      await waitFor(() => expect(verb()).toBeEnabled());
+      expect(within(dialog).queryByRole("alert")).toBeNull();
+    });
   });
 });

@@ -1,5 +1,5 @@
 import { screen, within } from "@testing-library/react";
-import { delay, http } from "msw";
+import { delay, http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
 import { API, err, healthBody, ok, pipelineSnapshot } from "../../../tests/msw/handlers";
 import { server } from "../../../tests/msw/server";
@@ -14,6 +14,18 @@ describe("pipeline page", () => {
     ).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Pipeline" })).toBeNull();
     expect(screen.queryByRole("table", { name: "Issues" })).toBeNull();
+  });
+
+  it("says the pipeline is not available when the health check itself fails", async () => {
+    // A health read that never gets an answer is "unavailable", not "unknown": the page must not
+    // sit on its skeletons for a feature it can never confirm.
+    server.use(http.get(`${API}/health`, () => HttpResponse.error()));
+    renderApp({ route: "/pipeline" });
+    expect(
+      await screen.findByText("The pipeline is not available in this environment."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Loading pipeline")).toBeNull();
+    expect(screen.queryByRole("link", { name: "Pipeline" })).toBeNull();
   });
 
   it("shows the link when health reports pipeline true and renders the page", async () => {
