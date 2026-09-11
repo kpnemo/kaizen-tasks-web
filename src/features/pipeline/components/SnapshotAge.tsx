@@ -1,13 +1,7 @@
 import { CircleX, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/cn";
-
-const TIME = new Intl.DateTimeFormat(undefined, {
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-  hourCycle: "h23",
-});
+import { formatClock } from "@/lib/format";
 
 /** When the snapshot was built, printed once under the environment cards: in the brand colour while
  *  it is fresh, and in the destructive colour with "GitHub unreachable" and the API's reason when the
@@ -31,7 +25,7 @@ export function SnapshotAge({
         )}
       >
         <Clock aria-hidden="true" className="size-4" />
-        as of {TIME.format(new Date(generatedAt))}
+        as of {formatClock(generatedAt, "seconds")}
       </span>
       {stale && (
         <Badge variant="destructive">

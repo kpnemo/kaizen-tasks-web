@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatTime, pluralize, skipReasonLabel } from "./format";
+import { formatTime, pluralize, skipReasonLabel, formatClock } from "./format";
 
 describe("format", () => {
   it("labels every skip reason in words", () => {
@@ -17,5 +17,15 @@ describe("format", () => {
   it("pluralizes", () => {
     expect(pluralize(1, "suggestion")).toBe("1 suggestion");
     expect(pluralize(3, "suggestion")).toBe("3 suggestions");
+  });
+});
+
+describe("formatClock", () => {
+  it("prints a 24-hour clock, to the minute or to the second", () => {
+    const iso = "2026-09-11T13:05:09.000Z";
+    expect(formatClock(iso)).toMatch(/^\d\d:\d\d$/);
+    expect(formatClock(iso, "seconds")).toMatch(/^\d\d:\d\d:\d\d$/);
+    expect(formatClock(iso, "seconds").endsWith(":05:09")).toBe(true);
+    expect(formatClock("not a date")).toBe("not a date");
   });
 });

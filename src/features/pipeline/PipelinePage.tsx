@@ -1,4 +1,5 @@
 import { CircleAlert, Inbox } from "lucide-react";
+import { useState } from "react";
 import { toApiError } from "@/api/errors";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -9,9 +10,11 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DeployDialog } from "./components/DeployDialog";
 import { EnvironmentCard } from "./components/EnvironmentCard";
 import { FlowDiagram } from "./components/FlowDiagram";
 import { IssuesTable } from "./components/IssuesTable";
+import type { PipelineAction } from "./components/IssueAction";
 import { SnapshotAge } from "./components/SnapshotAge";
 import { usePipeline, usePipelineAvailable } from "./hooks";
 
@@ -22,6 +25,8 @@ import { usePipeline, usePipelineAvailable } from "./hooks";
 export function PipelinePage() {
   const { available } = usePipelineAvailable();
   const snapshot = usePipeline(available === true);
+  // The press the passphrase dialog is open for; null while it is closed.
+  const [action, setAction] = useState<PipelineAction | null>(null);
 
   if (available === false) {
     return (
@@ -89,7 +94,7 @@ export function PipelinePage() {
                 </EmptyHeader>
               </Empty>
             ) : (
-              <IssuesTable snapshot={data} onAction={() => undefined} />
+              <IssuesTable snapshot={data} onAction={setAction} />
             )}
           </section>
         </>
@@ -119,6 +124,8 @@ export function PipelinePage() {
           <span className="sr-only">Loading pipeline</span>
         </div>
       )}
+
+      <DeployDialog action={action} onClose={() => setAction(null)} />
     </div>
   );
 }
