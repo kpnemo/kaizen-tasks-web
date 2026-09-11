@@ -89,7 +89,7 @@ export function PipelinePage() {
                 </EmptyHeader>
               </Empty>
             ) : (
-              <IssuesTable issues={data.issues} />
+              <IssuesTable snapshot={data} onAction={() => undefined} />
             )}
           </section>
         </>

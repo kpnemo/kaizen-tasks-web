@@ -54,7 +54,7 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 
 - **auth** (`src/features/auth/`) — pages `LoginPage`, `RegisterPage`; components `AuthProvider`, `RestoringScreen`; hooks `hooks.ts`
 - **feature-request** (`src/features/feature-request/`) — pages `RequestFeaturePage`; components `FeatureRequestLink`, `ConversationPanel`, `DraftPanel`, `FeatureRequestForm`, `RequestsSoFar`; hooks `hooks.ts`
-- **pipeline** (`src/features/pipeline/`) — pages `PipelinePage`; components `PipelineLink`, `EnvironmentCard`, `FlowDiagram`, `IssuesTable`, `SnapshotAge`; hooks `hooks.ts`
+- **pipeline** (`src/features/pipeline/`) — pages `PipelinePage`; components `PipelineLink`, `EnvironmentCard`, `FlowDiagram`, `IssueAction`, `IssuesTable`, `SnapshotAge`; hooks `hooks.ts`
 - **tags** (`src/features/tags/`) — pages `TagsPage`; components `ColorPicker`, `TagRow`; hooks `hooks.ts`
 - **tasks** (`src/features/tasks/`) — pages `TaskDetailPage`, `TaskListPage`; components `AddStepForm`, `AddTagPopover`, `AiBanner`, `AiChip`, `AiTagSuggestions`, `BulkBar`, `CreateTaskBar`, `DismissedSteps`, `FilterBar`, `ProgressBar`, `RationalePopover`, `StepList`, `StepRow`, `TaskHeader`, `TaskRow`; hooks `hooks.ts`
 - **theme** (`src/features/theme/`) — components `ThemeToggle`; hooks `hooks.ts`

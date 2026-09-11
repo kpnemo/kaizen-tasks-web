@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import { delay, http } from "msw";
 import { describe, expect, it } from "vitest";
 import { API, err, healthBody, ok, pipelineSnapshot } from "../../../tests/msw/handlers";
@@ -76,6 +76,20 @@ describe("pipeline page", () => {
     expect(alert).toHaveTextContent("GitHub did not answer");
     expect(screen.getByRole("table", { name: "Issues" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Environments", level: 2 })).toBeInTheDocument();
+  });
+
+  it("shows the facilitator's two buttons from the snapshot, and none to a viewer", async () => {
+    renderApp({ route: "/pipeline" });
+    expect(await screen.findByRole("button", { name: "Deploy to staging" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Deploy 1.5.0 to production" })).toBeInTheDocument();
+  });
+
+  it("shows a viewer the table without buttons", async () => {
+    server.use(http.get(`${API}/pipeline`, () => ok(pipelineSnapshot({ canDeploy: false }))));
+    renderApp({ route: "/pipeline" });
+    const table = await screen.findByRole("table", { name: "Issues" });
+    expect(within(table).queryAllByRole("button")).toHaveLength(0);
+    expect(within(table).getByText("ready for production")).toBeInTheDocument();
   });
 
   it("shows the empty state when the snapshot has no issues", async () => {
