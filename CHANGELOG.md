@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-09-11
+
 ### Added
 
 - `/pipeline`, the workshop's control room, linked from the header as "Pipeline" while the API's health reports `features.pipeline: true`: the flow diagram, the two environment cards, the issues table with one action per row and the deploy passphrase dialog, read from `GET /pipeline` (polled every ten seconds while open) and driven through `POST /pipeline/issues/{number}/deploy-staging`, `POST /pipeline/ship` and `POST /pipeline/ship/retry` (contract pulled from kaizen-tasks-api #21, ADR 0010). Loading, error and empty states are `Skeleton`, `Alert` and `Empty`; `ApiError.forbiddenReason()` narrows the contract's new `ForbiddenDetails` for the dialog's "Wrong passphrase" error. Screenshot scenarios `pipeline` (live, as a viewer), `pipeline-facilitator` and `pipeline-dialog` (the facilitator account, rows in flight from `scripts/screenshots/shared/pipeline-snapshot.mjs` unless `PIPELINE_LIVE=1`). Review round: the dialog reads the live snapshot, so once a poll shows a ship started, the caller can no longer deploy, the snapshot is stale or the row moved on, the verb is disabled, an `Alert` says why and no submit (click or Enter) can send; Escape is ignored while a request is in flight, so the API's answer is never lost; the retry confirmation names the run's whole recorded issue set ("Retries the failed ship of 1.4.1, which covers #22 and #23"); a health check that fails counts the pipeline as unavailable instead of leaving the page on its skeletons.
