@@ -2,6 +2,7 @@ import { Plus, Sparkles } from "lucide-react";
 import { isApiError } from "@/api/errors";
 import type { TaskDetail } from "@/api/models";
 import { useCreateTag, useTags } from "@/api/tags-query";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { nextPaletteColor } from "@/lib/tag-palette";
 import { useReplaceTags } from "../hooks";
@@ -38,20 +39,19 @@ export function AiTagSuggestions({ task }: { task: TaskDetail }) {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="inline-flex items-center gap-1 text-sm font-semibold text-muted-foreground">
-        <Sparkles className="size-4 text-primary" aria-hidden="true" />
+      <Badge variant="outline">
+        <Sparkles aria-hidden="true" />
         Suggested tags
-      </span>
+      </Badge>
       {suggestions.map((name) => (
         <Button
           key={name}
-          size="sm"
           variant="outline"
           aria-label={`Add tag ${name}`}
           disabled={createTag.isPending || replaceTags.isPending}
           onClick={() => void adopt(name).catch(() => undefined)}
         >
-          <Plus aria-hidden="true" />
+          <Plus data-icon="inline-start" aria-hidden="true" />
           {name}
         </Button>
       ))}

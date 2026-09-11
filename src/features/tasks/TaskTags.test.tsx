@@ -22,13 +22,13 @@ function recordTagPuts() {
 }
 
 describe("tags on the task", () => {
-  it("adds an existing tag from the popover", async () => {
+  it("adds an existing tag from the menu", async () => {
     const puts = recordTagPuts();
     const { user } = renderApp({ route });
     await user.click(await screen.findByRole("button", { name: "Add tag" }));
-    const list = await screen.findByRole("list", { name: "Available tags" });
-    expect(within(list).queryByText("work")).toBeNull();
-    await user.click(within(list).getByRole("button", { name: "home" }));
+    const menu = await screen.findByRole("menu", { name: "Available tags" });
+    expect(within(menu).queryByText("work")).toBeNull();
+    await user.click(within(menu).getByRole("menuitem", { name: "home" }));
     await waitFor(() => expect(puts).toEqual([{ tagIds: [TAG_WORK, TAG_HOME] }]));
     const tags = await screen.findByLabelText("Tags");
     expect(within(tags).getByText("home")).toBeInTheDocument();
@@ -95,7 +95,7 @@ describe("tags on the task", () => {
     const { user } = renderApp({ route });
     await user.click(await screen.findByRole("button", { name: "Add tag" }));
     await user.click(
-      within(await screen.findByRole("list", { name: "Available tags" })).getByRole("button", {
+      within(await screen.findByRole("menu", { name: "Available tags" })).getByRole("menuitem", {
         name: "home",
       }),
     );

@@ -1,19 +1,19 @@
-import { RefreshCw } from "lucide-react";
+import { Circle, CircleCheck, CircleDashed, RefreshCw, type LucideIcon } from "lucide-react";
 import type { TaskDetail, TaskStatus } from "@/api/models";
 import { InlineText } from "@/components/inline-text";
-import { NativeSelect } from "@/components/native-select";
 import { TagChip } from "@/components/tag-chip";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { useBreakdown, useReplaceTags, useUpdateTask } from "../hooks";
 import { AddTagPopover } from "./AddTagPopover";
 import { AiTagSuggestions } from "./AiTagSuggestions";
 import { ProgressBar } from "./ProgressBar";
 
-const STATUS_LABELS: Record<TaskStatus, string> = {
-  todo: "To do",
-  in_progress: "In progress",
-  done: "Done",
-};
+const STATUSES: { value: TaskStatus; label: string; icon: LucideIcon }[] = [
+  { value: "todo", label: "To do", icon: Circle },
+  { value: "in_progress", label: "In progress", icon: CircleDashed },
+  { value: "done", label: "Done", icon: CircleCheck },
+];
 
 export function TaskHeader({ task }: { task: TaskDetail }) {
   const update = useUpdateTask();
@@ -23,7 +23,7 @@ export function TaskHeader({ task }: { task: TaskDetail }) {
   // here so it stays reachable without a lone row pushing the suggestions further down the page.
   const showRegenerate = task.parentId === null && task.aiStatus === "done";
   return (
-    <header className="space-y-5">
+    <header className="flex flex-col gap-4">
       <InlineText
         as="h1"
         label="Title"
@@ -31,17 +31,26 @@ export function TaskHeader({ task }: { task: TaskDetail }) {
         onSave={(title) => update.mutate({ id: task.id, title })}
       />
       <div className="flex flex-wrap items-center gap-6">
-        <NativeSelect
-          aria-label="Status"
-          value={task.status}
-          onChange={(e) => update.mutate({ id: task.id, status: e.target.value as TaskStatus })}
-        >
-          {(Object.keys(STATUS_LABELS) as TaskStatus[]).map((status) => (
-            <option key={status} value={status}>
-              {STATUS_LABELS[status]}
-            </option>
-          ))}
-        </NativeSelect>
+        {/* Three choices: a pressed-button group, so the current status is readable from the back
+            of the room and the other two are one click away. */}
+        <div role="group" aria-label="Status" className="flex flex-wrap gap-2">
+          {STATUSES.map(({ value, label, icon: Icon }) => {
+            const active = task.status === value;
+            return (
+              <Button
+                key={value}
+                variant={active ? "default" : "outline"}
+                aria-pressed={active}
+                onClick={() => {
+                  if (!active) update.mutate({ id: task.id, status: value });
+                }}
+              >
+                <Icon data-icon="inline-start" aria-hidden="true" />
+                {label}
+              </Button>
+            );
+          })}
+        </div>
         <ProgressBar done={task.progress.done} total={task.progress.total} />
         {showRegenerate ? (
           <Button
@@ -49,7 +58,11 @@ export function TaskHeader({ task }: { task: TaskDetail }) {
             onClick={() => breakdown.mutate(task.id)}
             disabled={breakdown.isPending}
           >
-            <RefreshCw aria-hidden="true" />
+            {breakdown.isPending ? (
+              <Spinner data-icon="inline-start" aria-hidden="true" />
+            ) : (
+              <RefreshCw data-icon="inline-start" aria-hidden="true" />
+            )}
             Regenerate
           </Button>
         ) : null}
