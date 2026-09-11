@@ -17,9 +17,12 @@ describe("workshop footer version line", () => {
   it("shows the API commit, with no mismatch warning, when the versions match", async () => {
     server.use(http.get(`${API}/health`, () => ok(healthBody(true))));
     renderApp({ route: "/login", session: "anonymous" });
-    const badge = await screen.findByText("api test-sh");
-    expect(badge).toHaveAttribute("data-slot", "badge");
-    expect(badge).toHaveAttribute("data-variant", "outline");
+    // Matching versions: the API segment is plain text like the web segment beside it. The
+    // badge is reserved for the mismatch, where its shape carries meaning.
+    const api = await screen.findByText("api test-sh");
+    expect(api).not.toHaveAttribute("data-slot", "badge");
+    expect(api.tagName).toBe("SPAN");
+    expect(api.className).toBe(screen.getByText(/^web /).className);
     expect(screen.queryByText(/versions differ/)).toBeNull();
   });
 
