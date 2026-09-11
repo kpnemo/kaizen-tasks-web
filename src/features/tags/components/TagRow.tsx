@@ -2,6 +2,7 @@ import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import type { Tag } from "@/api/models";
 import { InlineText } from "@/components/inline-text";
+import { TagSwatch } from "@/components/tag-chip";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,51 +14,66 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { TableCell, TableRow } from "@/components/ui/table";
+import { paletteName } from "@/lib/tag-palette";
 import { useDeleteTag, useUpdateTag } from "../hooks";
 import { ColorPicker } from "./ColorPicker";
 
+/** One tag as a table row, named by the tag: the swatch button that opens the palette, the palette
+ *  colour's name beside it (so hue is never the only signal), the name that edits in place, and
+ *  the delete button that confirms first. */
 export function TagRow({ tag }: { tag: Tag }) {
   const update = useUpdateTag();
   const remove = useDeleteTag();
   const [colorOpen, setColorOpen] = useState(false);
-  const nameId = `tag-${tag.id}-name`;
   return (
-    <tr aria-labelledby={nameId} className="border-b">
-      <td className="py-2 pr-4">
-        <Popover open={colorOpen} onOpenChange={setColorOpen}>
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              aria-label={`Change color of ${tag.name}`}
-              className="size-11 rounded-full border-4 border-card shadow"
-              style={{ backgroundColor: tag.color }}
-            />
-          </PopoverTrigger>
-          <PopoverContent align="start" className="w-auto">
-            <ColorPicker
-              value={tag.color}
-              label={`Color of ${tag.name}`}
-              onChange={(color) => {
-                update.mutate({ id: tag.id, color });
-                setColorOpen(false);
-              }}
-            />
-          </PopoverContent>
-        </Popover>
-      </td>
-      <td id={nameId} className="w-full py-2 pr-4 text-lg font-semibold">
+    <TableRow aria-label={tag.name}>
+      <TableCell>
+        <div className="flex items-center gap-3">
+          <Popover open={colorOpen} onOpenChange={setColorOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon-lg"
+                className="size-11 rounded-full"
+                aria-label={`Change color of ${tag.name}`}
+              >
+                <TagSwatch color={tag.color} className="size-5" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-auto">
+              <ColorPicker
+                value={tag.color}
+                aria-label={`Color of ${tag.name}`}
+                onChange={(color) => {
+                  update.mutate({ id: tag.id, color });
+                  setColorOpen(false);
+                }}
+              />
+            </PopoverContent>
+          </Popover>
+          <Badge variant="outline">{paletteName(tag.color)}</Badge>
+        </div>
+      </TableCell>
+      <TableCell className="w-full text-lg font-semibold">
         <InlineText
           label="Tag name"
           value={tag.name}
           onSave={(name) => update.mutate({ id: tag.id, name })}
         />
-      </td>
-      <td className="py-2">
+      </TableCell>
+      <TableCell className="w-[1%] text-right">
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label={`Delete ${tag.name}`}>
+            <Button
+              variant="outline"
+              size="icon-lg"
+              className="size-11"
+              aria-label={`Delete ${tag.name}`}
+            >
               <Trash2 aria-hidden="true" />
             </Button>
           </AlertDialogTrigger>
@@ -76,7 +92,7 @@ export function TagRow({ tag }: { tag: Tag }) {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }
