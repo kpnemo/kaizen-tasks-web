@@ -20,16 +20,17 @@ export async function waitForPipeline(page) {
   await page.getByText(/^as of \d\d:\d\d:\d\d$/).waitFor({ timeout: 30_000 });
 }
 
+/** Whether the header names this account. The name is in the DOM at every width but drawn only
+ *  from `xl` up, and the runner's viewport is narrower, so this reads the header's text. */
+const headerNames = (name) =>
+  document.querySelector("header")?.textContent?.includes(name) ?? false;
+
 export async function signInAsFacilitator(page) {
   const dark = await page.evaluate(() => document.documentElement.classList.contains("dark"));
   const origin = new URL(page.url()).origin;
-  const header = page.getByRole("banner");
 
   // The runner reuses one page for both themes: the second pass finds the facilitator signed in.
-  const signedIn = await header
-    .getByText(FACILITATOR.displayName, { exact: true })
-    .isVisible()
-    .catch(() => false);
+  const signedIn = await page.evaluate(headerNames, FACILITATOR.displayName).catch(() => false);
   if (!signedIn) {
     await page.getByRole("button", { name: "Log out" }).click();
     await page.waitForURL(`${origin}/login`, { timeout: 15_000 });
@@ -38,7 +39,7 @@ export async function signInAsFacilitator(page) {
     await page.getByRole("button", { name: "Log in" }).click();
     // Login returns to where the log-out happened (/pipeline), so the proof of the session is the
     // account's name in the header, not a URL.
-    await header.getByText(FACILITATOR.displayName, { exact: true }).waitFor({ timeout: 15_000 });
+    await page.waitForFunction(headerNames, FACILITATOR.displayName, { timeout: 15_000 });
   }
 
   // The account preference wins over the device (ADR 0006), and the runner drives the theme by
