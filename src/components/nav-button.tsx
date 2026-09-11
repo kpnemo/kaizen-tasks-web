@@ -26,7 +26,7 @@ export function NavButton({
       }
       {...props}
     >
-      <Icon aria-hidden="true" />
+      <Icon data-icon="inline-start" aria-hidden="true" />
       {children}
     </NavLink>
   );

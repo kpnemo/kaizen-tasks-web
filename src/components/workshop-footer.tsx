@@ -38,7 +38,7 @@ export function WorkshopFooter() {
                   {`api v${health.version} ${health.commit.slice(0, 7)}`}
                 </Badge>
                 <span aria-hidden="true">·</span>
-                <span>web and API versions differ</span>
+                <span className="text-base">web and API versions differ</span>
               </>
             )}
           </>

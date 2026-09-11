@@ -31,6 +31,8 @@ describe("workshop footer version line", () => {
     // Shape and words carry the warning, not colour alone and not a hover title.
     expect(badge.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
     expect(badge).not.toHaveAttribute("title");
-    expect(screen.getByText("web and API versions differ")).toBeInTheDocument();
+    // The note is something the room must read, so it sits on the 18px floor, not the version
+    // line's smaller mono size.
+    expect(screen.getByText("web and API versions differ")).toHaveClass("text-base");
   });
 });

@@ -72,7 +72,7 @@ describe("theme toggle", () => {
     const { user } = await signInWith("dark");
     expect(document.documentElement).toHaveClass("dark");
     expect(toggle()).toHaveTextContent("Dark");
-    // The icon carries the choice on its own where the header hides the word (below lg).
+    // The icon carries the choice on its own where the header hides the word (below xl).
     expect(toggle().querySelector("svg")).toHaveClass("lucide-moon");
     await user.click(toggle());
     const items = await screen.findAllByRole("menuitemradio");
