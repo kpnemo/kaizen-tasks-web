@@ -56,6 +56,22 @@ Every mode, state or action control carries a lucide-react icon, sized as the he
 theirs: let `Button` size the icon (it applies `size-4`) rather than passing a size, and mark it
 `aria-hidden="true"` when the label already names the control.
 
+A control that waits on its own mutation keeps its label and its accessible name. Swap the icon for
+`<Spinner data-icon="inline-start" aria-hidden="true" />` and set `disabled`; never change the text.
+The `aria-hidden` is load-bearing: `Spinner` ships `role="status" aria-label="Loading"`, and without
+it the accessible-name algorithm folds that in, so the button reads "Loading Create tag" while it
+saves. Pin the name in the component test (`src/features/tags/TagsPage.test.tsx`, "keeps the button
+named Create tag while it saves", is the pattern).
+
+`Card` and `CardTitle` are plain `div`s with no `asChild`, and they stay that way: a local `Slot` in
+`src/components/ui/card.tsx` would be lost to the next `npx shadcn@latest add card --overwrite`.
+When a card must be a form, a list item or a named region, wrap it in that element:
+`<form aria-label="Create tag"><Card>…</Card></form>`, `<li><Card>…</Card></li>`,
+`<section aria-label="Your request"><Card>…</Card></section>`. The accessibility tree is the one
+`asChild` would give. A contract heading inside a card is a real heading inside `CardTitle`:
+`<CardTitle><h1>Log in</h1></CardTitle>`. It keeps the `h1`/`h2` type `globals.css` gives every page
+heading and gains the role and name the selector contract pins; `CardTitle` only places it.
+
 New header controls match the ones beside them: the same `Button` variants and sizes as
 `src/app/layout.tsx` uses today (`variant="outline"` for an action such as "Log out"), the same gap,
 and they go in the right-hand group unless the request says otherwise.
