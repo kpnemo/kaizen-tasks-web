@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- "Requests so far" at the bottom of the Request page: every feature request filed to GitHub through `GET /feature-requests`, open first then closed and newest first, each with a stage chip derived from the lifecycle labels, the readiness score and score labels from triage, and an "Open #n on GitHub" link; filing a request refreshes the list. Contract pulled for the new route (ADR 0008). (#22)
+
 ## [1.3.0] - 2026-09-11
 
 ### Added

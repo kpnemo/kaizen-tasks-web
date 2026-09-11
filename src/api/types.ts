@@ -1242,7 +1242,51 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * List the feature requests filed to GitHub
+         * @description Mounted only when GITHUB_TOKEN and GITHUB_REPO are configured. Issues labelled `feature-request`, open first then closed, newest first within each group, at most 50 per group. `stage` is the first lifecycle label in the order shipped, staging, implementing, triaged, else `closed` or `new`; `readiness` is the rubric score from the clarity, complexity and risk labels, null when any is missing.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Feature requests */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["FeatureRequestSummary"][];
+                            meta: components["schemas"]["Meta"];
+                        };
+                    };
+                };
+                /** @description UNAUTHORIZED */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+                /** @description UPSTREAM_ERROR */
+                502: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorEnvelope"];
+                    };
+                };
+            };
+        };
         put?: never;
         /**
          * File a feature request as a GitHub issue
@@ -1732,6 +1776,20 @@ export interface components {
         };
         ReplaceTagsBody: {
             tagIds: string[];
+        };
+        FeatureRequestSummary: {
+            number: number;
+            title: string;
+            /** @enum {string} */
+            state: "open" | "closed";
+            /** @enum {string} */
+            stage: "new" | "triaged" | "implementing" | "staging" | "shipped" | "closed";
+            readiness: number | null;
+            labels: string[];
+            /** Format: uri */
+            url: string;
+            createdAt: string;
+            closedAt: string | null;
         };
         FeatureRequestResponse: {
             issueNumber: number;

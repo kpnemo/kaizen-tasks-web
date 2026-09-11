@@ -1,7 +1,7 @@
 import { screen, waitFor } from "@testing-library/react";
 import { http } from "msw";
 import { describe, expect, it } from "vitest";
-import { API, err, healthBody, ok } from "../../../tests/msw/handlers";
+import { API, err, featureRequestSummary, healthBody, ok } from "../../../tests/msw/handlers";
 import { server } from "../../../tests/msw/server";
 import { renderApp } from "../../../tests/render";
 
@@ -80,6 +80,37 @@ describe("request a feature", () => {
         outOfScope: "Recurring snoozes.",
       },
     ]);
+  });
+
+  it("refreshes the requests list after filing", async () => {
+    let listCalls = 0;
+    server.use(
+      http.get(`${API}/feature-requests`, () => {
+        listCalls += 1;
+        return ok(
+          listCalls === 1
+            ? []
+            : [
+                featureRequestSummary({
+                  number: 42,
+                  title: "Snooze a task until Monday",
+                  stage: "new",
+                  readiness: null,
+                  labels: ["feature-request"],
+                }),
+              ],
+        );
+      }),
+    );
+    const { user } = renderApp({ route: "/request-feature?mode=form" });
+    expect(await screen.findByText("No requests yet. Yours can be the first.")).toBeInTheDocument();
+    await screen.findByRole("form", { name: "Request a feature" });
+    await fill(user);
+    await user.click(screen.getByRole("button", { name: "Send request" }));
+    expect(await screen.findByRole("heading", { name: "Request #42 filed" })).toBeInTheDocument();
+    expect(await screen.findByText("#42")).toBeInTheDocument();
+    expect(screen.getByText("Snooze a task until Monday")).toBeInTheDocument();
+    expect(listCalls).toBeGreaterThanOrEqual(2);
   });
 
   it("maps VALIDATION_ERROR onto the field", async () => {
