@@ -4,11 +4,23 @@ import { client, unwrap } from "@/api/client";
 import { readConversationStream } from "@/api/conversation-stream";
 import { ApiError } from "@/api/errors";
 import { healthQueryOptions } from "@/api/health-query";
-import type { Conversation, FeatureRequestBody } from "@/api/models";
+import type { Conversation, FeatureRequestBody, FeatureRequestSummary } from "@/api/models";
 import { toastApiError } from "@/components/api-error-toast";
 
 /** The caller's one open or ready conversation. `null` means "none yet" (the API answers 404). */
 export const conversationKey = ["feature-request", "conversation"] as const;
+
+/** GET /feature-requests: every request filed so far, open first then closed (issue #22). */
+export const featureRequestsKey = ["feature-request", "list"] as const;
+
+export function useFeatureRequests() {
+  return useQuery({
+    queryKey: featureRequestsKey,
+    queryFn: async (): Promise<FeatureRequestSummary[]> =>
+      unwrap(await client.GET("/feature-requests")).data,
+    staleTime: 10_000,
+  });
+}
 
 /** The PM left the page mid-turn. Not a failure to show: the API aborts the model and persists
  *  nothing (spec 3.3), so there is nothing for the PM to act on. */
@@ -173,6 +185,8 @@ export function useSubmitFeatureRequest() {
     onSuccess: (_result, body) => {
       // The API marks a filed conversation `filed`; the next visit starts a new one (spec 2).
       if (body.conversationId) queryClient.setQueryData(conversationKey, null);
+      // The new issue belongs at the top of "Requests so far" without a reload (issue #22).
+      void queryClient.invalidateQueries({ queryKey: featureRequestsKey });
     },
   });
 }

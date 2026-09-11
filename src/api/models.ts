@@ -18,6 +18,9 @@ export type UpdateMeBody = JsonRequest<paths["/auth/me"]["patch"]["requestBody"]
 export type AuthSession = JsonBody<paths["/auth/login"]["post"]["responses"][200]>["data"];
 export type LoginBody = JsonRequest<paths["/auth/login"]["post"]["requestBody"]>;
 export type RegisterBody = JsonRequest<paths["/auth/register"]["post"]["requestBody"]>;
+export type FeatureRequestSummary = JsonBody<
+  paths["/feature-requests"]["get"]["responses"][200]
+>["data"][number];
 
 export type TaskListEnvelope = JsonBody<paths["/tasks"]["get"]["responses"][200]>;
 export type TaskSummary = TaskListEnvelope["data"][number];

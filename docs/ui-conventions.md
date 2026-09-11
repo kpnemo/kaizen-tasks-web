@@ -9,6 +9,19 @@ segmented control"). The request wins, inside the accessibility rules below (acc
 keyboard, both themes, projector legibility). Say in the pull request that the look came from the
 request.
 
+## shadcn first
+
+Every visible change starts by loading `.claude/skills/shadcn/SKILL.md` (installed from
+shadcn/ui with `npx skills add shadcn/ui`; it reads this repo's `components.json`) and the
+`frontend-design` skill. The shadcn skill's Critical Rules are this repo's rules too: `className`
+for layout, never for overriding a component's colours or type; `flex gap-*`, not `space-y-*`;
+semantic tokens, never raw colours or manual `dark:` overrides; `asChild` for custom triggers; icons
+inside `Button` carry `data-icon` and no size classes; `Alert` for callouts, `Empty` for empty
+states, `Skeleton` for loading, `Badge` for chips, `Separator` for rules. A component the app lacks
+is added with `npx shadcn@latest add <name>` and read with `npx shadcn@latest docs <name>`, never
+hand-rolled. The 2026-09-11 audit (see the pull requests labelled `ui-rework`) migrates the
+hand-written pieces that predate this rule.
+
 ## Use the primitives that exist
 
 `src/components/ui/` holds the shadcn primitives this app has: `alert-dialog`, `badge`, `button`,
@@ -20,16 +33,20 @@ say so in the pull request.
 
 ## Compositions
 
-| What the request asks for               | What to build                                                                              |
-| --------------------------------------- | ------------------------------------------------------------------------------------------ |
-| A mode or state switch (2 to 4 choices) | A group of `Button`s, one per choice, each with `aria-pressed` and a lucide icon           |
-| A short choice list (up to 8)           | A `dropdown-menu`, one icon per item, the current choice named on the trigger              |
-| A longer list (more than 8)             | `NativeSelect` (`src/components/native-select.tsx`) with an `aria-label`                   |
-| A field                                 | `Field` (label, control, hint, error) around an `Input` or `Textarea`                      |
-| An action that destroys something       | `alert-dialog`, with the verb in the confirm button ("Delete tag"), never a bare `confirm` |
-| Feedback after a mutation               | sonner, through `toastApiError` for failures; no inline banner for a transient success     |
-| Extra detail on demand                  | `popover`, opened by a real button, never hover-only                                       |
-| A status or a count                     | `badge`                                                                                    |
+| What the request asks for               | What to build                                                                                                                 |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| A mode or state switch (2 to 4 choices) | A group of `Button`s, one per choice, each with `aria-pressed` and a lucide icon                                              |
+| A short choice list (up to 8)           | A `dropdown-menu`, one icon per item, the current choice named on the trigger                                                 |
+| A longer list (more than 8)             | `NativeSelect` (`src/components/native-select.tsx`) with an `aria-label`                                                      |
+| A field                                 | `Field` (label, control, hint, error) around an `Input` or `Textarea`                                                         |
+| An action that destroys something       | `alert-dialog`, with the verb in the confirm button ("Delete tag"), never a bare `confirm`                                    |
+| Feedback after a mutation               | sonner, through `toastApiError` for failures; no inline banner for a transient success                                        |
+| Extra detail on demand                  | `popover`, opened by a real button, never hover-only                                                                          |
+| A status or a count                     | `badge`, one visible variant per meaning (default, secondary, outline, destructive); never `ghost` for a status               |
+| Rows of records with the same fields    | `table` (`Table`, `TableHeader`, `TableRow`, `TableCell`), actions in the last column, no wrapping; never a flex-wrapped list |
+| Nothing to show yet                     | `empty` (`Empty`, `EmptyHeader`, `EmptyTitle`, `EmptyDescription`), one plain sentence about what to do next                  |
+| Waiting for data                        | `skeleton` shaped like the content it replaces, plus `role="status"` text for the screen reader                               |
+| Something went wrong on this screen     | `alert` (`variant="destructive"`) with the API error message                                                                  |
 
 Every mode, state or action control carries a lucide-react icon, sized as the header's controls size
 theirs: let `Button` size the icon (it applies `size-4`) rather than passing a size, and mark it

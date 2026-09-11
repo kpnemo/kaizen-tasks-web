@@ -54,7 +54,7 @@ regenerates `docs/product-map.md` on every run and fails on any difference, so r
 
 ## Harness
 
-Skills: `add-frontend-feature`, `write-adr`, `release-notes`. Agents: `reviewer` (read-only
+Skills: `add-frontend-feature`, `write-adr`, `release-notes`, `shadcn` (installed from shadcn/ui with `npx skills add shadcn/ui`; every visible change loads it and the `frontend-design` skill, see `docs/ui-conventions.md`, "shadcn first"). Agents: `reviewer` (read-only
 conventions check, PASS or violations), `test-writer` (failing tests from criteria). Hooks
 (`.claude/settings.json`): Stop runs docs-check; PostToolUse on Edit or Write runs prettier.
 

@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-09-11
+
+### Added
+- The shadcn skill (`.claude/skills/shadcn/`, installed from shadcn/ui, tracked by `skills-lock.json`) and a "shadcn first" section in `docs/ui-conventions.md`: every visible change loads it and the `frontend-design` skill; tabular data is a `Table`, statuses are visible `Badge` variants, loading, empty and error states are `Skeleton`, `Empty` and `Alert`; missing primitives are added with the shadcn CLI, never hand-rolled. `add-frontend-feature` step 4 says the same.
+
+- "Requests so far" at the bottom of the Request page: every feature request filed to GitHub through `GET /feature-requests`, open first then closed and newest first, each with a stage chip derived from the lifecycle labels, the readiness score and score labels from triage, and an "Open #n on GitHub" link; filing a request refreshes the list. Contract pulled for the new route (ADR 0008). (#22)
+
+### Fixed
+
+- `scripts/product-map.mjs`: released bullets are cut at 100 characters (was 120) and the `[Unreleased]` section at 1,200 (was 1,600), leaving about 1 KB of headroom under the map's 12 KB budget. The budget test failed on the 1.4.0 release branch by 17 bytes once the inventory had grown, which stopped the first ship.
+
 ## [1.3.0] - 2026-09-11
 
 ### Added

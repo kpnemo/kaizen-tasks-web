@@ -28,12 +28,12 @@ const ADR_DIR = "docs/adr";
 const FEATURES_DIR = "src/features";
 const RELEASES_KEPT = 3;
 const BULLETS_PER_RELEASE = 2;
-const RELEASED_BULLET_CHARS = 120;
+const RELEASED_BULLET_CHARS = 100;
 const UNRELEASED_BULLET_CHARS = 200; // longer than a released bullet, still bounded (ruling 5)
 // A hard ceiling on the whole [Unreleased] section, so a busy release cycle cannot push the map
 // over its size budget and fail an unrelated feature's test run. What does not fit is counted, not
 // dropped in silence: CHANGELOG.md is one file away.
-const UNRELEASED_SECTION_CHARS = 1600;
+const UNRELEASED_SECTION_CHARS = 1200; // 12 KB budget with ~1 KB of headroom for a growing inventory (2026-09-11)
 const ICON_PACKAGE = "lucide-react";
 const METHODS = ["get", "post", "put", "patch", "delete"];
 
