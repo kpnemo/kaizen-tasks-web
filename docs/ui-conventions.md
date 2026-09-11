@@ -90,7 +90,13 @@ Copy them from `TaskListPage` rather than inventing new wording.
 - Keyboard: every control is reachable by Tab, acts on Enter and Space, and shows the focus ring the
   primitives already give it. A `dropdown-menu` closes on Escape. Never remove `outline` styling.
 - The room reads this app on a projector: `text-base` (18px) minimum for anything a user must read,
-  44px hit areas, no hover-only control, and no colour as the only signal.
+  44px hit areas, no hover-only control, and no colour as the only signal. The reading primitives
+  already ship at that size: `Badge`, `Table` (and its caption), `Alert` and `AlertDescription`,
+  `CardDescription`, `EmptyDescription` and `EmptyContent` carry `text-base` in
+  `src/components/ui/` (a local edit over the registry's `text-sm`, pinned by
+  `tests/projector-scale.test.tsx`), so a caller never passes `className="text-base"` to one of
+  them. A future `npx shadcn@latest add <name> --overwrite` would put `text-sm` back; that test is
+  what catches it.
 - Check the screen at 125% browser zoom, which is what `scripts/screenshot.mjs` captures.
 - Check both themes. The `dark` class on `<html>` is the only switch (ADR 0006); use the theme
   tokens (`bg-card`, `text-muted-foreground`, `border-input`) rather than fixed colours, and if a
