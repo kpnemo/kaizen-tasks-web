@@ -42,12 +42,10 @@ export function RegisterPage() {
               <KaizenMark />
               <span className="font-display text-2xl font-bold">Kaizen Tasks</span>
             </div>
-            <CardTitle asChild className="text-3xl">
+            <CardTitle>
               <h1>Create your account</h1>
             </CardTitle>
-            <CardDescription className="text-base">
-              Big tasks, broken into steps you choose.
-            </CardDescription>
+            <CardDescription>Big tasks, broken into steps you choose.</CardDescription>
           </CardHeader>
           <CardContent>
             <form
