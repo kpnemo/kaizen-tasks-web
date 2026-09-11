@@ -61,6 +61,26 @@ describe("ConversationPanel", () => {
     expect(screen.getByRole("list", { name: "Conversation" })).toBeInTheDocument();
   });
 
+  it("frames the transcript in a Card with a scroll area, and labels the answer box on screen", async () => {
+    db.openConversation();
+    renderPanel();
+    await screen.findByText(GREETING);
+    const heading = screen.getByRole("heading", { name: "Kaizen assistant" });
+    expect(heading.closest("[data-slot=card]")).not.toBeNull();
+    // The transcript scrolls inside the card, so the chips and the answer box never leave the fold.
+    const list = screen.getByRole("list", { name: "Conversation" });
+    expect(list.closest("[data-slot=scroll-area]")).not.toBeNull();
+    // A visible label and the keyboard contract as a hint, not a placeholder that disappears.
+    const box = screen.getByLabelText("Your answer");
+    expect(box).toHaveAttribute("data-slot", "textarea");
+    expect(box).not.toHaveAttribute("placeholder");
+    expect(screen.getByText("Enter sends, Shift+Enter starts a new line.")).toBeInTheDocument();
+    expect(box).toHaveAccessibleDescription("Enter sends, Shift+Enter starts a new line.");
+    for (const name of ["Start over", "Send"]) {
+      expect(screen.getByRole("button", { name }).querySelector("svg")).not.toBeNull();
+    }
+  });
+
   it("sends an option chip's own text", async () => {
     const bodies: unknown[] = [];
     server.use(
@@ -183,7 +203,7 @@ describe("ConversationPanel", () => {
     });
   });
 
-  it("lets a long chip wrap instead of forcing a horizontal scrollbar", async () => {
+  it("lets a long chip wrap instead of forcing a horizontal scrollbar, and shows the skip as a real button", async () => {
     db.openConversation({
       questionCount: 1,
       messages: [
@@ -198,9 +218,14 @@ describe("ConversationPanel", () => {
     });
     renderPanel();
     const skip = await screen.findByRole("button", { name: "Skip this question" });
-    expect(skip).toHaveClass("whitespace-normal");
-    expect(skip).not.toHaveClass("whitespace-nowrap");
-    expect(skip).toHaveClass("min-h-11");
-    expect(skip).not.toHaveClass("shrink-0");
+    const option = screen.getByRole("button", { name: "An agent during a call" });
+    for (const chip of [skip, option]) {
+      expect(chip).toHaveClass("whitespace-normal");
+      expect(chip).not.toHaveClass("whitespace-nowrap");
+      expect(chip).toHaveClass("max-w-full");
+      expect(chip).toHaveAttribute("data-variant", "outline");
+    }
+    // The escape hatch is bordered and iconed like its neighbours, not ghost text.
+    expect(skip.querySelector("svg")).not.toBeNull();
   });
 });
