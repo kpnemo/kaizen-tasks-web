@@ -131,7 +131,8 @@
     @apply text-2xl;
   }
 
-  /* Every interactive control gets a visible ring and a 44px hit area. */
+  /* Every interactive control gets a visible ring and a 44px hit area. `a[data-slot="button"]` is
+     a `Button asChild` around a Link: an anchor in Button clothes gets the same target as a button. */
   :focus-visible {
     outline: 3px solid var(--ring);
     outline-offset: 2px;
@@ -141,7 +142,8 @@
   input:not([type="checkbox"]):not([type="radio"]),
   select,
   textarea,
-  a[data-nav] {
+  a[data-nav],
+  a[data-slot="button"] {
     min-height: 2.75rem;
   }
 

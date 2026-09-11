@@ -30,6 +30,7 @@ describe("detail AI state", () => {
     );
     const { user, unmount } = renderApp({ route });
     const bar = await screen.findByRole("group", { name: "Suggestions" });
+    expect(bar).toHaveAttribute("data-slot", "alert");
     expect(within(bar).getByText("3 suggestions to review")).toBeInTheDocument();
     await user.click(within(bar).getByRole("button", { name: "Accept all" }));
     await waitFor(() => expect(accepts).toBe(1));
@@ -91,7 +92,9 @@ describe("detail AI state", () => {
     );
     const { user } = renderApp({ route: `/tasks/${T_FAILED}` });
     const banner = await screen.findByRole("alert");
-    expect(banner).toHaveTextContent("Breakdown failed: The assistant is unavailable, try again");
+    expect(banner).toHaveAttribute("data-slot", "alert");
+    expect(within(banner).getByText("Breakdown failed")).toBeInTheDocument();
+    expect(within(banner).getByText("The assistant is unavailable, try again")).toBeInTheDocument();
     await user.click(within(banner).getByRole("button", { name: "Retry" }));
     await waitFor(() => expect(retries).toBe(1));
     expect(await screen.findByRole("status", { name: "Assistant" })).toHaveTextContent("Thinking");
@@ -99,9 +102,10 @@ describe("detail AI state", () => {
 
   it("skipped banner shows the reason in words", async () => {
     renderApp({ route: `/tasks/${T_SKIPPED}` });
-    expect(await screen.findByRole("status", { name: "Assistant" })).toHaveTextContent(
-      "Too short to break down",
-    );
+    const banner = await screen.findByRole("status", { name: "Assistant" });
+    expect(banner).toHaveAttribute("data-slot", "alert");
+    expect(within(banner).getByText("The assistant skipped this task")).toBeInTheDocument();
+    expect(within(banner).getByText("Too short to break down")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Regenerate" })).toBeEnabled();
   });
 

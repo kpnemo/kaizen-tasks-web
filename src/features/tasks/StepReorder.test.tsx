@@ -8,10 +8,11 @@ import { renderApp } from "../../../tests/render";
 
 const route = `/tasks/${T_SUGGESTED}`;
 
+/** Each step row is labelled by its title cell, so the row's name is the step title. */
 function stepTitles() {
   return within(screen.getByRole("list", { name: "Steps" }))
     .getAllByRole("listitem")
-    .map((li) => within(li).getByTitle("Click to edit").textContent);
+    .map((li) => document.getElementById(li.getAttribute("aria-labelledby")!)!.textContent);
 }
 
 describe("step reorder and add step", () => {
@@ -73,10 +74,12 @@ describe("step reorder and add step", () => {
     );
   });
 
-  it("every row has a drag handle", async () => {
+  it("every row has a drag handle, a Button like the row's other controls", async () => {
     renderApp({ route });
     await screen.findByRole("list", { name: "Steps" });
-    expect(screen.getAllByRole("button", { name: "Drag to reorder" })).toHaveLength(4);
+    const handles = screen.getAllByRole("button", { name: "Drag to reorder" });
+    expect(handles).toHaveLength(4);
+    for (const handle of handles) expect(handle).toHaveAttribute("data-slot", "button");
   });
 
   it("adds a step under the task", async () => {

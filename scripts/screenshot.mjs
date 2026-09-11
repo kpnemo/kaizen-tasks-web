@@ -132,9 +132,15 @@ async function signIn(page, credentials) {
     bail(`login failed: ${oneLine(error?.message ?? error)}`);
   }
   // The shell renders as soon as the token is in memory, before GET /auth/me answers, and the theme
-  // on the page until then is the device's cached one. Wait for the account itself to be on screen.
+  // on the page until then is the device's cached one. Wait for the account itself to reach the
+  // header. Its name is in the DOM at every width but drawn only from `xl` up, and this viewport is
+  // narrower, so the proof is the header's text, not a visible element.
   try {
-    await page.getByText(credentials.displayName, { exact: true }).waitFor({ timeout: SESSION_MS });
+    await page.waitForFunction(
+      (name) => document.querySelector("header")?.textContent?.includes(name) ?? false,
+      credentials.displayName,
+      { timeout: SESSION_MS },
+    );
   } catch {
     bail("the session did not restore after login (GET /auth/me did not reach the header)");
   }

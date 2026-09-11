@@ -1,70 +1,67 @@
-import { RefreshCw, Sparkles } from "lucide-react";
+import { CircleAlert, Info, RefreshCw, Sparkles } from "lucide-react";
 import type { TaskDetail } from "@/api/models";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { cn } from "@/lib/cn";
 import { skipReasonLabel } from "@/lib/format";
 import { isAiActive } from "@/lib/polling";
 import { useBreakdown } from "../hooks";
+import { BANNER_ACTIONS, BANNER_ACTIONS_TWO_ROWS, BANNER_ROW } from "./banner";
 
 /** AI state under the header: thinking, failed with retry, skipped with reason, or nothing when
- *  done — once done and settled, Regenerate lives next to the status select in `TaskHeader`
+ *  done — once done and settled, Regenerate lives next to the status group in `TaskHeader`
  *  instead of in a lone row here, so it stays reachable without pushing the suggestions further
  *  down the page. Regenerate is always offered somewhere and disabled while a generation is
- *  pending or running. */
+ *  pending or running. Three states, one `Alert` shape: the failed one is destructive and keeps
+ *  the alert role; the other two are status regions named "Assistant". */
 export function AiBanner({ task }: { task: TaskDetail }) {
   const breakdown = useBreakdown();
   const active = isAiActive(task);
-  const regenerate = (
+  const rerun = (label: string) => (
     <Button
       variant="outline"
       onClick={() => breakdown.mutate(task.id)}
       disabled={active || breakdown.isPending}
     >
-      <RefreshCw aria-hidden="true" />
-      Regenerate
+      {breakdown.isPending ? (
+        <Spinner data-icon="inline-start" aria-hidden="true" />
+      ) : (
+        <RefreshCw data-icon="inline-start" aria-hidden="true" />
+      )}
+      {label}
     </Button>
   );
 
   if (active) {
     return (
-      <div
-        role="status"
-        aria-label="Assistant"
-        className="animate-thinking flex flex-wrap items-center gap-3 rounded-xl bg-accent px-4 py-3 text-accent-foreground"
-      >
-        <Sparkles className="size-5" aria-hidden="true" />
-        <span className="flex-1 font-semibold">Thinking about the steps</span>
-        {regenerate}
-      </div>
+      <Alert role="status" aria-label="Assistant" className={cn(BANNER_ROW, "animate-thinking")}>
+        <Sparkles aria-hidden="true" />
+        <AlertTitle>Thinking about the steps</AlertTitle>
+        <div className={BANNER_ACTIONS}>{rerun("Regenerate")}</div>
+      </Alert>
     );
   }
   if (task.aiStatus === "failed") {
     return (
-      <div
-        role="alert"
-        className="flex flex-wrap items-center gap-3 rounded-xl border border-destructive/50 bg-card px-4 py-3"
-      >
-        <span className="flex-1 font-semibold">
-          Breakdown failed: {task.aiError ?? "try again"}
-        </span>
-        <Button onClick={() => breakdown.mutate(task.id)} disabled={breakdown.isPending}>
-          <RefreshCw aria-hidden="true" />
-          Retry
-        </Button>
-      </div>
+      <Alert variant="destructive" className={BANNER_ROW}>
+        <CircleAlert aria-hidden="true" />
+        <AlertTitle>Breakdown failed</AlertTitle>
+        <AlertDescription className="text-base">{task.aiError ?? "Try again"}</AlertDescription>
+        <div className={BANNER_ACTIONS_TWO_ROWS}>{rerun("Retry")}</div>
+      </Alert>
     );
   }
   if (task.aiStatus === "skipped") {
     return (
-      <div
-        role="status"
-        aria-label="Assistant"
-        className="flex flex-wrap items-center gap-3 rounded-xl border bg-card px-4 py-3 text-muted-foreground"
-      >
-        <span className="flex-1">
-          The assistant skipped this task: {skipReasonLabel(task.aiSkipReason)}
-        </span>
-        {regenerate}
-      </div>
+      <Alert role="status" aria-label="Assistant" className={BANNER_ROW}>
+        <Info aria-hidden="true" />
+        <AlertTitle>The assistant skipped this task</AlertTitle>
+        <AlertDescription className="text-base">
+          {skipReasonLabel(task.aiSkipReason)}
+        </AlertDescription>
+        <div className={BANNER_ACTIONS_TWO_ROWS}>{rerun("Regenerate")}</div>
+      </Alert>
     );
   }
   return null;

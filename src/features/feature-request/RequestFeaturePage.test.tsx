@@ -1,5 +1,5 @@
-import { screen, waitFor } from "@testing-library/react";
-import { http } from "msw";
+import { screen, waitFor, within } from "@testing-library/react";
+import { delay, http } from "msw";
 import { describe, expect, it } from "vitest";
 import { API, err, featureRequestSummary, healthBody, ok } from "../../../tests/msw/handlers";
 import { server } from "../../../tests/msw/server";
@@ -28,9 +28,15 @@ describe("request a feature", () => {
   it("hides the nav link and the form when health reports featureRequests false", async () => {
     server.use(http.get(`${API}/health`, () => ok(healthBody(false))));
     renderApp({ route: "/request-feature" });
-    expect(
-      await screen.findByText("Feature requests are not available in this environment."),
-    ).toBeInTheDocument();
+    const sentence = await screen.findByText(
+      "Feature requests are not available in this environment.",
+    );
+    // A deliberate state with a frame and an icon, not a page that failed to render.
+    const alert = sentence.closest("[data-slot=alert]");
+    expect(alert).not.toBeNull();
+    expect(alert).toHaveAttribute("role", "status");
+    expect(alert?.querySelector("svg")).not.toBeNull();
+    expect(screen.getByRole("heading", { name: "Request a feature" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Request a feature" })).toBeNull();
     expect(screen.queryByRole("form", { name: "Request a feature" })).toBeNull();
   });
@@ -66,11 +72,20 @@ describe("request a feature", () => {
     await screen.findByRole("form", { name: "Request a feature" });
     await fill(user);
     await user.click(screen.getByRole("button", { name: "Send request" }));
-    expect(await screen.findByRole("heading", { name: "Request #42 filed" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open the issue" })).toHaveAttribute(
+    const filed = await screen.findByRole("heading", { name: "Request #42 filed" });
+    const card = filed.closest("[data-slot=card]");
+    expect(card).not.toBeNull();
+    const openIssue = within(card as HTMLElement).getByRole("link", { name: "Open the issue" });
+    expect(openIssue).toHaveAttribute(
       "href",
       "https://github.com/kpnemo/kaizen-tasks-assembly-line/issues/42",
     );
+    expect(openIssue).toHaveAttribute("target", "_blank");
+    expect(openIssue).toHaveAttribute("data-slot", "button");
+    expect(openIssue.querySelector("svg")).not.toBeNull();
+    const another = within(card as HTMLElement).getByRole("button", { name: "File another" });
+    expect(another).toHaveAttribute("data-variant", "outline");
+    expect(another.querySelector("svg")).not.toBeNull();
     expect(bodies).toEqual([
       {
         title: "Snooze a task until Monday",
@@ -139,9 +154,42 @@ describe("request a feature", () => {
     await screen.findByRole("form", { name: "Request a feature" });
     await fill(user);
     await user.click(screen.getByRole("button", { name: "Send request" }));
-    expect(await screen.findByText("GitHub rejected the issue")).toBeInTheDocument();
+    // The toast fades; the Alert above the submit button stays until the next attempt.
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("Nothing was filed");
+    expect(alert).toHaveTextContent("GitHub rejected the issue");
+    expect(alert).toHaveAttribute("data-slot", "alert");
     expect(screen.getByText("Request req-test")).toBeInTheDocument();
     await waitFor(() => expect(screen.getByRole("button", { name: "Send request" })).toBeEnabled());
+  });
+
+  it("shows a spinner on Send request while GitHub answers, keeping the button's name", async () => {
+    server.use(
+      http.post(`${API}/feature-requests`, async () => {
+        await delay(200);
+        return ok(
+          {
+            issueNumber: 43,
+            issueUrl: "https://github.com/kpnemo/kaizen-tasks-assembly-line/issues/43",
+          },
+          {},
+          201,
+        );
+      }),
+    );
+    const { user } = renderApp({ route: "/request-feature?mode=form" });
+    await screen.findByRole("form", { name: "Request a feature" });
+    await fill(user);
+    const send = screen.getByRole("button", { name: "Send request" });
+    expect(send.querySelector("svg")).not.toBeNull();
+    await user.click(send);
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Send request" })).toBeDisabled(),
+    );
+    expect(
+      screen.getByRole("button", { name: "Send request" }).querySelector("svg.animate-spin"),
+    ).not.toBeNull();
+    expect(await screen.findByRole("heading", { name: "Request #43 filed" })).toBeInTheDocument();
   });
 
   it("reads health once per session", async () => {

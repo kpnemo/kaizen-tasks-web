@@ -1,55 +1,56 @@
 import { Plus } from "lucide-react";
-import { useState } from "react";
 import type { TaskDetail } from "@/api/models";
 import { useTags } from "@/api/tags-query";
+import { TagSwatch } from "@/components/tag-chip";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useReplaceTags } from "../hooks";
 
+/** "Add tag": a menu of the tags not yet on the task, each with its swatch; picking one replaces
+ *  the task's tag set. A `dropdown-menu` rather than the popover list it started as, so the
+ *  choices get arrow keys, Escape and a focus ring for free (the file keeps its historical name). */
 export function AddTagPopover({ task }: { task: TaskDetail }) {
   const tags = useTags();
   const replaceTags = useReplaceTags();
-  const [open, setOpen] = useState(false);
   const current = task.tags.map((t) => t.id);
   const available = (tags.data ?? []).filter((t) => !current.includes(t.id));
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Plus aria-hidden="true" />
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline">
+          <Plus data-icon="inline-start" aria-hidden="true" />
           Add tag
         </Button>
-      </PopoverTrigger>
-      <PopoverContent align="start" className="w-64 p-2">
+      </DropdownMenuTrigger>
+      {/* Radix names a menu after its trigger ("Add tag"); this list has a name of its own. */}
+      <DropdownMenuContent align="start" aria-label="Available tags" aria-labelledby={undefined}>
         {available.length === 0 ? (
-          <p className="p-2 text-muted-foreground">
+          <DropdownMenuLabel className="max-w-64 text-base whitespace-normal">
             No more tags to add. Create tags on the Tags page.
-          </p>
+          </DropdownMenuLabel>
         ) : (
-          <ul aria-label="Available tags" className="space-y-1">
+          <DropdownMenuGroup>
             {available.map((tag) => (
-              <li key={tag.id}>
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left hover:bg-accent"
-                  onClick={() => {
-                    replaceTags.mutate({ id: task.id, tagIds: [...current, tag.id] });
-                    setOpen(false);
-                  }}
-                >
-                  <span
-                    className="size-3 rounded-full"
-                    style={{ backgroundColor: tag.color }}
-                    aria-hidden="true"
-                  />
-                  {tag.name}
-                </button>
-              </li>
+              <DropdownMenuItem
+                key={tag.id}
+                className="min-h-11 text-base"
+                onSelect={() => replaceTags.mutate({ id: task.id, tagIds: [...current, tag.id] })}
+              >
+                <TagSwatch color={tag.color} />
+                {tag.name}
+              </DropdownMenuItem>
             ))}
-          </ul>
+          </DropdownMenuGroup>
         )}
-      </PopoverContent>
-    </Popover>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

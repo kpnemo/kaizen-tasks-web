@@ -12,7 +12,15 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { ListChecks } from "lucide-react";
 import type { TaskDetail } from "@/api/models";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { useReorderStep } from "../hooks";
 import { AddStepForm } from "./AddStepForm";
 import { DismissedSteps } from "./DismissedSteps";
@@ -40,14 +48,24 @@ export function StepList({ task }: { task: TaskDetail }) {
   }
 
   return (
-    <section aria-labelledby="steps-heading" className="space-y-4">
+    <section aria-labelledby="steps-heading" className="flex flex-col gap-4">
       <h2 id="steps-heading">Steps</h2>
       {visible.length === 0 ? (
-        <p className="text-muted-foreground">No steps yet.</p>
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <ListChecks />
+            </EmptyMedia>
+            <EmptyTitle>No steps yet.</EmptyTitle>
+            <EmptyDescription className="text-base">
+              Add one below, or ask the assistant to break this task down.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
           <SortableContext items={visible.map((s) => s.id)} strategy={verticalListSortingStrategy}>
-            <ol aria-label="Steps" className="space-y-2">
+            <ol aria-label="Steps" className="flex flex-col gap-3">
               {visible.map((step, index) => (
                 <StepRow
                   key={step.id}

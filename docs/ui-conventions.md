@@ -24,11 +24,15 @@ hand-written pieces that predate this rule.
 
 ## Use the primitives that exist
 
-`src/components/ui/` holds the shadcn primitives this app has: `alert-dialog`, `badge`, `button`,
-`card`, `checkbox`, `dropdown-menu`, `input`, `label`, `popover`, `separator`, `sonner`, `textarea`.
+`src/components/ui/` holds the shadcn primitives this app has: `alert`, `alert-dialog`, `badge`,
+`button`, `card`, `checkbox`, `collapsible`, `dropdown-menu`, `empty`, `field`, `input`, `label`,
+`popover`, `progress`, `radio-group`, `scroll-area`, `separator`, `skeleton`, `sonner`, `spinner`,
+`table`, `textarea`.
 Reach for one of these before a native element or a new dependency. Hand-written shared pieces sit
-one level up in `src/components/` (`field`, `inline-text`, `native-select`, `tag-chip`,
-`kaizen-mark`). Add a primitive only when nothing there composes into what the request asks for, and
+one level up in `src/components/`: `field` (a thin wrapper over the shadcn Field that keeps the hint
+beside the error and owns `aria-describedby`), `nav-button` (a `NavLink` in Button clothes, for the
+primary nav), `inline-text`, `native-select`, `tag-chip` (with `TagSwatch`, the one place a tag's
+colour is painted) and `kaizen-mark`. Add a primitive only when nothing there composes into what the request asks for, and
 say so in the pull request.
 
 ## Compositions
@@ -52,6 +56,25 @@ Every mode, state or action control carries a lucide-react icon, sized as the he
 theirs: let `Button` size the icon (it applies `size-4`) rather than passing a size, and mark it
 `aria-hidden="true"` when the label already names the control.
 
+A control that waits on its own mutation keeps its label and its accessible name. Swap the icon for
+`<Spinner data-icon="inline-start" aria-hidden="true" />` and set `disabled`; never change the text.
+The `aria-hidden` is load-bearing: `Spinner` ships `role="status" aria-label="Loading"`, and without
+it the accessible-name algorithm folds that in, so the button reads "Loading Create tag" while it
+saves. Pin the name in the component test (`src/features/tags/TagsPage.test.tsx`, "keeps the button
+named Create tag while it saves", is the pattern).
+
+`Card` and `CardTitle` are plain `div`s with no `asChild`, and they stay that way: a local `Slot` in
+`src/components/ui/card.tsx` would be lost to the next `npx shadcn@latest add card --overwrite`.
+When a card must be a form, a list item or a named region, wrap it in that element:
+`<form aria-label="Create tag"><Card>…</Card></form>`, `<li><Card>…</Card></li>`,
+`<section aria-label="Your request"><Card>…</Card></section>`. The accessibility tree is the one
+`asChild` would give. A contract heading inside a card is a real heading inside `CardTitle`:
+`<CardTitle><h1>Log in</h1></CardTitle>`. It keeps the `h1`/`h2` type `globals.css` gives every page
+heading and gains the role and name the selector contract pins; `CardTitle` only places it. A
+narrow card may size that heading on the `h1` itself (`<h1 className="text-3xl">` keeps "Create
+your account" on one line and the register submit inside the 1024x640 fold); the face, weight and
+tracking still come from `globals.css`, and `CardTitle` takes no className for it.
+
 New header controls match the ones beside them: the same `Button` variants and sizes as
 `src/app/layout.tsx` uses today (`variant="outline"` for an action such as "Log out"), the same gap,
 and they go in the right-hand group unless the request says otherwise.
@@ -70,7 +93,13 @@ Copy them from `TaskListPage` rather than inventing new wording.
 - Keyboard: every control is reachable by Tab, acts on Enter and Space, and shows the focus ring the
   primitives already give it. A `dropdown-menu` closes on Escape. Never remove `outline` styling.
 - The room reads this app on a projector: `text-base` (18px) minimum for anything a user must read,
-  44px hit areas, no hover-only control, and no colour as the only signal.
+  44px hit areas, no hover-only control, and no colour as the only signal. The reading primitives
+  already ship at that size: `Badge`, `Table` (and its caption), `Alert` and `AlertDescription`,
+  `CardDescription`, `EmptyDescription` and `EmptyContent` carry `text-base` in
+  `src/components/ui/` (a local edit over the registry's `text-sm`, pinned by
+  `tests/projector-scale.test.tsx`), so a caller never passes `className="text-base"` to one of
+  them. A future `npx shadcn@latest add <name> --overwrite` would put `text-sm` back; that test is
+  what catches it.
 - Check the screen at 125% browser zoom, which is what `scripts/screenshot.mjs` captures.
 - Check both themes. The `dark` class on `<html>` is the only switch (ADR 0006); use the theme
   tokens (`bg-card`, `text-muted-foreground`, `border-input`) rather than fixed colours, and if a

@@ -1,31 +1,46 @@
 import { X } from "lucide-react";
+import type { ComponentProps } from "react";
 import type { Tag } from "@/api/models";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 
-export function TagChip({ tag, onRemove }: { tag: Tag; onRemove?: () => void }) {
+/** The one place a tag's colour is painted: a dot with a hairline ring, so a pale colour still
+ *  reads on both themes. The colour is the user's own hex, so it stays an inline style. */
+export function TagSwatch({
+  color,
+  className,
+  ...props
+}: { color: string } & Omit<ComponentProps<"span">, "color">) {
   return (
     <span
-      className={cn(
-        "inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-sm font-semibold",
-        onRemove && "pr-1",
-      )}
-    >
-      <span
-        className="size-3 rounded-full"
-        style={{ backgroundColor: tag.color }}
-        aria-hidden="true"
-      />
+      data-slot="tag-swatch"
+      aria-hidden="true"
+      className={cn("inline-block size-3.5 shrink-0 rounded-full ring-1 ring-border", className)}
+      style={{ backgroundColor: color }}
+      {...props}
+    />
+  );
+}
+
+/** A tag as a chip: its swatch and name, and, where the caller allows it, a square remove button
+ *  named after the tag ("Remove tag work"), which the task tests query by that name. */
+export function TagChip({ tag, onRemove }: { tag: Tag; onRemove?: () => void }) {
+  return (
+    <Badge variant="outline" className={cn("gap-2", onRemove && "pr-1")}>
+      <TagSwatch color={tag.color} />
       {tag.name}
       {onRemove ? (
-        <button
-          type="button"
-          onClick={onRemove}
+        <Button
+          variant="ghost"
+          size="icon-lg"
+          className="size-11 rounded-full"
           aria-label={`Remove tag ${tag.name}`}
-          className="grid size-9 place-items-center rounded-full hover:bg-accent"
+          onClick={onRemove}
         >
-          <X className="size-4" aria-hidden="true" />
-        </button>
+          <X aria-hidden="true" />
+        </Button>
       ) : null}
-    </span>
+    </Badge>
   );
 }

@@ -34,17 +34,33 @@ describe("login", () => {
     await user.type(screen.getByLabelText("Email"), "demo@kaizen.local");
     await user.type(screen.getByLabelText("Password"), "wrong-password");
     await user.click(screen.getByRole("button", { name: "Log in" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("Invalid email or password");
+    // One Alert: a title that names what failed, the API message, and an icon so red is not the
+    // only signal.
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("Could not log in");
+    expect(alert).toHaveTextContent("Invalid email or password");
+    expect(alert.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
     expect(screen.getByRole("heading", { name: "Log in" })).toBeInTheDocument();
     expect(authStore.getToken()).toBeNull();
   });
 
-  it("links to registration", () => {
+  it("opens with the email field focused, an iconed submit, and a link to registration", () => {
     renderApp({ route: "/login", session: "anonymous" });
-    expect(screen.getByRole("link", { name: "Create an account" })).toHaveAttribute(
-      "href",
-      "/register",
+    // A real h1 inside CardTitle, not CardTitle rendered as the h1: card.tsx has no asChild (the
+    // Surfaces rule in docs/ui-conventions.md), so the heading keeps the page-heading type
+    // globals.css gives every h1 and CardTitle only places it.
+    const heading = screen.getByRole("heading", { name: "Log in", level: 1 });
+    expect(heading.parentElement).toHaveAttribute("data-slot", "card-title");
+    expect(screen.getByLabelText("Email")).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Log in" }).querySelector("svg")).toHaveAttribute(
+      "aria-hidden",
+      "true",
     );
+    const link = screen.getByRole("link", { name: "Create an account" });
+    expect(link).toHaveAttribute("href", "/register");
+    // The link is a Button in link clothes, not a hand-styled anchor, so it shares the app's focus
+    // ring and hit area; asChild keeps it an anchor for the selector contract.
+    expect(link).toHaveAttribute("data-slot", "button");
   });
 });
 
@@ -89,7 +105,40 @@ describe("register", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Password must be at least 8 characters",
     );
-    expect(screen.getByLabelText("Password")).toHaveAttribute("aria-invalid", "true");
+    const password = screen.getByLabelText("Password");
+    expect(password).toHaveAttribute("aria-invalid", "true");
+    // The rule the user just broke stays on screen beside the error, and the control is described
+    // by both, hint first; the field wrapper owns the wiring, the page spells no id itself.
+    expect(screen.getByText("At least 8 characters")).toBeVisible();
+    expect(password).toHaveAttribute("aria-describedby", "password-hint password-error");
+  });
+
+  it("shows an error that belongs to no field as an alert, with no field marked invalid", async () => {
+    server.use(http.post(`${API}/auth/register`, () => err("INTERNAL", "Database unavailable")));
+    const { user } = renderApp({ route: "/register", session: "anonymous" });
+    await user.type(screen.getByLabelText("Email"), "smoke@kaizen.local");
+    await user.type(screen.getByLabelText("Password"), "smoke-password-1");
+    await user.type(screen.getByLabelText("Display name"), "Smoke");
+    await user.click(screen.getByRole("button", { name: "Create account" }));
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("Could not create your account");
+    expect(alert).toHaveTextContent("Database unavailable");
+    expect(alert.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getByLabelText("Email")).toHaveAttribute("aria-invalid", "false");
+    expect(screen.getByRole("heading", { name: "Create your account" })).toBeInTheDocument();
+  });
+
+  it("opens with the email field focused and links back to login", () => {
+    renderApp({ route: "/register", session: "anonymous" });
+    const heading = screen.getByRole("heading", { name: "Create your account", level: 1 });
+    expect(heading.parentElement).toHaveAttribute("data-slot", "card-title");
+    expect(screen.getByLabelText("Email")).toHaveFocus();
+    expect(
+      screen.getByRole("button", { name: "Create account" }).querySelector("svg"),
+    ).toHaveAttribute("aria-hidden", "true");
+    const link = screen.getByRole("link", { name: "Log in" });
+    expect(link).toHaveAttribute("href", "/login");
+    expect(link).toHaveAttribute("data-slot", "button");
   });
 });
 
@@ -103,9 +152,11 @@ describe("session restore", () => {
       }),
     );
     renderApp({ route: "/tasks", session: "restoring" });
-    expect(screen.getByRole("status", { name: "Session" })).toHaveTextContent(
-      "Restoring your session",
-    );
+    const status = screen.getByRole("status", { name: "Session" });
+    expect(status).toHaveTextContent("Restoring your session");
+    // A spinner beside the sentence, hidden from the name so the status is still "Session".
+    expect(status.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+    expect(screen.queryByRole("status", { name: "Loading" })).toBeNull();
     expect(screen.queryByRole("heading", { name: "Log in" })).not.toBeInTheDocument();
     expect(await screen.findByRole("heading", { name: "Tasks" })).toBeInTheDocument();
     expect(screen.getByText("Demo")).toBeInTheDocument();

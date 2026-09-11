@@ -61,3 +61,21 @@ export type ConversationTurnBody = JsonRequest<
 export type ConversationEvent = StreamBody<
   paths["/feature-requests/conversation/{id}/messages"]["post"]["responses"][200]
 >;
+
+/** The pipeline control room (ADR 0010): one snapshot, its rows, and the three facilitator actions. */
+export type PipelineSnapshot = JsonBody<paths["/pipeline"]["get"]["responses"][200]>["data"];
+export type PipelineIssue = PipelineSnapshot["issues"][number];
+export type PipelineStage = PipelineIssue["stage"];
+export type PipelinePullRequest = PipelineIssue["pullRequests"][number];
+export type PipelineIssueShip = NonNullable<PipelineIssue["ship"]>;
+export type PipelineEnvironment = PipelineSnapshot["environments"]["staging"];
+export type PipelineShipRun = NonNullable<PipelineSnapshot["ship"]["run"]>;
+export type DeployBody = JsonRequest<
+  paths["/pipeline/issues/{number}/deploy-staging"]["post"]["requestBody"]
+>;
+export type DeployStagingResult = JsonBody<
+  paths["/pipeline/issues/{number}/deploy-staging"]["post"]["responses"][200]
+>["data"];
+export type ShipBody = JsonRequest<paths["/pipeline/ship"]["post"]["requestBody"]>;
+export type ShipRetryBody = JsonRequest<paths["/pipeline/ship/retry"]["post"]["requestBody"]>;
+export type ShipResult = JsonBody<paths["/pipeline/ship"]["post"]["responses"][200]>["data"];

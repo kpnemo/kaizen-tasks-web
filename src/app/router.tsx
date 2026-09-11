@@ -2,12 +2,13 @@ import { Navigate, Route, Routes } from "react-router";
 import { LoginPage } from "@/features/auth/LoginPage";
 import { RegisterPage } from "@/features/auth/RegisterPage";
 import { RequestFeaturePage } from "@/features/feature-request/RequestFeaturePage";
+import { PipelinePage } from "@/features/pipeline/PipelinePage";
 import { TagsPage } from "@/features/tags/TagsPage";
 import { TaskDetailPage } from "@/features/tasks/TaskDetailPage";
 import { TaskListPage } from "@/features/tasks/TaskListPage";
 import { useApplyTheme } from "@/features/theme/hooks";
 import { AppShell } from "./layout";
-import { NotFoundPage } from "./routes/NotFoundPage";
+import { NotFoundRoute } from "./routes/NotFoundRoute";
 import { PublicOnly } from "./routes/PublicOnly";
 import { RequireAuth } from "./routes/RequireAuth";
 
@@ -27,10 +28,12 @@ export function AppRoutes() {
           <Route path="/tasks/:id" element={<TaskDetailPage />} />
           <Route path="/tags" element={<TagsPage />} />
           <Route path="/request-feature" element={<RequestFeaturePage />} />
+          <Route path="/pipeline" element={<PipelinePage />} />
         </Route>
       </Route>
       <Route path="/" element={<Navigate to="/tasks" replace />} />
-      <Route path="*" element={<NotFoundPage />} />
+      {/* One catch-all for both audiences: it picks the shell or a bare frame by session (ADR 0009). */}
+      <Route path="*" element={<NotFoundRoute />} />
     </Routes>
   );
 }
