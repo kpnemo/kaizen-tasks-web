@@ -1,10 +1,20 @@
+import { CircleAlert, Gauge, Send, Sparkles } from "lucide-react";
 import { useState, type ChangeEvent } from "react";
 import { toApiError } from "@/api/errors";
-import type { FeatureRequestBody, FeatureRequestDraft, FeatureRequestResult } from "@/api/models";
+import type {
+  FeatureRequestBody,
+  FeatureRequestDraft,
+  FeatureRequestResult,
+  RubricScore,
+} from "@/api/models";
 import { toastApiError } from "@/components/api-error-toast";
 import { Field } from "@/components/field";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { useSubmitFeatureRequest } from "../hooks";
 
@@ -51,16 +61,17 @@ const FIELDS: {
 
 /** The five-field issue form. With `initialValues` it opens prefilled from the interview draft and
  *  posts `conversationId` alongside the fields, so the issue carries the self-score and the
- *  transcript (spec 2, "Review and file"). Every value stays editable. */
+ *  transcript (spec 2, "Review and file"). Every value stays editable. `score` is the interview's
+ *  rubric score, shown as two chips above the form when the draft came from the assistant. */
 export function FeatureRequestForm({
   initialValues,
   conversationId,
-  note,
+  score,
   onFiled,
 }: {
   initialValues?: FeatureRequestDraft;
   conversationId?: string;
-  note?: string;
+  score?: RubricScore | null;
   onFiled: (result: FeatureRequestResult) => void;
 }) {
   const submit = useSubmitFeatureRequest();
@@ -69,16 +80,29 @@ export function FeatureRequestForm({
   const fields = error?.fieldErrors() ?? {};
 
   return (
-    <div className="space-y-8">
-      <h1>Request a feature</h1>
-      <p className="max-w-prose text-muted-foreground">
-        The same five fields as the GitHub issue form. Clear requests with acceptance criteria get
-        implemented first.
-      </p>
-      {note ? <p className="font-semibold text-muted-foreground">{note}</p> : null}
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-4">
+        <h1>Request a feature</h1>
+        <p className="max-w-prose text-muted-foreground">
+          The same five fields as the GitHub issue form. Clear requests with acceptance criteria get
+          implemented first.
+        </p>
+        {score ? (
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="secondary">
+              <Sparkles aria-hidden="true" />
+              Refined with the assistant
+            </Badge>
+            <Badge variant="outline">
+              <Gauge aria-hidden="true" />
+              Readiness {score.readiness} of 20
+            </Badge>
+          </div>
+        ) : null}
+      </div>
       <form
         aria-label="Request a feature"
-        className="max-w-2xl space-y-6"
+        className="flex max-w-2xl flex-col gap-6"
         noValidate
         onSubmit={(event) => {
           event.preventDefault();
@@ -95,38 +119,47 @@ export function FeatureRequestForm({
           });
         }}
       >
-        {FIELDS.map((field) => {
-          const id = `fr-${field.key}`;
-          const shared = {
-            id,
-            value: values[field.key] ?? "",
-            "aria-invalid": Boolean(fields[field.key]),
-            "aria-describedby": fields[field.key] ? `${id}-error` : `${id}-hint`,
-            onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-              setValues((v) => ({ ...v, [field.key]: e.target.value })),
-          };
-          return (
-            <Field
-              key={field.key}
-              id={id}
-              label={field.label}
-              hint={field.hint}
-              error={fields[field.key]}
-            >
-              {field.multiline ? (
-                <Textarea rows={3} {...shared} />
-              ) : (
-                <Input maxLength={200} {...shared} />
-              )}
-            </Field>
-          );
-        })}
+        <FieldGroup>
+          {FIELDS.map((field) => {
+            const id = `fr-${field.key}`;
+            const shared = {
+              id,
+              value: values[field.key] ?? "",
+              "aria-invalid": Boolean(fields[field.key]),
+              onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+                setValues((v) => ({ ...v, [field.key]: e.target.value })),
+            };
+            return (
+              <Field
+                key={field.key}
+                id={id}
+                label={field.label}
+                hint={field.hint}
+                error={fields[field.key]}
+              >
+                {field.multiline ? (
+                  <Textarea rows={3} {...shared} />
+                ) : (
+                  <Input maxLength={200} {...shared} />
+                )}
+              </Field>
+            );
+          })}
+        </FieldGroup>
         {error && error.code !== "VALIDATION_ERROR" ? (
-          <p className="text-muted-foreground">
-            Nothing was filed. Fix the problem above and send again.
-          </p>
+          // The toast fades; this stays until the next attempt, with the API's own words.
+          <Alert variant="destructive" className="text-base">
+            <CircleAlert aria-hidden="true" />
+            <AlertTitle>Nothing was filed</AlertTitle>
+            <AlertDescription className="text-base">{error.message}</AlertDescription>
+          </Alert>
         ) : null}
-        <Button type="submit" className="min-h-11 h-auto" disabled={submit.isPending}>
+        <Button type="submit" className="self-start" disabled={submit.isPending}>
+          {submit.isPending ? (
+            <Spinner data-icon="inline-start" aria-hidden="true" />
+          ) : (
+            <Send data-icon="inline-start" aria-hidden="true" />
+          )}
           Send request
         </Button>
       </form>
