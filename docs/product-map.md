@@ -92,7 +92,7 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 
 ### Unreleased
 
-- nothing yet
+- **Added** — The shadcn primitives the UI rework composes from, added with the CLI (`npx shadcn@latest add`): `alert`, `empty`, `spinner`, `skeleton`, `progress`, `table`, `collapsible`, `radio-group`, `scroll-ar…
 
 ### 1.4.0 — 2026-09-11
 

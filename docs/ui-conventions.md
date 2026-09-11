@@ -24,8 +24,10 @@ hand-written pieces that predate this rule.
 
 ## Use the primitives that exist
 
-`src/components/ui/` holds the shadcn primitives this app has: `alert-dialog`, `badge`, `button`,
-`card`, `checkbox`, `dropdown-menu`, `input`, `label`, `popover`, `separator`, `sonner`, `textarea`.
+`src/components/ui/` holds the shadcn primitives this app has: `alert`, `alert-dialog`, `badge`,
+`button`, `card`, `checkbox`, `collapsible`, `dropdown-menu`, `empty`, `field`, `input`, `label`,
+`popover`, `progress`, `radio-group`, `scroll-area`, `separator`, `skeleton`, `sonner`, `spinner`,
+`table`, `textarea`.
 Reach for one of these before a native element or a new dependency. Hand-written shared pieces sit
 one level up in `src/components/` (`field`, `inline-text`, `native-select`, `tag-chip`,
 `kaizen-mark`). Add a primitive only when nothing there composes into what the request asks for, and

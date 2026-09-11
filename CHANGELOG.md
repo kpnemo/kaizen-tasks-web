@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- The shadcn primitives the UI rework composes from, added with the CLI (`npx shadcn@latest add`): `alert`, `empty`, `spinner`, `skeleton`, `progress`, `table`, `collapsible`, `radio-group`, `scroll-area` and `field` under `src/components/ui/`, listed in `docs/ui-conventions.md`. `Badge` moves its base scale to `text-base` with `size-4` icons, so every chip in the app clears the projector's 18px floor with no call-site size props.
+
 ## [1.4.0] - 2026-09-11
 
 ### Added
