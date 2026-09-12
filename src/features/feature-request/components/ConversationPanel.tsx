@@ -1,4 +1,4 @@
-import { RotateCcw, SendHorizontal, SkipForward, Sparkles } from "lucide-react";
+import { Flag, RotateCcw, SendHorizontal, SkipForward, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { Conversation } from "@/api/models";
 import { Field } from "@/components/field";
@@ -47,7 +47,8 @@ function Bubble({
 }
 
 /** The chat half of the interview (spec 2 and 4.1): the transcript, the streaming reply, the
- *  option chips, the skip chip, and the answer box. Every chip and button is a real button whose
+ *  option chips (the recommended one first, badged), the skip and finish chips, and the answer
+ *  box. Every chip and button is a real button whose
  *  visible text is its accessible name (spec 4.4). The transcript scrolls inside the card and
  *  follows the newest turn, so the chips and the answer box never leave the fold. */
 export function ConversationPanel({ conversation }: { conversation: Conversation }) {
@@ -60,6 +61,14 @@ export function ConversationPanel({ conversation }: { conversation: Conversation
   const options = last?.role === "assistant" ? (last.options ?? []) : [];
   const closed = conversation.status !== "open";
   const busy = turn.isStreaming || start.isPending;
+  // The model's own pick leads the row, so the fastest answer is the first one the room reads.
+  const recommended = last?.role === "assistant" ? last.recommended : undefined;
+  const ordered =
+    recommended && options.includes(recommended)
+      ? [recommended, ...options.filter((option) => option !== recommended)]
+      : options;
+  // Nothing to finish with until at least one question has been asked and answered against.
+  const canFinish = !closed && !busy && conversation.questionCount >= 1;
 
   // Keep the newest turn in view as the transcript grows or a reply streams in. Scrolling the
   // viewport itself, not scrollIntoView, so the page around the card never moves.
@@ -68,14 +77,20 @@ export function ConversationPanel({ conversation }: { conversation: Conversation
     if (viewport) viewport.scrollTop = viewport.scrollHeight;
   }, [conversation.messages.length, turn.pendingMessage, turn.streamingText, turn.isStreaming]);
 
-  function send(content: string, skip = false) {
+  function send(content: string, flags: { skip?: boolean; finish?: boolean } = {}) {
     const text = content.trim();
     if (text === "" || busy || closed) return;
     setAnswer("");
     turn.send(
-      { id: conversation.id, content: text, skip: skip ? true : undefined },
+      {
+        id: conversation.id,
+        content: text,
+        skip: flags.skip ? true : undefined,
+        finish: flags.finish ? true : undefined,
+      },
       // Nothing was persisted, so put the PM's own words back in the box: Send resends them.
-      { onError: () => setAnswer(skip ? "" : text) },
+      // A chip's text was never the PM's, so the box stays empty.
+      { onError: () => setAnswer(flags.skip || flags.finish ? "" : text) },
     );
   }
 
@@ -129,26 +144,47 @@ export function ConversationPanel({ conversation }: { conversation: Conversation
       </CardContent>
 
       <CardFooter className="flex-col items-stretch gap-4">
-        {!closed && !busy && options.length > 0 ? (
+        {!closed && !busy && ordered.length > 0 ? (
           <div className="flex min-w-0 flex-wrap gap-2">
-            {options.map((option) => (
-              <Button
-                key={option}
-                variant="outline"
-                className={CHIP_WRAPS}
-                onClick={() => send(option)}
-              >
-                {option}
-              </Button>
-            ))}
+            {ordered.map((option) => {
+              const isRecommended = option === recommended;
+              return (
+                <Button
+                  key={option}
+                  variant="outline"
+                  className={cn(CHIP_WRAPS, isRecommended && "border-primary")}
+                  data-recommended={isRecommended ? "true" : undefined}
+                  onClick={() => send(option)}
+                >
+                  {option}
+                  {/* aria-hidden, so the chip's accessible name stays the option text the smoke
+                      selector contract drives it by. */}
+                  {isRecommended ? (
+                    <Badge variant="secondary" aria-hidden="true">
+                      Recommended
+                    </Badge>
+                  ) : null}
+                </Button>
+              );
+            })}
             <Button
               variant="outline"
               className={CHIP_WRAPS}
-              onClick={() => send("(skipped)", true)}
+              onClick={() => send("(skipped)", { skip: true })}
             >
               <SkipForward data-icon="inline-start" aria-hidden="true" />
               Skip this question
             </Button>
+            {canFinish ? (
+              <Button
+                variant="outline"
+                className={CHIP_WRAPS}
+                onClick={() => send("Finish with what we have", { finish: true })}
+              >
+                <Flag data-icon="inline-start" aria-hidden="true" />
+                Finish with what we have
+              </Button>
+            ) : null}
           </div>
         ) : null}
 

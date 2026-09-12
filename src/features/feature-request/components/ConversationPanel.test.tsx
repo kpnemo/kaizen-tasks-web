@@ -1,5 +1,5 @@
 import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http } from "msw";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -196,6 +196,7 @@ describe("ConversationPanel", () => {
     await screen.findByText(GREETING);
     expect(screen.getByRole("textbox", { name: "Your answer" })).toBeDisabled();
     expect(screen.queryByRole("button", { name: "Skip this question" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Finish with what we have" })).toBeNull();
     expect(screen.getByRole("button", { name: "Start over" })).toBeEnabled();
   });
 
@@ -209,6 +210,67 @@ describe("ConversationPanel", () => {
       expect(typeof started?.id).toBe("string");
       expect(started?.id).not.toBe(before.id);
     });
+  });
+
+  it("shows the recommended chip first with a badge, and keeps its name as the option text", async () => {
+    db.openConversation({
+      questionCount: 1,
+      messages: [
+        {
+          id: "m-1",
+          role: "assistant",
+          content: "Who has this problem?",
+          at: "2026-09-01T09:00:00.000Z",
+          options: ["An agent during a call", "A team supervisor before a coaching session"],
+          recommended: "A team supervisor before a coaching session",
+        },
+      ],
+    });
+    renderPanel();
+    const chips = await screen.findAllByRole("button", {
+      name: /agent during a call|team supervisor/,
+    });
+    // The badge is aria-hidden, so the chip's accessible name stays the option text the smoke
+    // selector contract drives it by.
+    expect(chips[0]).toHaveAccessibleName("A team supervisor before a coaching session");
+    expect(chips[0]).toHaveAttribute("data-recommended", "true");
+    expect(chips[0]).toHaveTextContent("Recommended");
+    expect(chips[1]).not.toHaveTextContent("Recommended");
+  });
+
+  it("shows Finish with what we have once a question is pending and posts finish: true", async () => {
+    const bodies: unknown[] = [];
+    server.use(
+      http.post(`${API}/feature-requests/conversation/:id/messages`, async ({ request }) => {
+        bodies.push(await request.json());
+        return err("UPSTREAM_ERROR", "stop here");
+      }),
+    );
+
+    // Nothing has been asked yet: there is nothing to finish with.
+    db.openConversation();
+    renderPanel();
+    await screen.findByText(GREETING);
+    expect(screen.queryByRole("button", { name: "Finish with what we have" })).toBeNull();
+    cleanup();
+
+    db.openConversation({
+      questionCount: 1,
+      messages: [
+        {
+          id: "m-1",
+          role: "assistant",
+          content: "Who?",
+          at: "2026-09-01T09:00:00.000Z",
+          options: ["A"],
+          recommended: "A",
+        },
+      ],
+    });
+    const { user } = renderPanel();
+    await user.click(await screen.findByRole("button", { name: "Finish with what we have" }));
+    await waitFor(() => expect(bodies).toHaveLength(1));
+    expect(bodies[0]).toEqual({ content: "Finish with what we have", finish: true });
   });
 
   it("lets a long chip wrap instead of forcing a horizontal scrollbar, and shows the skip as a real button", async () => {
