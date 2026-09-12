@@ -97,7 +97,11 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 
 ### Unreleased
 
-- **Changed** — Interview: the recommended answer is the first chip with a badge; "Finish with what we have" ends the interview early (#31, ADR 0011).
+- nothing yet
+
+### 1.7.0 — 2026-09-12
+
+- **Changed** — Interview: the recommended answer is the first chip with a badge; "Finish with what we have" ends t…
 
 ### 1.6.0 — 2026-09-11
 
@@ -106,10 +110,6 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 ### 1.5.0 — 2026-09-11
 
 - **Added** — `/pipeline`, the workshop's control room, linked from the header as "Pipeline" while the API's heal…
-
-### 1.4.0 — 2026-09-11
-
-- **Added** — The shadcn skill (`.claude/skills/shadcn/`, installed from shadcn/ui, tracked by `skills-lock.json`…
 
 ## Decisions (`docs/adr/*.md`)
 
