@@ -221,6 +221,23 @@ describe("conversation hooks", () => {
     expect(cached?.messages.at(-2)?.content).toBe("(skipped)");
   });
 
+  it("sends finish: true and shows the finish label as the pending message", async () => {
+    const bodies: unknown[] = [];
+    server.use(
+      http.post(`${API}/feature-requests/conversation/:id/messages`, async ({ request }) => {
+        bodies.push(await request.json());
+        return err("UPSTREAM_ERROR", "stop here");
+      }),
+    );
+    const { result } = renderHook(() => useSendTurn(), { wrapper: wrap(makeQueryClient()) });
+    act(() =>
+      result.current.send({ id: "c-1", content: "Finish with what we have", finish: true }),
+    );
+    await waitFor(() => expect(bodies).toHaveLength(1));
+    expect(bodies[0]).toEqual({ content: "Finish with what we have", finish: true });
+    expect(result.current.pendingMessage).toBe("Finish with what we have");
+  });
+
   it("abandons the turn on unmount: no cache write and no toast", async () => {
     const conversation = db.openConversation();
     const release = gatedTurn(answeredFrom(conversation));

@@ -305,7 +305,10 @@ export const conversationHandlers = [
         return err("CONFLICT", "This conversation is already closed");
       }
       const body = (await request.json()) as ConversationTurnBody;
-      const turn = db.advanceTurn(body.content, body.skip === true);
+      const turn = db.advanceTurn(body.content, {
+        skip: body.skip === true,
+        finish: body.finish === true,
+      });
       const events: ConversationEvent[] = [
         ...turn.deltas.map((text) => ({ event: "delta" as const, data: { text } })),
         { event: "state", data: { conversation: turn.conversation } },

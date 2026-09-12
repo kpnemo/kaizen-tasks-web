@@ -74,7 +74,12 @@ export function useStartConversation() {
   });
 }
 
-export type SendTurnVariables = { id: string; content: string; skip?: boolean };
+export type SendTurnVariables = {
+  id: string;
+  content: string;
+  skip?: boolean;
+  finish?: boolean;
+};
 
 /** One PM answer. The route answers `text/event-stream`, so the request is made with
  *  `parseAs: "stream"` and the body is decoded by `readConversationStream` (ADR 0005).
@@ -98,14 +103,14 @@ export function useSendTurn() {
   );
 
   const mutation = useMutation<Conversation, Error, SendTurnVariables>({
-    mutationFn: async ({ id, content, skip }) => {
+    mutationFn: async ({ id, content, skip, finish }) => {
       const controller = new AbortController();
       abortRef.current = controller;
       setStreamingText("");
       try {
         const result = await client.POST("/feature-requests/conversation/{id}/messages", {
           params: { path: { id } },
-          body: { content, skip },
+          body: { content, skip, finish },
           parseAs: "stream",
           signal: controller.signal,
         });
@@ -173,7 +178,13 @@ export function useSendTurn() {
     reset: mutation.reset,
     isStreaming: mutation.isPending,
     streamingText,
-    pendingMessage: local ? (local.skip ? "(skipped)" : local.content) : null,
+    pendingMessage: local
+      ? local.finish
+        ? "Finish with what we have"
+        : local.skip
+          ? "(skipped)"
+          : local.content
+      : null,
   };
 }
 

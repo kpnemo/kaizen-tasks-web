@@ -75,7 +75,12 @@ export const C_OPEN = "c-1";
 
 /** The scripted interview the API's fake adapter serves (spec 3.4), so the web tests exercise the
  *  same four turns staging serves with AI_MODEL_PROVIDER=fake. */
-const TURNS: { reply: string; options: string[]; draft: Partial<FeatureRequestDraft> }[] = [
+const TURNS: {
+  reply: string;
+  options: string[];
+  recommended: string;
+  draft: Partial<FeatureRequestDraft>;
+}[] = [
   {
     reply: "Got it. Who has this problem, and when does it come up?",
     options: [
@@ -83,6 +88,7 @@ const TURNS: { reply: string; options: string[]; draft: Partial<FeatureRequestDr
       "An agent during a call",
       "A workforce planner on Monday",
     ],
+    recommended: "A team supervisor before a coaching session",
     draft: { title: "Snooze a task until a date" },
   },
   {
@@ -92,6 +98,7 @@ const TURNS: { reply: string; options: string[]; draft: Partial<FeatureRequestDr
       "A filter that hides snoozed tasks",
       "A date picker in the row",
     ],
+    recommended: "A snooze control on each task",
     draft: { problem: "Tasks I cannot act on yet clutter the list." },
   },
   {
@@ -101,6 +108,7 @@ const TURNS: { reply: string; options: string[]; draft: Partial<FeatureRequestDr
       "It reappears on the chosen date",
       "The header count drops",
     ],
+    recommended: "A snoozed task leaves the list",
     draft: { proposedBehavior: "A snooze button hides the task until a date." },
   },
 ];
@@ -256,20 +264,32 @@ export const db = {
     this.conversation = conversation;
     return conversation;
   },
-  /** One turn of the scripted interview; returns the deltas to stream and the persisted state. */
-  advanceTurn(content: string, skip: boolean): { deltas: string[]; conversation: Conversation } {
+  /** One turn of the scripted interview; returns the deltas to stream and the persisted state.
+   *  A finishing turn records the PM's own words and answers with the ready branch, asking nothing
+   *  more, so `questionCount` stays where it was. */
+  advanceTurn(
+    content: string,
+    flags: { skip: boolean; finish: boolean },
+  ): { deltas: string[]; conversation: Conversation } {
     const current = this.conversation;
     if (!current) throw new Error("advanceTurn: no conversation");
     const asked: ConversationMessage[] = [
       ...current.messages,
-      makeMessage({
-        id: nextId("m"),
-        role: "user",
-        content: skip ? "(skipped)" : content,
-        skipped: skip,
-      }),
+      flags.finish
+        ? makeMessage({
+            id: nextId("m"),
+            role: "user",
+            content: "Finish with what we have",
+            finished: true,
+          })
+        : makeMessage({
+            id: nextId("m"),
+            role: "user",
+            content: flags.skip ? "(skipped)" : content,
+            skipped: flags.skip,
+          }),
     ];
-    const step = TURNS[current.questionCount];
+    const step = flags.finish ? undefined : TURNS[current.questionCount];
     const now = new Date().toISOString();
     const conversation: Conversation = step
       ? {
@@ -281,6 +301,7 @@ export const db = {
               role: "assistant",
               content: step.reply,
               options: step.options,
+              recommended: step.recommended,
             }),
           ],
           draft: { ...current.draft, ...step.draft },
