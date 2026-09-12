@@ -20,7 +20,9 @@ describe("models derived from the contract", () => {
   it("match the API spec shapes", () => {
     expectTypeOf<TaskStatus>().toEqualTypeOf<"todo" | "in_progress" | "done">();
     expectTypeOf<AiStatus>().toEqualTypeOf<"pending" | "running" | "done" | "failed" | "skipped">();
-    expectTypeOf<AiSkipReason>().toEqualTypeOf<"too_short" | "rate_limited" | "ai_disabled">();
+    expectTypeOf<AiSkipReason>().toEqualTypeOf<
+      "too_short" | "rate_limited" | "ai_disabled" | "no_steps_needed"
+    >();
     expectTypeOf<SuggestionState>().toEqualTypeOf<"suggested" | "accepted" | "dismissed">();
     expectTypeOf<TaskDetail>().toExtend<TaskSummary>();
     expectTypeOf<TaskDetail["children"]>().toEqualTypeOf<TaskSummary[]>();

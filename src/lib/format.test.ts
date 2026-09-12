@@ -6,6 +6,7 @@ describe("format", () => {
     expect(skipReasonLabel("too_short")).toBe("Too short to break down");
     expect(skipReasonLabel("rate_limited")).toBe("Hourly limit reached");
     expect(skipReasonLabel("ai_disabled")).toBe("Assistant paused");
+    expect(skipReasonLabel("no_steps_needed")).toBe("Small enough to do as is");
     expect(skipReasonLabel(null)).toBe("Skipped");
   });
 

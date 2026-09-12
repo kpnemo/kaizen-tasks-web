@@ -17,6 +17,7 @@ export const TAG_HOME = "tag-2";
 export const T_SUGGESTED = "t-1";
 export const T_SKIPPED = "t-2";
 export const T_FAILED = "t-3";
+export const T_NO_STEPS = "t-4";
 
 let counter = 100;
 export function nextId(prefix: string): string {
@@ -190,6 +191,12 @@ function seed(): { rows: Row[]; tags: Tag[] } {
       aiStatus: "skipped",
       aiSkipReason: "too_short",
       tags: [home],
+    }),
+    makeTask({
+      id: T_NO_STEPS,
+      title: "Water the office plants",
+      aiStatus: "skipped",
+      aiSkipReason: "no_steps_needed",
     }),
     makeTask({
       id: T_FAILED,
