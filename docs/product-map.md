@@ -97,7 +97,7 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 
 ### Unreleased
 
-- nothing yet
+- **Changed** — Interview: the recommended answer is the first chip with a badge; "Finish with what we have" ends the interview early (#31, ADR 0011).
 
 ### 1.6.0 — 2026-09-11
 
@@ -123,3 +123,4 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 - [ADR 0008: The requests list is read through the typed client, never from GitHub in the browser](adr/0008-feature-request-list-read-through-the-typed-client.md)
 - [ADR 0009: One catch-all route picks the 404's frame by session](adr/0009-not-found-frame-by-session.md)
 - [ADR 0010: The pipeline page reads and drives the pipeline only through the typed client](adr/0010-pipeline-read-and-driven-through-the-typed-client.md)
+- [ADR 0011: Contract pull for the recommended answer and the finish turn](adr/0011-contract-pull-recommended-answer-and-finish.md)
