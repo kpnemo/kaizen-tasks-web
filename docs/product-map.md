@@ -3,7 +3,7 @@
 The generated part below the marker matches this checkout; the header is prose reviewed by a person.
 
 Kaizen Tasks is a personal task manager for one signed-in person: they write a task, an AI assistant
-breaks it into three to seven steps, and they accept, edit or dismiss each one; nothing the assistant
+breaks it into as many steps as it needs, none to fifty, and they accept, edit or dismiss each one; nothing the assistant
 proposes counts as work until a person says yes. Tags are user-scoped; the list filters by status and tag.
 
 This repo is the web half: Vite, React 19, TypeScript, Tailwind, shadcn/ui, TanStack Query and
@@ -97,7 +97,7 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 
 ### Unreleased
 
-- nothing yet
+- **Changed** — The assistant's breakdown is sized to the task, none to fifty steps; a task judged small enough shows the skipped banner with "Small enough to do as is" (#34).
 
 ### 1.7.0 — 2026-09-12
 
@@ -124,3 +124,4 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 - [ADR 0009: One catch-all route picks the 404's frame by session](adr/0009-not-found-frame-by-session.md)
 - [ADR 0010: The pipeline page reads and drives the pipeline only through the typed client](adr/0010-pipeline-read-and-driven-through-the-typed-client.md)
 - [ADR 0011: Contract pull for the recommended answer and the finish turn](adr/0011-contract-pull-recommended-answer-and-finish.md)
+- [ADR 0012: Contract pull for the sized breakdown and the no_steps_needed skip reason](adr/0012-contract-pull-no-steps-needed.md)
