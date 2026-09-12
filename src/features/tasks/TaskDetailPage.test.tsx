@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { http } from "msw";
 import { describe, expect, it } from "vitest";
-import { db, T_SUGGESTED } from "../../../tests/msw/db";
+import { db, makeStep, T_NO_STEPS, T_SUGGESTED } from "../../../tests/msw/db";
 import { API, err, ok } from "../../../tests/msw/handlers";
 import { server } from "../../../tests/msw/server";
 import { renderApp } from "../../../tests/render";
@@ -223,5 +223,31 @@ describe("task detail", () => {
     expect(back).toHaveAttribute("data-slot", "button");
     // A Button-styled anchor gets the 44px hit area only through the globals.css `a[data-nav]` rule.
     expect(back).toHaveAttribute("data-nav");
+  });
+
+  it("shows the skipped banner with Small enough to do as is when the assistant needed no steps", async () => {
+    renderApp({ route: `/tasks/${T_NO_STEPS}` });
+    const banner = await screen.findByRole("status", { name: "Assistant" });
+    expect(within(banner).getByText("The assistant skipped this task")).toBeInTheDocument();
+    expect(within(banner).getByText("Small enough to do as is")).toBeInTheDocument();
+    expect(screen.getByText("No steps yet.")).toBeInTheDocument();
+  });
+
+  it("renders sixty suggested steps without a cap", async () => {
+    const parent = db.find(T_SUGGESTED)!;
+    db.rows.push(
+      ...Array.from({ length: 60 }, (_, i) =>
+        makeStep({
+          id: `big-${i}`,
+          parentId: parent.id,
+          title: `Big step ${i + 1}`,
+          origin: "ai",
+          suggestionState: "suggested",
+        }),
+      ),
+    );
+    renderApp({ route });
+    await screen.findByRole("listitem", { name: "Big step 60" });
+    expect(screen.getAllByRole("listitem", { name: /Big step/ })).toHaveLength(60);
   });
 });

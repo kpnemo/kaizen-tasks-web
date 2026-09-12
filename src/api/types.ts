@@ -2150,7 +2150,7 @@ export interface components {
         /** @enum {string} */
         AiStatus: "pending" | "running" | "done" | "failed" | "skipped";
         /** @enum {string|null} */
-        AiSkipReason: "too_short" | "rate_limited" | "ai_disabled" | null;
+        AiSkipReason: "too_short" | "rate_limited" | "ai_disabled" | "no_steps_needed" | null;
         /** @enum {string} */
         TaskOrigin: "user" | "ai";
         /** @enum {string|null} */

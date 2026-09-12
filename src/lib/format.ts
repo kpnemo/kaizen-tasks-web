@@ -4,6 +4,7 @@ const SKIP_LABELS: Record<AiSkipReason, string> = {
   too_short: "Too short to break down",
   rate_limited: "Hourly limit reached",
   ai_disabled: "Assistant paused",
+  no_steps_needed: "Small enough to do as is",
 };
 
 /** The skip reason in words (spec 4.3). */
