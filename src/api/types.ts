@@ -2238,6 +2238,8 @@ export interface components {
             /** Format: date-time */
             at: string;
             options?: string[];
+            recommended?: string;
+            finished?: boolean;
             skipped?: boolean;
         };
         FeatureRequestDraft: {
@@ -2307,6 +2309,7 @@ export interface components {
         ConversationTurnBody: {
             content: string;
             skip?: boolean;
+            finish?: boolean;
         };
         PipelineSnapshot: {
             /** Format: date-time */
