@@ -97,7 +97,11 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 
 ### Unreleased
 
-- **Changed** — The assistant's breakdown is sized to the task, none to fifty steps; a task judged small enough shows the skipped banner with "Small enough to do as is" (#34).
+- nothing yet
+
+### 1.8.0 — 2026-09-12
+
+- **Changed** — The assistant's breakdown is sized to the task, none to fifty steps; a task judged small enough sho…
 
 ### 1.7.0 — 2026-09-12
 
@@ -106,10 +110,6 @@ Reviewed: 2026-09-10 against ../docs/PRD.md sections 3, 5.1-5.5, 6.3.
 ### 1.6.0 — 2026-09-11
 
 - **Changed** — The header's theme control is a single icon-only button that cycles light, dark, then system on eac…
-
-### 1.5.0 — 2026-09-11
-
-- **Added** — `/pipeline`, the workshop's control room, linked from the header as "Pipeline" while the API's heal…
 
 ## Decisions (`docs/adr/*.md`)
 
